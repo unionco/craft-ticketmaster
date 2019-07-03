@@ -1,0 +1,72 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{# {% do view.registerAssetBundle("unionco\\ticketmaster\\assetbundles\\ticketmaster\\TicketmasterAsset") %} #}
+
+{% set title = venue.title ?: "New Venue"|t('ticketmaster') %}
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = 'ticketmaster/' ~ venue.cpEditUrl %}
+{% set selectedSubnavItem = 'venues' %}
+{% set key = craft.app.getModule('ticketmaster').getSettings().getConsumerKey %}
+{% set venueSearchField = craft.ticketmaster.createField("unionco\\ticketmaster\\fields\\VenueSearch", { 
+    handle: 'venuesearch',
+    key: craft.app.getModule('ticketmaster').getSettings().getConsumerKey 
+}) %}
+
+{% block content %}
+    <input type="hidden" name="action" value="ticketmaster/venue/save">
+    <input type="hidden" name="siteId" value="{{ currentSite.id }}">
+    {{ redirectInput('ticketmaster/venues') }}
+    {% if venue.id %}<input type="hidden" name="venueId" value="{{ venue.id }}">{% endif %}
+
+    <div class="fields">
+        {% include "_includes/forms/field" with {
+            label: 'Venue Search'|t('ticketmaster'),
+            id: 'venueSearch',
+            input: venueSearchField.getInputHtml(venue.title, venue),
+            fieldType: className(venueSearchField),
+            first: true,
+            autofocus: true
+        } only %}
+
+        {{ forms.textField({
+            label: 'Title',
+            value: venue.title ?? '',
+            name: 'title',
+            required: true,
+        }) }}
+
+        <div>
+            {% for tab in tabs %}
+                <div id="tab-{{ tab.label|kebab }}" {% if not loop.first %} class="hidden"{% endif %}>
+                    {% include 'ticketmaster/venue/tabs/' ~ tab.label|kebab with { venue: venue } %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% js %}
+    new Vue({ 
+        el: '#ticketmaster-container',
+
+        data() {
+            var venue = JSON.parse('{{ venue.__toJson }}'.replace(/&quot;/g,'"'));
+            var data = {
+                venue,
+                isNew: {{ isNew ? 1 : 0 }},
+                apikey: '{{ key }}'
+            };
+            return data;
+        } 
+    });
+{% endjs %}
+
+{% css %}
+    
+    #ticketmaster-container,
+    #ticketmaster-container > div {
+        padding-bottom: 0 !important;
+        height: 100%;
+    }
+{% endcss %}

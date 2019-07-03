@@ -1,0 +1,192 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Ticketmaster plugin for Craft CMS 3.x
+ *
+ * Ticketmaster Settings.twig
+ *
+ * @author    Union
+ * @copyright Copyright (c) 2019 Union
+ * @link      https://github.com/unionco
+ * @package   Ticketmaster
+ * @since     1.0.0
+ */
+#}
+
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("craft\\web\\assets\\vue\\VueAsset") %}
+
+{{ forms.autosuggestField({
+    label: 'Consumer Key'|t('ticketmaster'),
+    instructions: 'To get your consumer key please visit <a target="_blank" href="https://developer.ticketmaster.com/">https://developer.ticketmaster.com/</a>'|t('ticketmaster'),
+    id: 'consumerKey',
+    name: 'consumerKey',
+    class: 'ltr',
+    suggestEnvVars: true,
+    suggestAliases: true,
+    value: settings['consumerKey']})
+}}
+
+{{ forms.autosuggestField({
+    label: 'Consumer Secret'|t('ticketmaster'),
+    instructions: 'To get your consumer secret please visit <a target="_blank" href="https://developer.ticketmaster.com/">https://developer.ticketmaster.com/</a>'|t('ticketmaster'),
+    id: 'consumerSecret',
+    class: 'ltr',
+    name: 'consumerSecret',
+    suggestEnvVars: true,
+    suggestAliases: true,
+    value: settings['consumerSecret']})
+}}
+
+<div class="section-map">
+    <div class="field">
+        <div class="heading">
+            <label id="settings-section-label" class="required" for="section">
+                Section
+            </label>
+            <div class="instructions"><p>{{ 'Section to map the ticketmaster events when published'|t('ticketmaster') }}</p></div>
+        </div>
+        <div class="select ltr">
+            {% verbatim %}
+                <select id="section" name="section" v-model="selected">
+                    <option v-for="option in options" v-bind:value="option.value">
+                        {{ option.label }}
+                    </option>
+                </select>
+            {% endverbatim %}
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="heading">
+            <label id="settings-sectionEntryType-label" class="required" for="sectionEntryType">
+                Entry Type
+            </label>
+            <div class="instructions"><p>{{ 'sectionEntryType to map the ticketmaster events when published'|t('ticketmaster') }}</p></div>
+        </div>
+        <div class="select ltr">
+            {% verbatim %}
+                <select id="sectionEntryType" name="sectionEntryType" v-model="entryType">
+                    <option v-for="option in entryTypes" v-bind:value="option.value">
+                        {{ option.label }}
+                    </option>
+                </select>
+            {% endverbatim %}
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="heading">
+            <label id="settings-apiFields-label" class="required" for="settings-apiFields">
+                {{ 'Ticketmaster Api Fields'|t('ticketmaster') }}
+            </label>
+        </div>
+        <div class="input ltr">
+            {% verbatim %}
+            <table class="shadow-box editable">
+                <thead>
+                    <tr>
+                        <th scope="col" class="">Ticketmaster<span class="info"><p>The field received from the ticketmaster api</p></span></th>
+                        <th scope="col" class=""></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(row, index) in apiFields" v-bind:key="index">
+                        <td class="textual">
+                            <div class="field">
+                                <div class="select ltr" style="width: 100%;">
+                                    <select :name="'settings[apiFields]['+ index +'][field]'" v-model="row.field" style="width: 100%;">
+                                        <option v-for="option in availableFields" v-bind:value="option.handle">
+                                            {{ option.name }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="thin action">
+                            <a @click="deleteRow(index)" class="delete icon" title="Delete"></a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="btn add icon" tabindex="0" style="opacity: 1; pointer-events: auto;" @click="addRow">Add a row</div>
+            {% endverbatim %}
+        </div>
+    </div>
+</div>
+
+{% js %}
+new Vue({
+    el: document.querySelector('.section-map'),
+
+    data() {
+        {% block data %}
+        var data = {{ {
+            selected: settings.section,
+            entryType: settings.sectionEntryType,
+            options: craft.ticketmaster.getSectionSelect,
+            entryTypes: [],
+            apiFields: settings.apiFields,
+            fields: [],
+            availableFields: craft.ticketmaster.getApiFields
+        }|json_encode|raw }};
+        {% endblock %}
+        return data;
+    },
+
+    watch: {
+        selected: function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                this.getEntryTypes(newValue);
+            }
+        }
+    },
+
+    mounted() {
+        this.getEntryTypes();
+    },
+
+    methods: {        
+        getEntryTypes(section) {
+            if (!section) {
+                section = this.selected ? this.selected : this.options[0].value;
+            }
+            
+            Craft.postActionRequest('ticketmaster/settings/get-entry-types', { uid: section }, function (response) {
+                if (response.success) {
+                    this.entryTypes = response.types;
+                    this.entryType = response.types[0].value;
+                    this.getFieldLayout();
+                }
+            }.bind(this));
+        },
+
+        getFieldLayout() {
+            var entryType = this.entryType;
+
+            Craft.postActionRequest('ticketmaster/settings/get-field-layout', {  entryType: entryType }, function (response) {
+                if (response.success) {
+                    this.fields = response.fields;
+                }
+            }.bind(this));
+        },
+
+        addRow() {
+            this.apiFields.push({ field: '' });
+        },
+
+        deleteRow(index) {
+            console.log(index, this.apiFields);
+            this.apiFields.splice(index, 1);
+        }
+    }
+})
+{% endjs %}
+
+{% css %}
+    .shadow-box .field > .select,
+    .shadow-box .field > .select select {
+        box-shadow: none !important;
+    }
+{% endcss %}

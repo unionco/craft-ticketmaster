@@ -1,0 +1,76 @@
+{% extends '_layouts/elementindex' %}
+
+{% set title = title %}
+{% set elementType = elementType %}
+{% set selectedSubnavItem = subNav %}
+{% set context = 'index' %}
+
+{% block actionButton %}
+    {% if elementType == "unionco\\ticketmaster\\elements\\Venue" %}
+        <a href="venues/new" class="btn submit add icon" title="{{ 'New Venue'|t('ticketmaster') }}">{{ 'New Venue'|t('ticketmaster') }}</a>
+    {% endif %}
+    {% if elementType == "unionco\\ticketmaster\\elements\\Event" %}
+        {% set venues = craft.ticketmaster.venues.all %}
+        <div class="btngroup">
+            <input class="btn" value="{{ 'Fetch'|t('ticketmaster') }}">
+
+            <div class="btn menubtn"></div>
+            <div class="menu">
+                <ul>
+                    {% for venue in venues %}
+                        <li>
+                            <a data-fetch-events="{{ venue.id }}" class="formsubmit" href="#{{ venue.id }}">{{ venue.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+
+{% block initJs %}
+    Craft.elementIndex = Craft.createElementIndex('{{ elementType|e("js") }}', $('#main'), {
+        context:        '{{ context }}',
+        storageKey:     'elementindex.{{ elementType|e("js") }}',
+        criteria:       Craft.defaultIndexCriteria,
+    });
+    Craft.elementIndex.on('selectSource', function() {
+        console.log('selectSource')
+    });
+
+    $('[data-fetch-events]').each(function () {
+        var spinner = $('.toolbar .spinner');
+
+        $(this).on('click', function() {
+            var venueId = $(this).attr('data-fetch-events');
+            $.ajax({
+                method: "POST",
+                dataType: 'json',
+                url: '/admin/actions/ticketmaster/event/store-events',
+                data: {
+                    venueId: venueId
+                },
+                beforeSend: function() {
+                    spinner.removeClass('invisible');
+                },
+                success: function (response, textStatus) {
+                    if (response.success) {
+                        // trigger refresh
+                        var sel = $('[data-key="'+ venueId +'"]');
+                        Craft.elementIndex.selectSource(sel);
+                        Craft.elementIndex.updateElements();
+                    }
+                },
+                error: function (xhr, error, textStatus) {
+                    console.log(xhr, error, textStatus);
+                },
+                done: function() {
+                    spinner.addClass('invisible');
+                }
+            });
+        });
+    });
+{% endblock %}
+
+{% js block('initJs') %}

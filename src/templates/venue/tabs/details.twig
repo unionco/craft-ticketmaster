@@ -1,0 +1,95 @@
+{% import "_includes/forms" as forms %}
+
+{% set payload = venue._payload %}
+{% set boxOfficeInfo = payload.boxOfficeInfo ?? {} %}
+{% set generalInfo = payload.generalInfo ?? {} %}
+
+{% set fieldLayoutFields = [
+    {
+        label: 'Phone Number'|t('ticketmaster')|e,
+        name: 'phoneNumberDetail',
+        handle: 'fields[payload][boxOfficeInfo][phoneNumberDetail]',
+        value: boxOfficeInfo.phoneNumberDetail ?? '',
+        fieldType: "craft\\fields\\PlainText",
+        fieldConfig: {},
+        element: venue
+    },
+    {
+        label: 'Hours'|t('ticketmaster')|e,
+        name: 'openHoursDetail',
+        handle: 'fields[payload][boxOfficeInfo][openHoursDetail]',
+        value: boxOfficeInfo.openHoursDetail ?? '',
+        fieldType: "craft\\fields\\PlainText",
+        fieldConfig: { multiline: true, initialRows: 4 },
+        element: venue
+    },
+    {
+        label: 'Accepted Payments'|t('ticketmaster')|e,
+        name: 'acceptedPaymentDetail',
+        handle: 'fields[payload][boxOfficeInfo][acceptedPaymentDetail]',
+        value: boxOfficeInfo.acceptedPaymentDetail ?? '',
+        fieldType: "craft\\fields\\PlainText",
+        fieldConfig: { multiline: true, initialRows: 4 },
+        element: venue
+    },
+    {
+        label: 'Will Call'|t('ticketmaster')|e,
+        name: 'willCallDetail',
+        handle: 'fields[payload][boxOfficeInfo][willCallDetail]',
+        value: boxOfficeInfo.willCallDetail ?? '',
+        fieldType: "craft\\fields\\PlainText",
+        fieldConfig: { multiline: true, initialRows: 4 },
+        element: venue
+    },
+    {
+        label: 'Parking'|t('ticketmaster')|e,
+        name: 'parkingDetail',
+        handle: 'fields[payload][parkingDetail]',
+        value: payload.parkingDetail ?? '',
+        fieldType: "craft\\fields\\PlainText",
+        fieldConfig: { multiline: true, initialRows: 4 },
+        element: venue
+    },
+    {
+        label: 'Accessible Seating'|t('ticketmaster')|e,
+        name: 'accessibleSeatingDetail',
+        handle: 'fields[payload][accessibleSeatingDetail]',
+        value: payload.accessibleSeatingDetail ?? '',
+        fieldType: "craft\\fields\\PlainText",
+        fieldConfig: { multiline: true, initialRows: 4 },
+        element: venue
+    },
+    {
+        label: 'Info'|t('ticketmaster')|e,
+        name: 'generalRule',
+        handle: 'fields[payload][generalInfo][generalRule]',
+        value: generalInfo.generalRule ?? '',
+        fieldType: "craft\\fields\\PlainText",
+        fieldConfig: { multiline: true, initialRows: 4 },
+        element: venue
+    },
+    {
+        label: 'Children'|t('ticketmaster')|e,
+        name: 'childRule',
+        handle: 'fields[payload][generalInfo][childRule]',
+        value: generalInfo.childRule ?? '',
+        fieldType: "craft\\fields\\PlainText",
+        fieldConfig: { multiline: true, initialRows: 4 },
+        element: venue
+    },
+] %}
+
+{% for config in fieldLayoutFields %}
+    {% set fieldConfig = config.fieldConfig|merge({ handle: config.handle }) %}
+    {% set field = craft.ticketmaster.createField(config.fieldType, fieldConfig) %}
+    
+    {% include "_includes/forms/field" with {
+        label: config.label,
+        required: config.required ?? false,
+        id: config.handle,
+        handle: config.handle,
+        name: config.name,
+        input: field.getInputHtml(config.value|striptags, config.element),
+        fieldType: className(field)
+    } only %}
+{% endfor %}

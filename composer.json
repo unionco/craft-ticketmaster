@@ -1,0 +1,40 @@
+{
+    "name": "unionco/ticketmaster",
+    "description": "Ticket master ticket feed for venues.",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "ticketmaster"
+    ],
+    "support": {
+        "docs": "https://github.com/unionco/ticketmaster/blob/master/README.md",
+        "issues": "https://github.com/unionco/ticketmaster/issues"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Union",
+            "homepage": "https://github.com/unionco"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0-RC1",
+        "adbario/php-dot-notation": "^2.2"
+    },
+    "autoload": {
+        "psr-4": {
+          "unionco\\ticketmaster\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Ticketmaster",
+        "handle": "ticketmaster",
+        "hasCpSettings": true,
+        "changelogUrl": "https://raw.githubusercontent.com/unionco/ticketmaster/master/CHANGELOG.md",
+        "class": "unionco\\ticketmaster\\Ticketmaster"
+    }
+}

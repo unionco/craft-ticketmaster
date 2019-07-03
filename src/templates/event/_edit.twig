@@ -1,0 +1,195 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("unionco\\ticketmaster\\assetbundles\\ticketmaster\\TicketmasterAsset") %}
+
+{% set title = event.title ?: "New Event"|t('ticketmaster') %}
+{% set selectedSubnavItem = 'events' %}
+{% set isNewEvent = event.id ? false : true %}
+{% set sectionMap = craft.app.getModule('ticketmaster').getSettings().sectionMap %}
+
+{% block actionButton %}
+    <div class="btngroup">
+        <input class="btn submit" type="submit" value="{{ 'Save Event'|t('ticketmaster') }}">
+
+        <div class="btn submit menubtn"></div>
+        <div class="menu">
+            <ul>
+                <li><a class="formsubmit" data-redirect="{{ continueEditingUrl|hash }}">
+                    {{ forms.optionShortcutLabel('S') }}
+                    {{ "Save and continue editing"|t('ticketmaster') }}
+                </a></li>
+                <li><a class="formsubmit" data-param="publish" data-value="1">{{ "Publish Event"|t('ticketmaster') }}</a></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <input type="hidden" name="action" value="ticketmaster/event/save">
+    <input type="hidden" name="siteId" value="{{ currentSite.id }}">
+    <input type="hidden" name="venueId" value="{{ event.venueId }}">
+    {% if event.id %}<input type="hidden" name="eventId" value="{{ event.id }}">{% endif %}
+    {{ redirectInput('ticketmaster/events') }}
+
+    <div id="fields">
+        {{ forms.textField({
+            label: "Title"|t('ticketmaster'),
+            id: 'title',
+            name: 'title',
+            value: event.title,
+            errors: event.getErrors('title'),
+            first: true,
+            autofocus: true,
+            required: true,
+            maxlength: 255
+        }) }}
+
+        {% for tab in tabs %}
+            <div id="{{ tab.id }}"{% if not loop.first %} class="hidden"{% endif %}>
+                {% if tab.id == "publish" %}
+                    {% for key, prop in event._getFieldLayout %}
+                        {% if prop.field is defined %}
+                            {% set field = craft.ticketmaster.createField(prop.field, prop.config) %}
+                            {% include "_includes/forms/field" with {
+                                label: prop.label|t('ticketmaster'),
+                                id: key,
+                                input: field.getInputHtml(prop.value, event),
+                                fieldType: className(field)
+                            } only %}
+                            {% if prop.thumb is defined and prop.thumb %}
+                                <a href="{{ prop.value }}" title="thumb"><img src="{{ prop.value }}" style="width: 60px; height: 60px;"/></a>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div id="tmeventform">
+                        <tm-eventform
+                            :payload="payload"
+                            :fields="fields"
+                        />
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block details %}
+    <div id="settings" class="meta">
+        {{ forms.textField({
+            label: "Slug"|t('app'),
+            id: 'slug',
+            name: 'slug',
+            autocorrect: false,
+            autocapitalize: false,
+            value: event.slug,
+            placeholder: "Enter slug"|t('app'),
+            errors: (event.getErrors('slug')|merge(event.getErrors('uri')))
+        }) }}
+
+        {{ forms.elementSelectField({
+            id: 'venue',
+            name: 'venue',
+            label: "Venue"|t('app'),
+            sources: '*',
+            elementType: 'unionco\\ticketmaster\\elements\\Venue',
+            sourceElementId: event.id,
+            limit: 1,
+            elements: [
+                event.venue
+            ]
+        }) }}
+    </div>
+
+    {% if event.id %}
+        <div id="eventdetails" class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div class="value">{{ event.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div class="value">{{ event.dateUpdated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <div class="value">
+                    {% verbatim %}
+                    <div class="btn" @click="refresh">
+                    {% endverbatim %}
+                        {{ "Refresh Data"|t('ticketmaster') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% js %}
+    new Vue({ 
+        el: '#tmeventform',
+
+        data() {
+            {% block data %}
+            var data = {{ {
+                payload: event._payload,
+                entryType: craft.ticketmaster.getSetting('sectionEntryType'),
+                fields: []
+            }|json_encode|raw }};
+            {% endblock %}
+            if (data.payload._embedded || data.payload._links) {
+                delete data.payload._embedded;
+                delete data.payload._links;
+            }
+            return data;
+        },
+        
+        mounted() {
+            this.getFieldLayout();
+        },
+
+        methods: {
+            getFieldLayout() {
+                var entryType = this.entryType;
+
+                Craft.postActionRequest('ticketmaster/settings/get-field-layout', {  entryType: entryType }, function (response) {
+                    if (response.success) {
+                        this.fields = response.fields;
+                    }
+                }.bind(this));
+            },
+        }
+    });
+
+    new Vue({
+        el: '#eventdetails',
+        
+        data() {
+            {% block eventdetails %}
+            var data = {{ {
+                eventId: event._payload.id,
+                venueId: event.venueId
+            }|json_encode|raw }};
+            {% endblock %}
+            return data;
+        },
+
+        methods: {
+            refresh() {
+                Craft.postActionRequest('ticketmaster/event/store-event', {  eventId: this.eventId, venueId: this.venueId }, function (response) {
+                    if (response.success) {
+                        window.location.reload();
+                    }
+                }.bind(this));
+            }
+        }
+    })
+{% endjs %}
+
+{% if not event.slug %}
+    {% js %}
+        window.slugGenerator = new Craft.SlugGenerator('#title', '#slug', {
+            charMap: {{ craft.cp.getAsciiCharMap(currentSite.language)|json_encode|raw }}
+        });
+    {% endjs %}
+{% endif %}

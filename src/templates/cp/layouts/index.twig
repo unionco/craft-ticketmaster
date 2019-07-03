@@ -1,0 +1,62 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Ticketmaster plugin for Craft CMS 3.x
+ *
+ * Ticketmaster index.twig
+ *
+ * @author    Union
+ * @copyright Copyright (c) 2019 Union
+ * @link      https://github.com/unionco
+ * @package   Ticketmaster
+ * @since     1.0.0
+ */
+#}
+
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{# {% do view.registerAssetBundle("unionco\\ticketmaster\\assetbundles\\ticketmaster\\TicketmasterAsset") %} #}
+{% set fullPageForm = true %}
+
+{# The title of this CP section #}
+{% set title = "Events" %}
+
+{% set crumbs = [
+    { label: "Settings"|t('app'), url: url('ticketmaster/settings') }
+] %}
+
+{# The content of the CP Section#}
+{% set content %}
+    <input type="hidden" name="action" value="ticketmaster/settings/save-layout">
+    {{ redirectInput('ticketmaster/settings') }}
+
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t('app'),
+        instructions: "What this entry type will be called in the CP."|t('app'),
+        id: 'name',
+        name: 'name',
+        value: 'Events',
+        autofocus: true,
+        required: true,
+        disabled: true
+    }) }}
+
+    {{ forms.textField({
+        label: "Handle"|t('app'),
+        instructions: "How you’ll refer to this entry type in the templates."|t('app'),
+        id: 'handle',
+        name: 'handle',
+        class: 'code',
+        autocorrect: false,
+        autocapitalize: false,
+        value: 'events',
+        required: true,
+        disabled: true
+    }) }}
+        
+    {% include "_includes/fieldlayoutdesigner" with {
+        fieldLayout: craft.app.fields.getLayoutByType('unionco\\ticketmaster\\elements\\Event')
+    } only %}
+{% endset %}

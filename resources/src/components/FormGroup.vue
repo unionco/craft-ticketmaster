@@ -1,0 +1,110 @@
+<template>
+  <tr v-if="group" class="form-group">
+    <td class="form-group-label">
+      {{ label }}
+    </td>
+    <td class="form-group-fields" :class="{ 'has-children' : hasChildren() }">
+      <table class="hasChildren" v-if="hasChildren()">
+        <FormGroup 
+          v-for="(children, index) in group"
+          v-bind:key="index"
+          :label="index"
+          :group="children"
+          :fields="fields"
+          :name="`${name}[${label}]`"
+          :mapName="`${mapName}[${label}]`"
+          :mapNameDot="`${mapNameDot ? mapNameDot + '.' : ''}${label}`"
+          :mapped="mapped" />
+      </table>
+      <textarea v-else class="text fullwidth" :name="`${name}[${label}]`" :value="group" />
+    </td>
+    <!-- <td class="form-group-select" v-if="!hasChildren()">
+      <div class="field">
+        <div class="select ltr" style="width: 100%;">
+          <select :name="`${mapName}[${label}]`" v-model="mapLabel" style="width: 100%;">
+            <option value="skip">Skip</option>
+            <option v-for="(option, index) in fields" v-bind:value="option.handle" v-bind:key="index">
+              {{ option.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </td> -->
+  </tr>
+</template>
+<script lang="js">
+import { Component, Vue } from 'vue-property-decorator';
+import get from 'lodash.get';
+import Input from './Input';
+
+@Component({
+  props: {
+    label: String,
+    group: Object,
+    mapped: Object,
+    name: String,
+    mapName: String,
+    mapNameDot: String,
+    fields: Array
+  },
+  components: {
+    Input 
+  }
+})
+export default class FormGroup extends Vue {
+  //
+  label = '';
+  name = '';
+  mapName = '';
+  mapNameDot = '';
+  group = {};
+  fields = [];
+  mapped = {};
+
+  get mapLabel() {
+    if (!this.mapped || !this.label) {
+      return '';
+    }
+
+    let path = '';
+    if (this.mapNameDot) {
+      path = `${this.mapNameDot}.${this.label}`;
+    } else {
+      path = this.label;
+    }
+
+    const payload = JSON.parse(JSON.stringify(this.mapped));
+    
+    return get(payload, path) || 'skip';
+  }
+
+  hasChildren() {
+    return typeof this.group === 'object' && this.group !== null;
+  }
+}
+</script>
+<style lang="scss" scoped>
+.form-group {
+  vertical-align: middle;
+
+  &-select {
+    border: 1px solid rgba(0, 0, 20, 0.1);
+    padding: 5px;
+    text-align: center;
+  }
+
+  &-label {
+    background: #eee;
+    border: 1px solid rgba(0, 0, 20, 0.1);
+    padding: 5px;
+    text-transform: capitalize;
+  }
+
+  table {
+    width: 100%;
+  }
+  input {
+    max-width: 100%;
+  }
+}
+</style>
