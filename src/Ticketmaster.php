@@ -75,7 +75,7 @@ class Ticketmaster extends Plugin
      *
      * @var string
      */
-    public $schemaVersion = '1.0.8';
+    public $schemaVersion = '1.0.9';
 
     /**
      * @var bool Whether the plugin has a settings page in the CP
@@ -86,7 +86,7 @@ class Ticketmaster extends Plugin
      * @var bool Whether the plugin has its own section in the CP
      */
     public $hasCpSection = true;
-    
+
     // Public Methods
     // =========================================================================
 
@@ -138,7 +138,7 @@ class Ticketmaster extends Plugin
                 $event->rules['GET ticketmaster/venues'] = 'ticketmaster/venue/index';
                 $event->rules['GET ticketmaster/venues/new'] = 'ticketmaster/venue/new';
                 $event->rules['GET ticketmaster/venues/<id:\d+>'] = 'ticketmaster/venue/edit';
-                
+
                 $event->rules['GET ticketmaster/events'] = 'ticketmaster/event/index';
                 $event->rules['GET ticketmaster/events/new'] = 'ticketmaster/event/edit-event';
                 $event->rules['GET ticketmaster/events/<eventId:\d+><slug:(?:-[^\/]*)?>'] = 'ticketmaster/event/edit-event';
@@ -220,7 +220,7 @@ class Ticketmaster extends Plugin
     }
 
     /**
-     * 
+     *
      */
     public function getCpNavItem()
     {
@@ -234,7 +234,7 @@ class Ticketmaster extends Plugin
         ];
         return $item;
     }
-    
+
     // Protected Methods
     // =========================================================================
 

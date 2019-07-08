@@ -1,4 +1,5 @@
 <?php
+
 namespace unionco\ticketmaster\fields;
 
 use craft\fields\BaseRelationField;

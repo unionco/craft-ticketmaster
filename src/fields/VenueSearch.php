@@ -1,10 +1,11 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x
+ * Ticketmaster plugin for Craft CMS 3.x.
  *
  * Ticket master ticket feed for venues.
  *
- * @link      https://github.com/unionco
+ * @see      https://github.com/unionco
+ *
  * @copyright Copyright (c) 2019 Union
  */
 
@@ -12,15 +13,16 @@ namespace unionco\ticketmaster\fields;
 
 use Craft;
 use yii\db\Schema;
-
 use craft\base\Field;
 use craft\base\ElementInterface;
 use unionco\ticketmaster\Ticketmaster;
-use unionco\ticketmaster\assetbundles\venuesearch\VenueSearchAsset;
 use unionco\ticketmaster\assetbundles\Ticketmaster\TicketmasterAsset;
+use unionco\ticketmaster\records\Venue as VenueRecord;
+use unionco\ticketmaster\db\Table;
+use craft\elements\db\ElementQueryInterface;
 
 /**
- * VenueFinder Field
+ * VenueFinder Field.
  *
  * Whenever someone creates a new field in Craft, they must specify what
  * type of field it is. The system comes with a handful of field types baked in,
@@ -29,7 +31,7 @@ use unionco\ticketmaster\assetbundles\Ticketmaster\TicketmasterAsset;
  * https://craftcms.com/docs/plugins/field-types
  *
  * @author    Union
- * @package   Ticketmaster
+ *
  * @since     1.0.0
  */
 class VenueSearch extends Field
@@ -38,7 +40,7 @@ class VenueSearch extends Field
     // =========================================================================
 
     /**
-     * @var boolean propagate
+     * @var bool propagate
      */
     public $key = false;
 
@@ -48,7 +50,7 @@ class VenueSearch extends Field
     /**
      * Returns the display name of this class.
      *
-     * @return string The display name of this class.
+     * @return string the display name of this class
      */
     public static function displayName(): string
     {
@@ -72,6 +74,7 @@ class VenueSearch extends Field
     {
         $rules = parent::rules();
         $rules[] = [['key'], 'required'];
+
         return $rules;
     }
 
@@ -81,9 +84,10 @@ class VenueSearch extends Field
      * This method will only be called if [[hasContentColumn()]] returns true.
      *
      * @return string The column type. [[\yii\db\QueryBuilder::getColumnType()]] will be called
-     * to convert the give column type to the physical one. For example, `string` will be converted
-     * as `varchar(255)` and `string(100)` becomes `varchar(100)`. `not null` will automatically be
-     * appended as well.
+     *                to convert the give column type to the physical one. For example, `string` will be converted
+     *                as `varchar(255)` and `string(100)` becomes `varchar(100)`. `not null` will automatically be
+     *                appended as well.
+     *
      * @see \yii\db\QueryBuilder::getColumnType()
      */
     public function getContentColumnType(): string
@@ -106,6 +110,7 @@ class VenueSearch extends Field
      */
     public function normalizeValue($value, ElementInterface $element = null)
     {
+        // die(var_dump(['normalize value' => $value]));
         return $value;
     }
 
@@ -117,10 +122,10 @@ class VenueSearch extends Field
      * If the method returns `false`, the query will be stopped before it ever gets a chance to execute.
      *
      * @param ElementQueryInterface $query The element query
-     * @param mixed                 $value The value that was set on this field’s corresponding [[ElementCriteriaModel]] param,
-     *                                     if any.
+     * @param mixed                 $value the value that was set on this field’s corresponding [[ElementCriteriaModel]] param,
+     *                                     if any
      *
-     * @return null|false `false` in the event that the method is sure that no elements are going to be found.
+     * @return false|null `false` in the event that the method is sure that no elements are going to be found
      */
     public function serializeValue($value, ElementInterface $element = null)
     {
@@ -321,11 +326,11 @@ class VenueSearch extends Field
      * The same principles also apply if you’re including your JavaScript code with
      * [[\craft\web\View::registerJs()]].
      *
-     * @param mixed                 $value           The field’s value. This will either be the [[normalizeValue() normalized value]],
-     *                                               raw POST data (i.e. if there was a validation error), or null
-     * @param ElementInterface|null $element         The element the field is associated with, if there is one
+     * @param mixed                 $value   The field’s value. This will either be the [[normalizeValue() normalized value]],
+     *                                       raw POST data (i.e. if there was a validation error), or null
+     * @param ElementInterface|null $element The element the field is associated with, if there is one
      *
-     * @return string The input HTML.
+     * @return string the input HTML
      */
     public function getInputHtml($value, ElementInterface $element = null): string
     {
@@ -333,23 +338,89 @@ class VenueSearch extends Field
         $view = Craft::$app->getView();
 
         // Get our id and namespace
-        $containerId = $this->id . '-container';
-		$vueContainerId = $view->namespaceInputId($containerId);
+        $containerId = $this->id.'-container';
+        $vueContainerId = $view->namespaceInputId($containerId);
         $settings = Ticketmaster::$plugin->getSettings();
         $apiKey = $settings->getConsumerKey();
 
-
-		$view->registerAssetBundle(TicketmasterAsset::class);
-		$view->registerJs('new Vue({ el: \'#' . $vueContainerId . '\' });');
+        $view->registerAssetBundle(TicketmasterAsset::class);
+        $view->registerJs('new Vue({ el: \'#'.$vueContainerId.'\' });');
         $options = preg_replace(
-			'/\'/',
-			'&#039;',
-			json_encode([
+            '/\'/',
+            '&#039;',
+            json_encode([
                 'apiKey' => $apiKey,
-                'value' => $value
+                'handle' => $this->handle,
             ])
         );
+        $venue = preg_replace(
+            '/\'/',
+            '&#039;',
+            json_encode(
+                $value
+            )
+        );
 
-        return '<div id="' . $containerId . '"><venue-search :options=\'' . $options . '\'></venue-search></div>';
+        return '<div id="'.$containerId.'"><venue-search :venue=\''. $venue . '\' :options=\''.$options.'\'></venue-search></div>';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function afterElementSave(ElementInterface $element, bool $isNew)
+    {
+        /** @var Element $owner */
+        $locale = $element->getSite()->language;
+        /** @var Map $value */
+        $value = $element->getFieldValue($this->handle);
+
+        $record = VenueRecord::findOne(
+            [
+                'ownerId' => $element->id,
+                'ownerSiteId' => $element->siteId,
+                'fieldId' => $this->id,
+            ]
+        );
+
+        if (!$record) {
+            $record = new VenueRecord();
+            $record->ownerId = $element->id;
+            $record->ownerSiteId = $element->siteId;
+            $record->fieldId = $this->id;
+        }
+
+        $record->tmVenueId = $value['tmVenueId'];
+        $record->title = $value['title'];
+        $record->url = '';
+
+        $record->payload = json_encode($value);
+
+        $record->save();
+
+        parent::afterElementSave($element, $isNew);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function modifyElementsQuery(ElementQueryInterface $query, $value)
+    {
+        if (!$value) {
+            return;
+        }
+        /** @var ElementQuery $query */
+        $tableName = Table::VENUES;
+
+        $query->join(
+            'JOIN',
+            "{$tableName} tmVenues",
+            [
+                'and',
+                '[[elements.id]] = [[tmVenues.ownerId]]',
+                '[[elements_sites.siteId]] = [[tmVenues.ownerSiteId]]',
+            ]
+        );
+
+        return;
     }
 }

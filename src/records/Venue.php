@@ -22,7 +22,7 @@ use unionco\ticketmaster\db\Table;
  *
  * @since     1.0.0
  */
-class Event extends ActiveRecord
+class Venue extends ActiveRecord
 {
     // Public Methods
     // =========================================================================
@@ -34,26 +34,6 @@ class Event extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return Table::EVENTS;
-    }
-
-    /**
-     * Returns the section’s structure.
-     *
-     * @return ActiveQueryInterface the relational query object
-     */
-    public function getVenue(): ActiveQueryInterface
-    {
-        return $this->hasOne(Table::VENUES, ['id' => 'venueId']);
-    }
-
-    /**
-     * Returns the section’s structure.
-     *
-     * @return ActiveQueryInterface the relational query object
-     */
-    public function getStatus(): ActiveQueryInterface
-    {
-        return $this->hasOne(Table::STATUS, ['id' => 'status']);
+        return Table::VENUES;
     }
 }
