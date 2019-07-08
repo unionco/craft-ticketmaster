@@ -13,8 +13,22 @@
         </template>
       </vue-autosuggest>
     </div>
-    <div class="u-grey">
-      other fields go here
+    <div class="fields-container">
+      <h2>TicketMaster Info</h2>
+        <div v-if="venueFields">
+          <Input
+            label="Venue Title"
+            :name="'fields[' + options.handle + '][title]'"
+            handle="title"
+            :value="venueFields.title || venueFields.name"
+          />
+          <Input
+            label="Venue ID"
+            :name="'fields[' + options.handle + '][tmVenueId]'"
+            handle="tmVenueId"
+            :value="venueFields.tmVenueId || venueFields.id"
+          />
+        </div>
     </div>
   </div>
 </template>
@@ -24,13 +38,18 @@ import { Component, Vue } from 'vue-property-decorator';
 import { VueAutosuggest } from 'vue-autosuggest';
 import qs from 'qs';
 import { t } from '../filters/translate';
+import Input from './Input';
+import Textarea from './Textarea';
+import Redactor from './Redactor';
 
 @Component({
   components: {
     VueAutosuggest,
+    Input
   },
   props: {
-    options: Object
+    options: Object,
+    venue: Object
   }
 })
 export default class VenueSearch extends Vue {
@@ -42,6 +61,9 @@ export default class VenueSearch extends Vue {
 
   // Getters
   // =====================================================================
+  get venueFields () {
+    return JSON.parse(this.venue);
+  }
   get inputProps () {
     return {
       onInputChange: this.onInputChange,
@@ -53,9 +75,15 @@ export default class VenueSearch extends Vue {
 
   created() {
     console.log('created venue search');
+    console.log(this.venue);
+  }
+
+  mounted() {
+    console.log(this.venueFields)
   }
 
   onSelected(option) {
+    this.venue = option.item
     this.$emit('selected', option.item);
   }
 
@@ -63,7 +91,7 @@ export default class VenueSearch extends Vue {
     if (text === '' || text === undefined || text.length < 3) {
       return;
     }
-    
+
     clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
       this.search(text);
@@ -84,7 +112,7 @@ export default class VenueSearch extends Vue {
       })
       .catch();
   }
-  
+
   getSuggestionValue(suggestion) {
     return suggestion.item.name || suggestion.item;
   }
@@ -92,8 +120,12 @@ export default class VenueSearch extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.u-grey {
+.fields-container {
   background: #eee;
+  padding: 10px;
   border: 1px solid darken(#eee, 10%);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
 }
 </style>
