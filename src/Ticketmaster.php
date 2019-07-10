@@ -32,9 +32,10 @@ use unionco\ticketmaster\elements\Venue as VenueElement;
 
 use unionco\ticketmaster\variables\TicketmasterVariable;
 use unionco\ticketmaster\twigextensions\TicketmasterTwigExtension;
-use unionco\ticketmaster\fields\EventFinder as EventFinderField;
-use unionco\ticketmaster\fields\VenueSearch as VenueSearchField;
 use unionco\ticketmaster\fields\VenueSearch;
+use unionco\ticketmaster\elements\Event as EventElement;
+use unionco\ticketmaster\fields\EventSearch;
+use unionco\ticketmaster\fields\Events;
 
 /**
  * Craft plugins are very much like little applications in and of themselves. We’ve made
@@ -75,7 +76,7 @@ class Ticketmaster extends Plugin
      *
      * @var string
      */
-    public $schemaVersion = '1.0.9';
+    public $schemaVersion = '1.0.8';
 
     /**
      * @var bool Whether the plugin has a settings page in the CP
@@ -155,6 +156,7 @@ class Ticketmaster extends Plugin
             Elements::EVENT_REGISTER_ELEMENT_TYPES,
             function (RegisterComponentTypesEvent $event) {
                 $event->types[] = VenueElement::class;
+                $event->types[] = EventElement::class;
             }
         );
 
@@ -164,8 +166,7 @@ class Ticketmaster extends Plugin
             Fields::EVENT_REGISTER_FIELD_TYPES,
             function (RegisterComponentTypesEvent $event) {
                 $event->types[] = VenueSearch::class;
-                // $event->types[] = EventFinderField::class;
-                $event->types[] = Venues::class;
+                $event->types[] = EventSearch::class;
             }
         );
 

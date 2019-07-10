@@ -17,10 +17,10 @@ use craft\base\Field;
 use craft\base\ElementInterface;
 use unionco\ticketmaster\Ticketmaster;
 use unionco\ticketmaster\assetbundles\Ticketmaster\TicketmasterAsset;
-use unionco\ticketmaster\records\Venue as VenueRecord;
 use unionco\ticketmaster\db\Table;
 use craft\elements\db\ElementQueryInterface;
-use unionco\ticketmaster\models\Venue as VenueModel;
+use unionco\ticketmaster\models\Event as EventModel;
+use unionco\ticketmaster\records\Event as EventRecord;
 
 /**
  * VenueFinder Field.
@@ -35,7 +35,7 @@ use unionco\ticketmaster\models\Venue as VenueModel;
  *
  * @since     1.0.0
  */
-class VenueSearch extends Field
+class EventSearch extends Field
 {
     // Public Properties
     // =========================================================================
@@ -55,7 +55,7 @@ class VenueSearch extends Field
      */
     public static function displayName(): string
     {
-        return Craft::t('ticketmaster', 'Venue Search');
+        return Craft::t('ticketmaster', 'Event Search');
     }
 
     /**
@@ -119,7 +119,7 @@ class VenueSearch extends Field
      */
     public function normalizeValue($value, ElementInterface $element = null)
     {
-        $record = VenueRecord::findOne(
+        $record = EventRecord::findOne(
             [
                 'ownerId' => $element->id,
                 'ownerSiteId' => $element->siteId,
@@ -128,11 +128,11 @@ class VenueSearch extends Field
         );
 
         if (\Craft::$app->request->getIsPost() && $value) {
-            $model = new VenueModel($value);
+            $model = new EventModel($value);
         } elseif ($record) {
-            $model = new VenueModel($record->getAttributes());
+            $model = new EventModel($record->getAttributes());
         } else {
-            $model = new VenueModel();
+            $model = new EventModel();
         }
 
         return $model;
@@ -391,12 +391,10 @@ class VenueSearch extends Field
      */
     public function afterElementSave(ElementInterface $element, bool $isNew)
     {
-        /** @var Element $owner */
         $locale = $element->getSite()->language;
-        /** @var Map $value */
         $value = $element->getFieldValue($this->handle);
 
-        $record = VenueRecord::findOne(
+        $record = EventRecord::findOne(
             [
                 'ownerId' => $element->id,
                 'ownerSiteId' => $element->siteId,
@@ -405,7 +403,7 @@ class VenueSearch extends Field
         );
 
         if (!$record) {
-            $record = new VenueRecord();
+            $record = new EventRecord();
             $record->ownerId = $element->id;
             $record->ownerSiteId = $element->siteId;
             $record->fieldId = $this->id;
@@ -431,15 +429,15 @@ class VenueSearch extends Field
             return;
         }
         /** @var ElementQuery $query */
-        $tableName = Table::VENUES;
+        $tableName = Table::EVENTS;
 
         $query->join(
             'JOIN',
-            "{$tableName} tmVenues",
+            "{$tableName} tmEvents",
             [
                 'and',
-                '[[elements.id]] = [[tmVenues.ownerId]]',
-                '[[elements_sites.siteId]] = [[tmVenues.ownerSiteId]]',
+                '[[elements.id]] = [[tmEvents.ownerId]]',
+                '[[elements_sites.siteId]] = [[tmEvents.ownerSiteId]]',
             ]
         );
 

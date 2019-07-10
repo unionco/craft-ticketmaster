@@ -28,7 +28,130 @@
             handle="tmVenueId"
             :value="venueFields.tmVenueId || venueFields.id"
           />
+          <div class="md-layout md-gutter">
+            <div class="md-layout-item" v-if="payloadFields.url">
+              <Input
+                label="URL"
+                :name="getPayloadFieldName('[url]')"
+                handle="url"
+                :value="payloadFields.url"
+              />
+            </div>
+            <div class="md-layout-item" v-if="payloadFields.address && payloadFields.address.line1">
+              <Input
+                label="Address"
+                :name="getPayloadFieldName('[address][line1]')"
+                handle="address"
+                :value="payloadFields.address.line1"
+              />
+            </div>
+            <div class="md-layout-item" v-if="payloadFields.address && payloadFields.address.line2">
+              <Input
+                label="Address"
+                :name="getPayloadFieldName('[address][line2]')"
+                handle="address"
+                :value="payloadFields.address.line2"
+              />
+            </div>
+            <div class="flex">
+              <div class="md-layout-item" v-if="payloadFields.city">
+                <Input
+                  label="City"
+                  :name="getPayloadFieldName('[city][name]')"
+                  handle="city"
+                  :value="payloadFields.city.name"
+                />
+              </div>
+              <div class="md-layout-item" v-if="payloadFields.state">
+                <Input
+                  label="State"
+                  :name="getPayloadFieldName('[state][stateCode]')"
+                  handle="state"
+                  :value="payloadFields.state.stateCode"
+                />
+              </div>
+              <div class="md-layout-item">
+                <Input
+                  label="Postal Code"
+                  :name="getPayloadFieldName('[postalCode]')"
+                  handle="state"
+                  :value="payloadFields.postalCode"
+                />
+              </div>
+            </div>
+          <div class="md-layout-item" v-if="payloadFields.boxOfficeInfo">
+            <Redactor
+              label="Phone Number"
+              handle="phoneNumberDetail"
+              :name="getPayloadFieldName('[boxOfficeInfo][phoneNumberDetail]')"
+              v-model="payloadFields.boxOfficeInfo.phoneNumberDetail"
+            />
+          </div>
+
+          <div class="md-layout-item" v-if="payloadFields.boxOfficeInfo">
+            <Redactor
+              label="Open Hours"
+              handle="openHoursDetail"
+              :name="getPayloadFieldName('[boxOfficeInfo][openHoursDetail]')"
+              v-model="payloadFields.boxOfficeInfo.openHoursDetail"
+            />
+          </div>
+
+          <div class="md-layout-item" v-if="payloadFields.boxOfficeInfo">
+            <Redactor
+              label="Accepted Payments"
+              handle="acceptedPaymentDetail"
+              :name="getPayloadFieldName('[boxOfficeInfo][acceptedPaymentDetail]')"
+              :value="payloadFields.boxOfficeInfo.acceptedPaymentDetail"
+            />
+          </div>
+
+          <div class="md-layout-item" v-if="payloadFields.boxOfficeInfo">
+            <Redactor
+              label="Will Call"
+              :name="getPayloadFieldName('[boxOfficeInfo][willCallDetail]')"
+              handle="willCallDetail"
+              :value="payloadFields.boxOfficeInfo.willCallDetail"
+            />
+          </div>
+
+          <div class="md-layout-item" v-if="payloadFields.parkingDetail">
+            <Redactor
+              label="Parking"
+              :name="getPayloadFieldName('[parkingDetail]')"
+              handle="parkingDetail"
+              :value="payloadFields.parkingDetail"
+            />
+          </div>
+
+          <div class="md-layout-item" v-if="payloadFields.accessibleSeatingDetail">
+            <Redactor
+              label="Accessible Seating"
+              :name="getPayloadFieldName('[accessibleSeatingDetail]')"
+              handle="accessibleSeatingDetail"
+              :value="payloadFields.accessibleSeatingDetail"
+            />
+          </div>
+
+          <div class="md-layout-item">
+            <Redactor
+              label="General Info"
+              :name="getPayloadFieldName('[generalInfo][generalRule]')"
+              handle="generalRule"
+              :value="payloadFields.generalInfo.generalRule"
+            />
+          </div>
+
+          <div class="md-layout-item">
+            <Redactor
+              label="Children Info"
+              :name="getPayloadFieldName('[generalInfo][childRule]')"
+              handle="childRule"
+              :value="payloadFields.generalInfo.childRule"
+            />
+          </div>
         </div>
+      </div>
     </div>
   </div>
 </template>
@@ -41,11 +164,14 @@ import { t } from '../filters/translate';
 import Input from './Input';
 import Textarea from './Textarea';
 import Redactor from './Redactor';
+import get from 'lodash.get';
 
 @Component({
   components: {
     VueAutosuggest,
-    Input
+    Input,
+    Textarea,
+    Redactor
   },
   props: {
     options: Object,
@@ -62,8 +188,17 @@ export default class VenueSearch extends Vue {
   // Getters
   // =====================================================================
   get venueFields () {
-    return JSON.parse(this.venue);
+    if (typeof this.venue === 'string') {
+      return JSON.parse(this.venue);
+    }
+
+    return this.venue;
   }
+
+  get payloadFields() {
+    return get(this.venueFields, 'payload') || this.venueFields;
+  }
+
   get inputProps () {
     return {
       onInputChange: this.onInputChange,
@@ -75,7 +210,7 @@ export default class VenueSearch extends Vue {
 
   created() {
     console.log('created venue search');
-    console.log(this.venue);
+    // console.log(this.venue);
   }
 
   mounted() {
@@ -83,7 +218,8 @@ export default class VenueSearch extends Vue {
   }
 
   onSelected(option) {
-    this.venue = option.item
+    this.venue = option.item;
+    console.log(this.venueFields);
     this.$emit('selected', option.item);
   }
 
@@ -95,7 +231,7 @@ export default class VenueSearch extends Vue {
     clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
       this.search(text);
-    }, 750);
+    }, 450);
   }
 
   search(value) {
@@ -113,6 +249,10 @@ export default class VenueSearch extends Vue {
       .catch();
   }
 
+  getPayloadFieldName(handle) {
+    return `fields[${this.options.handle}][payload]${handle}`;
+  }
+
   getSuggestionValue(suggestion) {
     return suggestion.item.name || suggestion.item;
   }
@@ -124,8 +264,5 @@ export default class VenueSearch extends Vue {
   background: #eee;
   padding: 10px;
   border: 1px solid darken(#eee, 10%);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
 }
 </style>
