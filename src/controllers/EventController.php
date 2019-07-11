@@ -20,7 +20,8 @@ use craft\web\Controller;
 use craft\helpers\UrlHelper;
 use unionco\ticketmaster\Ticketmaster;
 use unionco\ticketmaster\elements\Event;
-use unionco\ticketmaster\elements\Venue;
+use unionco\ticketmaster\records\Venue as VenueRecord;
+use unionco\ticketmaster\models\Venue as VenueModel;
 
 /**
  * Base Controller
@@ -56,6 +57,7 @@ class EventController extends BaseController
      */
     protected $allowAnonymous = false;
 
+    public $enableCsrfValidation = false;
     /**
      * Handle a request going to our plugin's index action URL,
      * e.g.: actions/ticketmaster/base
@@ -74,7 +76,7 @@ class EventController extends BaseController
     }
 
     /**
-     * 
+     *
      */
     public function actionStoreEvent()
     {
@@ -85,9 +87,9 @@ class EventController extends BaseController
         $request = Craft::$app->getRequest();
         $eventId = $request->getBodyParam('eventId');
         $venueId = $request->getBodyParam('venueId');
-        
-        $venue = Venue::find()
-            ->id($venueId)
+
+        $venue = VenueRecord::find()
+            ->tmVenueId($venueId)
             ->one();
 
         if (!$venue) {
@@ -114,26 +116,24 @@ class EventController extends BaseController
                 "error" => $th->getMessage()
             ]);
         }
-        
+
         return $this->asJson([
             "success" => true
         ]);
     }
 
     /**
-     * 
+     *
      */
     public function actionStoreEvents()
     {
         $this->requireAcceptsJson();
-        
+
         $eventService = Ticketmaster::$plugin->events;
         $request = Craft::$app->getRequest();
         $venueId = $request->getBodyParam('venueId');
-        
-        $venue = Venue::find()
-            ->id($venueId)
-            ->one();
+
+        $venue = VenueRecord::findOne(['tmVenueId' => $venueId]);
 
         if (!$venue) {
             return $this->asJson([
@@ -143,11 +143,10 @@ class EventController extends BaseController
             ]);
         }
 
+        $venue = new VenueModel($venue);
         $events = $eventService->getEventByVenueId($venue->tmVenueId);
         foreach ($events as $key => $event) {
-            if ($event) {
-                $eventService->saveEvent($event, $venue);
-            }
+            $eventService->saveEvent($event, $venue);
         }
 
         return $this->asJson([
@@ -251,7 +250,7 @@ class EventController extends BaseController
             // if my event has a craftEntryId then update it
             // else create a new one
             Ticketmaster::$plugin->events->publishEvent($event);
-            
+
             return $this->redirectToPostedUrl($event);
         }
 
@@ -270,7 +269,7 @@ class EventController extends BaseController
     }
 
     /**
-     * 
+     *
      */
     private function _getEventModel()
     {
@@ -296,7 +295,7 @@ class EventController extends BaseController
     }
 
     /**
-     * 
+     *
      */
     private function _populateEventModel(Event $event)
     {
@@ -306,7 +305,7 @@ class EventController extends BaseController
         $event->slug = $request->getBodyParam('slug', $event->slug);
         $event->venueId = $request->getBodyParam('venueId', $event->venueId);
         $event->tmEventId = $request->getBodyParam('tmEventId', $event->tmEventId);
-        
+
         $event->payload = Json::encode($request->getBodyParam('fields.payload', $event->_payload()));
         $event->published = Json::encode($request->getBodyParam('fields.published', $event->_published()));
     }

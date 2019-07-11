@@ -411,7 +411,6 @@ class EventSearch extends Field
 
         $record->tmEventId = $value['tmEventId'];
         $record->title = $value['title'];
-        $record->url = '';
 
         $record->payload = json_encode($value['payload']);
 

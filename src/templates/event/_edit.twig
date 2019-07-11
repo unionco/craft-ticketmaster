@@ -6,7 +6,9 @@
 {% set title = event.title ?: "New Event"|t('ticketmaster') %}
 {% set selectedSubnavItem = 'events' %}
 {% set isNewEvent = event.id ? false : true %}
-{% set sectionMap = craft.app.getModule('ticketmaster').getSettings().sectionMap %}
+{% set eventSearchField = craft.ticketmaster.createField("unionco\\ticketmaster\\fields\\EventSearch", {
+    handle: 'eventSearch',
+}) %}
 
 {% block actionButton %}
     <div class="btngroup">
@@ -28,7 +30,7 @@
 {% block content %}
     <input type="hidden" name="action" value="ticketmaster/event/save">
     <input type="hidden" name="siteId" value="{{ currentSite.id }}">
-    <input type="hidden" name="venueId" value="{{ event.venueId }}">
+    <input type="hidden" name="venueId" value="{{ event.tmVenueId }}">
     {% if event.id %}<input type="hidden" name="eventId" value="{{ event.id }}">{% endif %}
     {{ redirectInput('ticketmaster/events') }}
 
@@ -47,29 +49,12 @@
 
         {% for tab in tabs %}
             <div id="{{ tab.id }}"{% if not loop.first %} class="hidden"{% endif %}>
-                {% if tab.id == "publish" %}
-                    {% for key, prop in event._getFieldLayout %}
-                        {% if prop.field is defined %}
-                            {% set field = craft.ticketmaster.createField(prop.field, prop.config) %}
-                            {% include "_includes/forms/field" with {
-                                label: prop.label|t('ticketmaster'),
-                                id: key,
-                                input: field.getInputHtml(prop.value, event),
-                                fieldType: className(field)
-                            } only %}
-                            {% if prop.thumb is defined and prop.thumb %}
-                                <a href="{{ prop.value }}" title="thumb"><img src="{{ prop.value }}" style="width: 60px; height: 60px;"/></a>
-                            {% endif %}
-                        {% endif %}
-                    {% endfor %}
-                {% else %}
-                    <div id="tmeventform">
-                        <tm-eventform
-                            :payload="payload"
-                            :fields="fields"
-                        />
-                    </div>
-                {% endif %}
+                {% include "_includes/forms/field" with {
+                    label: 'Event Search'|t('ticketmaster'),
+                    id: 'eventSearch',
+                    input: eventSearchField.getInputHtml(event),
+                    fieldType: className(eventSearchField),
+                } only %}
             </div>
         {% endfor %}
     </div>
@@ -77,29 +62,6 @@
 
 {% block details %}
     <div id="settings" class="meta">
-        {{ forms.textField({
-            label: "Slug"|t('app'),
-            id: 'slug',
-            name: 'slug',
-            autocorrect: false,
-            autocapitalize: false,
-            value: event.slug,
-            placeholder: "Enter slug"|t('app'),
-            errors: (event.getErrors('slug')|merge(event.getErrors('uri')))
-        }) }}
-
-        {{ forms.elementSelectField({
-            id: 'venue',
-            name: 'venue',
-            label: "Venue"|t('app'),
-            sources: '*',
-            elementType: 'unionco\\ticketmaster\\elements\\Venue',
-            sourceElementId: event.id,
-            limit: 1,
-            elements: [
-                event.venue
-            ]
-        }) }}
     </div>
 
     {% if event.id %}
@@ -126,49 +88,14 @@
 {% endblock %}
 
 {% js %}
-    new Vue({ 
-        el: '#tmeventform',
-
-        data() {
-            {% block data %}
-            var data = {{ {
-                payload: event._payload,
-                entryType: craft.ticketmaster.getSetting('sectionEntryType'),
-                fields: []
-            }|json_encode|raw }};
-            {% endblock %}
-            if (data.payload._embedded || data.payload._links) {
-                delete data.payload._embedded;
-                delete data.payload._links;
-            }
-            return data;
-        },
-        
-        mounted() {
-            this.getFieldLayout();
-        },
-
-        methods: {
-            getFieldLayout() {
-                var entryType = this.entryType;
-
-                Craft.postActionRequest('ticketmaster/settings/get-field-layout', {  entryType: entryType }, function (response) {
-                    if (response.success) {
-                        this.fields = response.fields;
-                    }
-                }.bind(this));
-            },
-        }
-    });
-
     new Vue({
         el: '#eventdetails',
-        
+
         data() {
             {% block eventdetails %}
             var data = {{ {
                 eventId: event._payload.id,
-                venueId: event.venueId
+                venueId: event.tmVenueId
             }|json_encode|raw }};
             {% endblock %}
             return data;

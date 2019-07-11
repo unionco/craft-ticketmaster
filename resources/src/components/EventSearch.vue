@@ -13,8 +13,19 @@
         </template>
       </vue-autosuggest>
     </div>
-    <div class="fields-container">
+    <div class="fields-container" v-if="event">
       <h2>Additional Info</h2>
+      <input type="hidden" :name="`fields[${options.handle}][tmEventId]`" :value="event.tmEventId || event.id" />
+      <input type="hidden" :name="`fields[${options.handle}][title]`" :value="event.title || event.name" />
+    <FormGroup
+      v-for="(group, index) in payloadFields"
+      v-bind:key="index"
+      :label="index"
+      :group="payloadFields[index]"
+      :mapped="mapped"
+      :name="`fields[${options.handle}][payload]`"
+      mapName="fields[mapped]"
+      mapNameDot="" />
     </div>
   </div>
 </template>
@@ -22,6 +33,7 @@
 <script lang="js">
 import { Component, Vue } from 'vue-property-decorator';
 import { VueAutosuggest } from 'vue-autosuggest';
+import FormGroup from './FormGroup';
 import qs from 'qs';
 import get from 'lodash.get';
 import { t } from '../filters/translate';
@@ -34,7 +46,8 @@ import Redactor from './Redactor';
     VueAutosuggest,
     Input,
     Textarea,
-    Redactor
+    Redactor,
+    FormGroup
   },
   props: {
     options: Object,

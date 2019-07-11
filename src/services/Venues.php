@@ -11,8 +11,8 @@
 
 namespace unionco\ticketmaster\services;
 
-use Craft;
-use unionco\ticketmaster\elements\Venue;
+use unionco\ticketmaster\records\Venue as VenueRecord;
+use unionco\ticketmaster\models\Venue as VenueModel;
 
 /**
  * Base Service.
@@ -35,6 +35,11 @@ class Venues extends Base
 
     public function getVenueById(int $venueId)
     {
-        return Craft::$app->getElements()->getElementById($venueId, Venue::class);
+        $record = VenueRecord::findOne(['tmVenueId' => $venueId]);
+        if ($record) {
+            return new VenueModel($record);
+        }
+
+        return false;
     }
 }

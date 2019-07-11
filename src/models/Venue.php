@@ -59,11 +59,6 @@ class Venue extends Model
     /**
      * @var string url
      */
-    public $url;
-
-    /**
-     * @var string url
-     */
     public $payload;
 
     // Public Methods

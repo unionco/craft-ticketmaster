@@ -6,9 +6,6 @@
 {% set context = 'index' %}
 
 {% block actionButton %}
-    {% if elementType == "unionco\\ticketmaster\\elements\\Venue" %}
-        <a href="venues/new" class="btn submit add icon" title="{{ 'New Venue'|t('ticketmaster') }}">{{ 'New Venue'|t('ticketmaster') }}</a>
-    {% endif %}
     {% if elementType == "unionco\\ticketmaster\\elements\\Event" %}
         {% set venues = craft.ticketmaster.venues.all %}
         <div class="btngroup">
@@ -19,7 +16,7 @@
                 <ul>
                     {% for venue in venues %}
                         <li>
-                            <a data-fetch-events="{{ venue.id }}" class="formsubmit" href="#{{ venue.id }}">{{ venue.title }}</a>
+                            <a data-fetch-events="{{ venue.tmVenueId }}" class="formsubmit" href="#{{ venue.id }}">{{ venue.title }}</a>
                         </li>
                     {% endfor %}
                 </ul>

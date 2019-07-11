@@ -5,12 +5,11 @@
     </td>
     <td class="form-group-fields" :class="{ 'has-children' : hasChildren() }">
       <table class="hasChildren" v-if="hasChildren()">
-        <FormGroup 
+        <FormGroup
           v-for="(children, index) in group"
           v-bind:key="index"
           :label="index"
           :group="children"
-          :fields="fields"
           :name="`${name}[${label}]`"
           :mapName="`${mapName}[${label}]`"
           :mapNameDot="`${mapNameDot ? mapNameDot + '.' : ''}${label}`"
@@ -48,7 +47,7 @@ import Input from './Input';
     fields: Array
   },
   components: {
-    Input 
+    Input
   }
 })
 export default class FormGroup extends Vue {
@@ -74,7 +73,7 @@ export default class FormGroup extends Vue {
     }
 
     const payload = JSON.parse(JSON.stringify(this.mapped));
-    
+
     return get(payload, path) || 'skip';
   }
 

@@ -1,24 +1,23 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x
+ * Ticketmaster plugin for Craft CMS 3.x.
  *
  * Ticket master ticket feed for venues.
  *
- * @link      https://github.com/unionco
+ * @see      https://github.com/unionco
+ *
  * @copyright Copyright (c) 2019 Union
  */
 
 namespace unionco\ticketmaster\elements;
 
 use Craft;
-
 use craft\base\Element;
 use unionco\ticketmaster\db\Table;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
 use craft\elements\db\ElementQuery;
 use unionco\ticketmaster\Ticketmaster;
-use unionco\ticketmaster\elements\Venue;
 use craft\elements\db\ElementQueryInterface;
 use unionco\ticketmaster\elements\db\EventQuery;
 use craft\helpers\UrlHelper;
@@ -26,9 +25,11 @@ use craft\helpers\Json;
 use yii\base\InvalidConfigException;
 use Adbar\Dot;
 use craft\helpers\DatetimeHelper;
+use unionco\ticketmaster\records\Venue as VenueRecord;
+use unionco\ticketmaster\models\Venue as VenueModel;
 
 /**
- * Event Element
+ * Event Element.
  *
  * Element is the base class for classes representing elements in terms of objects.
  *
@@ -68,7 +69,7 @@ use craft\helpers\DatetimeHelper;
  * http://pixelandtonic.com/blog/craft-element-types
  *
  * @author    Union
- * @package   Ticketmaster
+ *
  * @since     1.0.0
  */
 class Event extends Element
@@ -87,7 +88,7 @@ class Event extends Element
     /**
      * @var int venueId
      */
-    public $venueId;
+    public $tmVenueId;
 
     /**
      * @var string tmEventId
@@ -95,24 +96,9 @@ class Event extends Element
     public $tmEventId;
 
     /**
-     * @var int craftEntryId
-     */
-    public $craftEntryId;
-
-    /**
-     * @var string url
-     */
-    public $url;
-
-    /**
      * @var string payload
      */
     public $payload;
-
-    /**
-     * @var string mapped
-     */
-    public $published;
 
     /**
      * @var Venue|null
@@ -125,7 +111,7 @@ class Event extends Element
     /**
      * Returns the display name of this class.
      *
-     * @return string The display name of this class.
+     * @return string the display name of this class
      */
     public static function displayName(): string
     {
@@ -133,7 +119,7 @@ class Event extends Element
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function refHandle()
     {
@@ -144,17 +130,17 @@ class Event extends Element
      * Returns whether elements of this type will be storing any data in the `content`
      * table (tiles or custom fields).
      *
-     * @return bool Whether elements of this type will be storing any data in the `content` table.
+     * @return bool whether elements of this type will be storing any data in the `content` table
      */
     public static function hasContent(): bool
     {
-        return true;
+        return false;
     }
 
     /**
      * Returns whether elements of this type have traditional titles.
      *
-     * @return bool Whether elements of this type have traditional titles.
+     * @return bool whether elements of this type have traditional titles
      */
     public static function hasTitles(): bool
     {
@@ -169,7 +155,8 @@ class Event extends Element
      *
      * Use [[statuses()]] to customize which statuses the elements might have.
      *
-     * @return bool Whether elements of this type have statuses.
+     * @return bool whether elements of this type have statuses
+     *
      * @see statuses()
      */
     public static function isLocalized(): bool
@@ -178,7 +165,7 @@ class Event extends Element
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function hasStatuses(): bool
     {
@@ -186,14 +173,14 @@ class Event extends Element
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function statuses(): array
     {
         return [
             self::STATUS_NEW => ['label' => Craft::t('ticketmaster', 'New'), 'color' => 'blue'],
             self::STATUS_UPDATED => ['label' => Craft::t('ticketmaster', 'Updated'), 'color' => 'pink'],
-            self::STATUS_PUBLISHED => ['label' => Craft::t('ticketmaster', 'Published'), 'color' => 'yellow']
+            self::STATUS_PUBLISHED => ['label' => Craft::t('ticketmaster', 'Published'), 'color' => 'yellow'],
         ];
     }
 
@@ -241,7 +228,7 @@ class Event extends Element
      * }
      * ```
      *
-     * @return ElementQueryInterface The newly created [[ElementQueryInterface]] instance.
+     * @return ElementQueryInterface the newly created [[ElementQueryInterface]] instance
      */
     public static function find(): ElementQueryInterface
     {
@@ -249,7 +236,7 @@ class Event extends Element
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected static function defineActions(string $source = null): array
     {
@@ -274,14 +261,14 @@ class Event extends Element
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected static function defineTableAttributes(): array
     {
         $attributes = [
             'title' => ['label' => Craft::t('ticketmaster', 'Title')],
             'tmEventId' => ['label' => Craft::t('ticketmaster', 'Event ID')],
-            'venue' => ['label' => Craft::t('ticketmaster', 'Venue')],
+            // 'venue' => ['label' => Craft::t('ticketmaster', 'Venue')],
             'dateCreated' => ['label' => Craft::t('ticketmaster', 'Date Created')],
             'dateUpdated' => ['label' => Craft::t('ticketmaster', 'Date Updated')],
         ];
@@ -290,20 +277,20 @@ class Event extends Element
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected static function defineDefaultTableAttributes(string $source): array
     {
         return [
             'title',
-            'venue',
+            // 'venue',
             'tmEventId',
             'dateCreated',
         ];
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function setEagerLoadedElements(string $handle, array $elements)
     {
@@ -316,7 +303,7 @@ class Event extends Element
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
     {
@@ -330,9 +317,10 @@ class Event extends Element
     /**
      * Defines the sources that elements of this type may belong to.
      *
-     * @param string|null $context The context ('index' or 'modal').
+     * @param string|null $context the context ('index' or 'modal')
      *
-     * @return array The sources.
+     * @return array the sources
+     *
      * @see sources()
      */
     protected static function defineSources(string $context = null): array
@@ -343,23 +331,25 @@ class Event extends Element
                 'key' => '*',
                 'label' => 'All Events',
                 'criteria' => [],
-            ]
+            ],
         ];
 
-        $venues = Venue::find()
-            ->all();
+        $venueRecords = VenueRecord::find();
+        $venues = array_map(function ($record) {
+            return new VenueModel($record);
+        }, $venueRecords->all());
 
         foreach ($venues as $key => $venue) {
             $sources[] = [
-                'key' => $venue->id,
+                'key' => $venue->tmVenueId,
                 'label' => $venue->title,
                 'data' => [
                     'type' => 'event',
-                    'handle' => $venue->title
+                    'handle' => $venue->title,
                 ],
                 'criteria' => [
-                    'venueId' => $venue->id,
-                ]
+                    'tmVenueId' => $venue->tmVenueId,
+                ],
             ];
         }
 
@@ -382,139 +372,130 @@ class Event extends Element
     public function rules()
     {
         $rules = parent::rules();
+
         return array_merge($rules, [
             ['tmEventId', 'string'],
-            ['url', 'string'],
-            ['venueId', 'string'],
+            ['tmVenueId', 'string'],
             ['payload', 'string'],
-            [['tmEventId', 'venueId', 'url', 'payload'], 'required']
+            [['tmEventId', 'tmVenueId', 'payload'], 'required'],
         ]);
     }
 
-    /**
-     * 
-     */
     public function _payload()
-    {   
+    {
         return Json::decode($this->payload ?? '{}');
     }
 
-    /**
-     * 
-     */
     public function _published()
-    {   
+    {
         return Json::decode($this->published ?? '{}');
     }
 
-    /**
-     * 
-     */
     public function _getFieldLayout()
     {
         if ($this->published) {
-            $dot = new Dot($this->_published());    
+            $dot = new Dot($this->_published());
         } else {
             $dot = new Dot($this->_payload());
         }
 
         return [
-            "id" => $dot->get('id'),
-            "description" => [
-                "label" => "Description",
-                "field" => "craft\\fields\\PlainText",
-                "value" => $dot->get('description'),
-                "config" => ["handle" => "fields[published][description]", "multiline" => true, "initialRows" => 4]
+            'id' => $dot->get('id'),
+            'description' => [
+                'label' => 'Description',
+                'field' => 'craft\\fields\\PlainText',
+                'value' => $dot->get('description'),
+                'config' => ['handle' => 'fields[published][description]', 'multiline' => true, 'initialRows' => 4],
             ],
-            "url" => [
-                "label" => "Url",
-                "field" => "craft\\fields\\Url",
-                "value" => $dot->get('url'),
-                "config" => ["handle" => "fields[published][url]"]
+            'url' => [
+                'label' => 'Url',
+                'field' => 'craft\\fields\\Url',
+                'value' => $dot->get('url'),
+                'config' => ['handle' => 'fields[published][url]'],
             ],
-            "startDate" => [
-                "label" => "Start Date",
-                "field" => "craft\\fields\\Date",
-                "value" => $dot->has('dates.start.dateTime.date') ? DatetimeHelper::toDateTime($dot->get('dates.start.dateTime')) : $dot->get('dates.start.dateTime'),
-                "config" => ["handle" => "fields[published][dates][start][dateTime]", "showDate" => true, "showTime" => true]
+            'startDate' => [
+                'label' => 'Start Date',
+                'field' => 'craft\\fields\\Date',
+                'value' => $dot->has('dates.start.dateTime.date') ? DatetimeHelper::toDateTime($dot->get('dates.start.dateTime')) : $dot->get('dates.start.dateTime'),
+                'config' => ['handle' => 'fields[published][dates][start][dateTime]', 'showDate' => true, 'showTime' => true],
             ],
-            "endDate" => [
-                "label" => "End Date",
-                "field" => "craft\\fields\\Date",
-                "value" => $dot->has('dates.end.dateTime.date') ? DatetimeHelper::toDateTime($dot->get('dates.end.dateTime')) : $dot->get('dates.end.dateTime'),
-                "config" => ["handle" => "fields[published][dates][end][dateTime]", "showDate" => true, "showTime" => true]
+            'endDate' => [
+                'label' => 'End Date',
+                'field' => 'craft\\fields\\Date',
+                'value' => $dot->has('dates.end.dateTime.date') ? DatetimeHelper::toDateTime($dot->get('dates.end.dateTime')) : $dot->get('dates.end.dateTime'),
+                'config' => ['handle' => 'fields[published][dates][end][dateTime]', 'showDate' => true, 'showTime' => true],
             ],
-            "spanMultipleDays" => [
-                "label" => "Spans Multiple Days",
-                "field" => "craft\\fields\\Lightswitch",
-                "value" => (bool) $dot->get('dates.spanMultipleDays'),
-                "config" => ["handle" => "fields[published][dates][spanMultipleDays]"],
+            'spanMultipleDays' => [
+                'label' => 'Spans Multiple Days',
+                'field' => 'craft\\fields\\Lightswitch',
+                'value' => (bool) $dot->get('dates.spanMultipleDays'),
+                'config' => ['handle' => 'fields[published][dates][spanMultipleDays]'],
             ],
-            "status" => [
-                "label" => "Event Status",
-                "field" => "craft\\fields\\PlainText",
-                "value" => $dot->get('dates.status.code'),
-                "config" => ["handle" => "fields[published][status][code]", "multiline" => false]
+            'status' => [
+                'label' => 'Event Status',
+                'field' => 'craft\\fields\\PlainText',
+                'value' => $dot->get('dates.status.code'),
+                'config' => ['handle' => 'fields[published][status][code]', 'multiline' => false],
             ],
-            "info" => [
-                "label" => "Info",
-                "field" => "craft\\fields\\PlainText",
-                "value" => $dot->get('info'),
-                "config" => ["handle" => "fields[published][info]", "multiline" => true, "initialRows" => 4]
+            'info' => [
+                'label' => 'Info',
+                'field' => 'craft\\fields\\PlainText',
+                'value' => $dot->get('info'),
+                'config' => ['handle' => 'fields[published][info]', 'multiline' => true, 'initialRows' => 4],
             ],
-            "additionalInfo" => [
-                "label" => "Additional Info",
-                "field" => "craft\\fields\\PlainText",
-                "value" => $dot->get('additionalInfo'),
-                "config" => ["handle" => "fields[published][additionalInfo]", "multiline" => true, "initialRows" => 4]
+            'additionalInfo' => [
+                'label' => 'Additional Info',
+                'field' => 'craft\\fields\\PlainText',
+                'value' => $dot->get('additionalInfo'),
+                'config' => ['handle' => 'fields[published][additionalInfo]', 'multiline' => true, 'initialRows' => 4],
             ],
-            "pleaseNote" => [
-                "label" => "Please Note",
-                "field" => "craft\\fields\\PlainText",
-                "value" => $dot->get('pleaseNote'),
-                "config" => ["handle" => "fields[published][pleaseNote]", "multiline" => true, "initialRows" => 4]
+            'pleaseNote' => [
+                'label' => 'Please Note',
+                'field' => 'craft\\fields\\PlainText',
+                'value' => $dot->get('pleaseNote'),
+                'config' => ['handle' => 'fields[published][pleaseNote]', 'multiline' => true, 'initialRows' => 4],
             ],
-            "seatmap" => [
-                "label" => "Seat Map",
-                "field" => "craft\\fields\\Url",
-                "value" => $dot->get('seatmap.staticUrl'),
-                "config" => ["handle" => "fields[published][seatmap][staticUrl]"],
-                "thumb" => true
+            'seatmap' => [
+                'label' => 'Seat Map',
+                'field' => 'craft\\fields\\Url',
+                'value' => $dot->get('seatmap.staticUrl'),
+                'config' => ['handle' => 'fields[published][seatmap][staticUrl]'],
+                'thumb' => true,
             ],
-            "images" => [
-                "label" => "Images",
-                "field" => "craft\\fields\\Table",
-                "value" => array_map(function($image) { 
-                    return ["col1" => $image['col1'] ?? $image['url']]; 
+            'images' => [
+                'label' => 'Images',
+                'field' => 'craft\\fields\\Table',
+                'value' => array_map(function ($image) {
+                    return ['col1' => $image['col1'] ?? $image['url']];
                 }, $dot->get('images') ?? []),
-                "config" => [
-                    "handle" => "fields[published][images]",
-                    "columns" => [
-                        "col1" => [ "heading" => "Image", "handle" => "url", "type" => "singleline" ]
-                    ]
+                'config' => [
+                    'handle' => 'fields[published][images]',
+                    'columns' => [
+                        'col1' => ['heading' => 'Image', 'handle' => 'url', 'type' => 'singleline'],
+                    ],
                 ],
             ],
-            "priceRanges" => [
-                "label" => "Price Ranges",
-                "field" => "craft\\fields\\Table",
-                "value" => array_map(function($price) { 
+            'priceRanges' => [
+                'label' => 'Price Ranges',
+                'field' => 'craft\\fields\\Table',
+                'value' => array_map(function ($price) {
                     return [
-                        "col1" => $price['type'],
-                        "col2" => $price['currency'],
-                        "col3" => $price['min'],
-                        "col4" => $price['max'],
-                    ]; 
+                        'col1' => $price['type'],
+                        'col2' => $price['currency'],
+                        'col3' => $price['min'],
+                        'col4' => $price['max'],
+                    ];
                 }, $dot->get('priceRanges') ?? []),
-                "config" => [
-                    "handle" => "fields[published][priceRanges]",
-                    "columns" => [
-                        "col1" => [ "heading" => "Type", "handle" => "type", "type" => "singleline" ],
-                        "col2" => [ "heading" => "Currency", "handle" => "currency", "type" => "singleline" ],
-                        "col3" => [ "heading" => "Min", "handle" => "min", "type" => "singleline" ],
-                        "col4" => [ "heading" => "Max", "handle" => "max", "type" => "singleline" ]
-                    ]
+                'config' => [
+                    'handle' => 'fields[published][priceRanges]',
+                    'columns' => [
+                        'col1' => ['heading' => 'Type', 'handle' => 'type', 'type' => 'singleline'],
+                        'col2' => ['heading' => 'Currency', 'handle' => 'currency', 'type' => 'singleline'],
+                        'col3' => ['heading' => 'Min', 'handle' => 'min', 'type' => 'singleline'],
+                        'col4' => ['heading' => 'Max', 'handle' => 'max', 'type' => 'singleline'],
+                    ],
                 ],
-            ]
+            ],
         ];
     }
 
@@ -532,7 +513,7 @@ class Event extends Element
     // -------------------------------------------------------------------------
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getStatus()
     {
@@ -562,7 +543,7 @@ class Event extends Element
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * ---
      * ```php
@@ -577,7 +558,7 @@ class Event extends Element
     public function getCpEditUrl()
     {
         // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
-        $url = UrlHelper::cpUrl('ticketmaster/events/' . $this->id . ($this->tmEventId ? '-' . $this->tmEventId : ''));
+        $url = UrlHelper::cpUrl('ticketmaster/events/'.$this->id.($this->tmEventId ? '-'.$this->tmEventId : ''));
 
         // if (Craft::$app->getIsMultiSite()) {
         //     $url .= '/' . $this->getSite()->handle;
@@ -603,8 +584,8 @@ class Event extends Element
                 'errors' => $this->getErrors('title'),
                 'first' => true,
                 'autofocus' => true,
-                'required' => true
-            ]
+                'required' => true,
+            ],
         ]);
 
         $html .= parent::getEditorHtml();
@@ -614,7 +595,9 @@ class Event extends Element
 
     /**
      * Returns the entry's venue.
+     *
      * @return Venue|null
+     *
      * @throws InvalidConfigException if [[venueId]] is set but invalid
      */
     public function getVenue()
@@ -623,12 +606,12 @@ class Event extends Element
             return $this->_venue;
         }
 
-        if ($this->venueId === null) {
+        if ($this->tmVenueId === null) {
             return null;
         }
 
         if (($this->_venue = Ticketmaster::$plugin->venues->getVenueById($this->venueId)) === null) {
-            throw new InvalidConfigException('Invalid venue ID: ' . $this->venueId);
+            throw new InvalidConfigException('Invalid venue ID: '.$this->venueId);
         }
 
         return $this->_venue;
@@ -639,19 +622,20 @@ class Event extends Element
      *
      * @param Venue|null $venue
      */
-    public function setVenue(Venue $venue = null)
+    public function setVenue(VenueModel $venue = null)
     {
         $this->_venue = $venue;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function tableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'venue':
                 $venue = $this->getVenue();
+
                 return $venue ? Craft::$app->getView()->renderTemplate('_elements/element', ['element' => $venue]) : '';
         }
 
@@ -677,31 +661,27 @@ class Event extends Element
      * Performs actions after an element is saved.
      *
      * @param bool $isNew Whether the element is brand new
-     *
-     * @return void
      */
     public function afterSave(bool $isNew)
     {
         if ($isNew) {
             Craft::$app->db->createCommand()
-                ->insert(Table::EVENTS, [
-                    'id'            => $this->id,
-                    'venueId'       => $this->venueId,
-                    'tmEventId'     => $this->tmEventId,
-                    'url'           => $this->url,
-                    'payload'       => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
-                    'published'     => is_array($this->published) ? Json::encode($this->published) : $this->published,
+                ->insert(Table::EVENT_ELEMENTS, [
+                    'id' => $this->id,
+                    'title' => $this->title,
+                    'tmVenueId' => $this->tmVenueId,
+                    'tmEventId' => $this->tmEventId,
+                    'payload' => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
                 ])
                 ->execute();
         } else {
             Craft::$app->db->createCommand()
-                ->update(Table::EVENTS, [
-                    'id'            => $this->id,
-                    'venueId'       => $this->venueId,
-                    'tmEventId'     => $this->tmEventId,
-                    'url'           => $this->url,
-                    'payload'       => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
-                    'published'     => is_array($this->published) ? Json::encode($this->published) : $this->published,
+                ->update(Table::EVENT_ELEMENTS, [
+                    'id' => $this->id,
+                    'title' => $this->title,
+                    'tmVenueId' => $this->tmVenueId,
+                    'tmEventId' => $this->tmEventId,
+                    'payload' => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
                 ], ['id' => $this->id])
                 ->execute();
         }
@@ -721,8 +701,6 @@ class Event extends Element
 
     /**
      * Performs actions after an element is deleted.
-     *
-     * @return void
      */
     public function afterDelete()
     {
@@ -744,10 +722,20 @@ class Event extends Element
      * Performs actions after an element is moved within a structure.
      *
      * @param int $structureId The structure ID
-     *
-     * @return void
      */
     public function afterMoveInStructure(int $structureId)
     {
+    }
+
+    public function toJson()
+    {
+        $payload = json_decode($this->payload);
+
+        return json_encode([
+            'id' => $this->id,
+            'title' => $this->title,
+            'tmEventId' => $this->tmEventId,
+            'payload' => $payload,
+        ]);
     }
 }

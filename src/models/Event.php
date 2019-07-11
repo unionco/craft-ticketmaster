@@ -44,33 +44,10 @@ class Event extends Model
     public $title;
 
     /**
-     * @var string title
-     */
-    public $slug;
-
-    /**
-     * @var int venueId
-     */
-    public $venueId;
-
-    /**
      * @var string tmEventId
      */
     public $tmEventId;
 
-    /**
-     * @var int craftEntryId
-     */
-    public $craftEntryId;
-
-    /**
-     * @var string url
-     */
-    public $url;
-
-    /**
-     * @var string url
-     */
     public $payload;
     public $ownerId;
     public $ownerSiteId;
@@ -107,7 +84,7 @@ class Event extends Model
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['title', 'venueId', 'tmEventId', 'payload'], 'required'];
+        $rules[] = [['title', 'tmEventId', 'payload'], 'required'];
 
         return $rules;
     }

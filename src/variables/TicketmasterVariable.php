@@ -14,6 +14,7 @@ use Craft;
 
 use unionco\ticketmaster\Ticketmaster;
 use unionco\ticketmaster\elements\Venue;
+use unionco\ticketmaster\records\Venue as VenueRecord;
 use Adbar\Dot;
 
 /**
@@ -49,8 +50,7 @@ class TicketmasterVariable
      */
     public function venues($criteria = [])
     {
-        $query = Venue::find();
-        Craft::configure($query, $criteria);
+        $query = VenueRecord::find();
 
         return $query;
     }
@@ -64,14 +64,14 @@ class TicketmasterVariable
     {
         $field = new $class();
         Craft::configure($field, $params);
-        
+
         return $field;
     }
 
     public function getSectionSelect()
     {
         $sections = Craft::$app->getSections()->getSectionsByType('channel');
-        
+
         $options = [];
 
         foreach ($sections as $key => $section) {

@@ -37,45 +37,63 @@ class Install extends Migration
     }
 
     /**
-     * 
+     *
      */
     protected function createTables()
     {
         $this->createTable(Table::VENUES, [
             'id' => $this->primaryKey(),
+            'ownerId' => $this->integer()->notNull(),
+            'ownerSiteId' => $this->integer()->notNull(),
+            'fieldId' => $this->integer()->notNull(),
             'tmVenueId' => $this->string()->notNull(),
             'title' => $this->string()->notNull(),
-            'type' => $this->string()->defaultValue('venue')->notNull(),
-            'url' => $this->string()->notNull(),
             'payload' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
         ]);
 
+        $this->createIndex(
+            null,
+            Table::VENUES,
+            ['ownerId', 'ownerSiteId', 'fieldId'],
+            true
+        );
+
         $this->createTable(Table::EVENTS, [
             'id' => $this->primaryKey(),
-            'venueId' => $this->integer()->notNull(),
+            'ownerId' => $this->integer()->notNull(),
+            'ownerSiteId' => $this->integer()->notNull(),
+            'fieldId' => $this->integer()->notNull(),
             'tmEventId' => $this->string()->notNull(),
             'title' => $this->string()->notNull(),
-            'type' => $this->string()->defaultValue('event')->notNull(),
-            'url' => $this->string()->notNull(),
             'payload' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
         ]);
-        
+
+        $this->createIndex(
+            null,
+            Table::EVENTS,
+            ['ownerId', 'ownerSiteId', 'fieldId'],
+            true
+        );
+
         return true;
     }
 
     /**
-     * 
+     *
      */
     protected function addForeignKeys()
     {
-        $this->addForeignKey(null, Table::VENUES, ['id'], '{{%elements}}', ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::EVENTS, ['id'], '{{%elements}}', ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::EVENTS, ['venueId'], Table::VENUES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::VENUES, ['ownerId'], '{{%elements}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, Table::VENUES, ['ownerSiteId'], '{{%sites}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::VENUES, ['fieldId'], '{{%fields}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::EVENTS, ['ownerId'], '{{%elements}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, Table::EVENTS, ['ownerSiteId'], '{{%sites}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::EVENTS, ['fieldId'], '{{%fields}}', ['id'], 'CASCADE', 'CASCADE');
     }
 }

@@ -413,7 +413,6 @@ class VenueSearch extends Field
 
         $record->tmVenueId = $value['tmVenueId'];
         $record->title = $value['title'];
-        $record->url = '';
 
         $record->payload = json_encode($value['payload']);
 

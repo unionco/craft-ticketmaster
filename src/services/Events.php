@@ -15,7 +15,7 @@ use Adbar\Dot;
 use craft\helpers\Json;
 use unionco\ticketmaster\Ticketmaster;
 use unionco\ticketmaster\elements\Event;
-use unionco\ticketmaster\elements\Venue;
+use unionco\ticketmaster\models\Venue as VenueModel;
 
 /**
  * Base Service
@@ -37,7 +37,7 @@ class Events extends Base
     const ENDPOINT = "discovery/v2/events";
 
     /**
-     * 
+     *
      */
     public function getEventById(int $eventId)
     {
@@ -71,7 +71,7 @@ class Events extends Base
     }
 
     /**
-     * 
+     *
      */
     public function getEventDetail(string $eventId)
     {
@@ -86,12 +86,12 @@ class Events extends Base
 
     /**
      * Save ticketmaste event to event element
-     * 
+     *
      * @param eventDetail array from tm
      * @param venue element
      * @return mixed Throwable||Event;
      */
-    public function saveEvent(array $eventDetail, Venue $venue)
+    public function saveEvent(array $eventDetail, VenueModel $venue)
     {
         $event = Event::find()
             ->tmEventId($eventDetail['id'])
@@ -99,16 +99,17 @@ class Events extends Base
 
         if (!$event) {
             $event = new Event();
-            $event->venueId = $venue->id;
+            $event->tmVenueId = $venue->tmVenueId;
             $event->title = $eventDetail['name'];
         }
 
         $event->tmEventId = $eventDetail['id'];
-        $event->url = $eventDetail['url'];
         $event->payload = Json::encode($eventDetail);
 
         try {
             $result = Craft::$app->getElements()->saveElement($event);
+            // $event->validate();
+            // die(var_dump($event->getErrors()));
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -117,7 +118,7 @@ class Events extends Base
     }
 
     /**
-     * 
+     *
      */
     public function transformPayload(array $data)
     {
@@ -189,8 +190,8 @@ class Events extends Base
             "images" => [
                 "label" => "Images",
                 "field" => "craft\\fields\\Table",
-                "value" => array_map(function($image) { 
-                    return ["col1" => $image['url']]; 
+                "value" => array_map(function($image) {
+                    return ["col1" => $image['url']];
                 }, $dot->get('images')),
                 "config" => [
                     "handle" => "payload[images]",
@@ -203,10 +204,10 @@ class Events extends Base
     }
 
     /**
-     * 
+     *
      */
     public function publishEvent(Event $event)
     {
-        
+
     }
 }

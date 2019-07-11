@@ -22,53 +22,38 @@ class EventQuery extends ElementQuery
 {
     // Public Properties
     // =========================================================================
-    
+
 
     /**
      * @var int
      */
-    public $venueId;
+    public $tmVenueId;
 
     /**
      * @var string
      */
     public $tmEventId;
 
-    /**
-     * @var int
-     */
-    public $craftEntryId;
-
 
     // Public Methods
     // =========================================================================
 
     /**
-     * 
+     *
      */
-    public function venueId($value)
+    public function tmVenueId($value)
     {
-        $this->venueId = $value;
+        $this->tmVenueId = $value;
 
         return $this;
     }
 
     /**
-     * 
+     *
      */
     public function tmEventId($value)
     {
         $this->tmEventId = $value;
-
-        return $this;
-    }
-
-    /**
-     * 
-     */
-    public function craftEntryId($value)
-    {
-        $this->craftEntryId = $value;
 
         return $this;
     }
@@ -82,28 +67,22 @@ class EventQuery extends ElementQuery
     protected function beforePrepare(): bool
     {
         // join in the products table
-        $this->joinElementTable('ticketmaster_events');
+        $this->joinElementTable('ticketmaster_event_elements');
 
         // select the columns
         $this->query->select([
-            'ticketmaster_events.venueId',
-            'ticketmaster_events.tmEventId',
-            'ticketmaster_events.craftEntryId',
-            'ticketmaster_events.url',
-            'ticketmaster_events.payload',
-            'ticketmaster_events.published'
+            'ticketmaster_event_elements.title',
+            'ticketmaster_event_elements.tmVenueId',
+            'ticketmaster_event_elements.tmEventId',
+            'ticketmaster_event_elements.payload',
         ]);
 
-        if ($this->venueId) {
-            $this->subQuery->andWhere(Db::parseParam('ticketmaster_events.venueId', $this->venueId));
+        if ($this->tmVenueId) {
+            $this->subQuery->andWhere(Db::parseParam('ticketmaster_event_elements.tmVenueId', $this->tmVenueId));
         }
 
         if ($this->tmEventId) {
-            $this->subQuery->andWhere(Db::parseParam('ticketmaster_events.tmEventId', $this->tmEventId));
-        }
-        
-        if ($this->craftEntryId) {
-            $this->subQuery->andWhere(Db::parseParam('ticketmaster_events.craftEntryId', $this->craftEntryId));
+            $this->subQuery->andWhere(Db::parseParam('ticketmaster_event_elements.tmEventId', $this->tmEventId));
         }
 
         return parent::beforePrepare();
