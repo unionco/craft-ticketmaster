@@ -89,12 +89,12 @@ class Venue extends Model
 
     public function toJson()
     {
-        $payload = json_decode($this->payload);
+        $payload = json_encode($this->payload);
 
         return json_encode([
             'title' => $this->title,
             'tmVenueId' => $this->tmVenueId,
-            'payload' => $payload
+              'payload' => $payload,
         ]);
     }
 }

@@ -377,13 +377,13 @@ class EventSearch extends Field
                 'handle' => $this->handle,
             ])
         );
-        $venue = preg_replace(
+        $event = preg_replace(
             '/\'/',
             '&#039;',
             $value->toJson()
         );
 
-        return '<div id="'.$containerId.'"><venue-search :venue=\''. $venue.'\' :options=\''.$options.'\'></venue-search></div>';
+        return '<div id="'.$containerId.'"><event-search :event=\''. $event.'\' :options=\''.$options.'\'></event-search></div>';
     }
 
     /**
@@ -409,7 +409,7 @@ class EventSearch extends Field
             $record->fieldId = $this->id;
         }
 
-        $record->tmVenueId = $value['tmVenueId'];
+        $record->tmEventId = $value['tmEventId'];
         $record->title = $value['title'];
         $record->url = '';
 

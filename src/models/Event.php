@@ -1,22 +1,21 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x
+ * Ticketmaster plugin for Craft CMS 3.x.
  *
  * Ticket master ticket feed for venues.
  *
- * @link      https://github.com/unionco
+ * @see      https://github.com/unionco
+ *
  * @copyright Copyright (c) 2019 Union
  */
 
 namespace unionco\ticketmaster\models;
 
-use unionco\ticketmaster\Ticketmaster;
-
 use Craft;
 use craft\base\Model;
 
 /**
- * Ticketmaster Settings Model
+ * Ticketmaster Settings Model.
  *
  * This is a model used to define the plugin's settings.
  *
@@ -26,7 +25,7 @@ use craft\base\Model;
  * https://craftcms.com/docs/plugins/models
  *
  * @author    Union
- * @package   Ticketmaster
+ *
  * @since     1.0.0
  */
 class Event extends Model
@@ -38,12 +37,12 @@ class Event extends Model
      * @var string title
      */
     public $id;
-    
+
     /**
      * @var string title
      */
     public $title;
-    
+
     /**
      * @var string title
      */
@@ -73,22 +72,26 @@ class Event extends Model
      * @var string url
      */
     public $payload;
+    public $ownerId;
+    public $ownerSiteId;
+    public $fieldId;
+    public $dateCreated;
+    public $dateUpdated;
+    public $uid;
 
     // Public Methods
     // =========================================================================
 
-    /**
-     * 
-     */
-    public function __toJson()
+    public function toJson()
     {
-        $payload = Json::decode($this->payload);
-        return Json::encode([
-            "id" => $this->id,
-            "title" => $this->title,
-            "venueId" => $this->venueId,
-            "tmEventId" => $this->tmEventId,
-            "payload" => $payload
+        $payload = json_decode($this->payload);
+
+        return json_encode([
+            'id' => $this->id,
+            'title' => $this->title,
+            'venueId' => $this->venueId,
+            'tmEventId' => $this->tmEventId,
+            'payload' => $payload,
         ]);
     }
 
@@ -106,6 +109,7 @@ class Event extends Model
     {
         $rules = parent::rules();
         $rules[] = [['title', 'venueId', 'tmEventId', 'payload'], 'required'];
+
         return $rules;
     }
 }

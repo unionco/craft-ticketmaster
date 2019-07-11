@@ -133,23 +133,23 @@
             />
           </div>
 
-          <div class="md-layout-item">
+          <!-- <div class="md-layout-item">
             <Redactor
               label="General Info"
               :name="getPayloadFieldName('[generalInfo][generalRule]')"
               handle="generalRule"
               :value="payloadFields.generalInfo.generalRule"
             />
-          </div>
+          </div> -->
 
-          <div class="md-layout-item">
+          <!-- <div class="md-layout-item">
             <Redactor
               label="Children Info"
               :name="getPayloadFieldName('[generalInfo][childRule]')"
               handle="childRule"
               :value="payloadFields.generalInfo.childRule"
             />
-          </div>
+          </div> -->
         </div>
       </div>
     </div>

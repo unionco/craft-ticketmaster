@@ -2,6 +2,7 @@
 // import App from './App.vue';
 // import Settings from './Settings.vue';
 import VenueSearch from './components/VenueSearch';
+import EventSearch from './components/EventSearch';
 import EventForm from './EventForm.vue';
 import { t } from './filters/translate';
 // import 'vue-material/dist/vue-material.min.css';
@@ -15,6 +16,7 @@ const VueSimpleMapPlugin = {
     // Vue.component('ticketmaster-settings', Settings);
     Vue.component('tm-eventform', EventForm);
     Vue.component('venue-search', VenueSearch);
+    Vue.component('event-search', EventSearch);
   }
 };
 
