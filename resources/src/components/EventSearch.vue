@@ -9,7 +9,7 @@
           @selected="onSelected">
         <template slot-scope="{suggestion}">
           {{suggestion.item.name}}
-          <span class="light">– {{suggestion.item._embedded.venues[0].name}} {{ suggestion.item._embedded.venues[0].city.name }}, {{ suggestion.item._embedded.venues[0].state.name }}</span>
+          <span class="light">– {{suggestion.item._embedded.venues[0].name}}, {{ suggestion.item._embedded.venues[0].city.name }}, {{ suggestion.item._embedded.venues[0].state.name }}</span>
         </template>
       </vue-autosuggest>
     </div>
@@ -45,7 +45,7 @@ export default class EventSearch extends Vue {
   // Properties
   // =====================================================================
   suggestions = [{ data: [] }];
-  limit = 5;
+  limit = 10;
   initialValue = '';
 
   // Getters
@@ -72,7 +72,7 @@ export default class EventSearch extends Vue {
   }
 
   created() {
-    console.log('created venue search');
+    console.log('created event search');
     // console.log(this.venue);
   }
 

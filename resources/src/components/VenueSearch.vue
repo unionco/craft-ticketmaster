@@ -70,7 +70,7 @@
                   :value="payloadFields.state.stateCode"
                 />
               </div>
-              <div class="md-layout-item">
+              <div class="md-layout-item" v-if="payloadFields.postalCode">
                 <Input
                   label="Postal Code"
                   :name="getPayloadFieldName('[postalCode]')"
@@ -133,23 +133,23 @@
             />
           </div>
 
-          <!-- <div class="md-layout-item">
+          <div class="md-layout-item" v-if="payloadFields.generalInfo">
             <Redactor
               label="General Info"
               :name="getPayloadFieldName('[generalInfo][generalRule]')"
               handle="generalRule"
               :value="payloadFields.generalInfo.generalRule"
             />
-          </div> -->
+          </div>
 
-          <!-- <div class="md-layout-item">
+          <div class="md-layout-item" v-if="payloadFields.generalInfo">
             <Redactor
               label="Children Info"
               :name="getPayloadFieldName('[generalInfo][childRule]')"
               handle="childRule"
               :value="payloadFields.generalInfo.childRule"
             />
-          </div> -->
+          </div>
         </div>
       </div>
     </div>
@@ -209,12 +209,12 @@ export default class VenueSearch extends Vue {
   }
 
   created() {
-    console.log('created venue search');
+    console.log('created event search');
     // console.log(this.venue);
   }
 
   mounted() {
-    console.log(this.venueFields)
+    console.log('venue search', this);
   }
 
   onSelected(option) {

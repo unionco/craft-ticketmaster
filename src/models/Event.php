@@ -89,7 +89,6 @@ class Event extends Model
         return json_encode([
             'id' => $this->id,
             'title' => $this->title,
-            'venueId' => $this->venueId,
             'tmEventId' => $this->tmEventId,
             'payload' => $payload,
         ]);
