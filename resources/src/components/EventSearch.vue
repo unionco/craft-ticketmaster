@@ -33,13 +33,13 @@
 <script lang="js">
 import { Component, Vue } from 'vue-property-decorator';
 import { VueAutosuggest } from 'vue-autosuggest';
-import FormGroup from './FormGroup';
 import qs from 'qs';
 import get from 'lodash.get';
 import { t } from '../filters/translate';
 import Input from './Input';
 import Textarea from './Textarea';
 import Redactor from './Redactor';
+import FormGroup from './FormGroup';
 
 @Component({
   components: {

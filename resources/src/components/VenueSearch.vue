@@ -160,11 +160,11 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { VueAutosuggest } from 'vue-autosuggest';
 import qs from 'qs';
+import get from 'lodash.get';
 import { t } from '../filters/translate';
 import Input from './Input';
 import Textarea from './Textarea';
 import Redactor from './Redactor';
-import get from 'lodash.get';
 
 @Component({
   components: {

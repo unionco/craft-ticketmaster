@@ -76,7 +76,7 @@ class Ticketmaster extends Plugin
      *
      * @var string
      */
-    public $schemaVersion = '1.0.2';
+    public $schemaVersion = '1.0.3';
 
     /**
      * @var bool Whether the plugin has a settings page in the CP
@@ -229,9 +229,9 @@ class Ticketmaster extends Plugin
         $item['url'] = 'ticketmaster';
         $item['subnav'] = [
             'ticketmaster' => [ 'label' => 'Dashboard', 'url' => 'ticketmaster' ],
-            'venues' => [ 'label' => 'Venues', 'url' => 'ticketmaster/venues' ],
+            // 'venues' => [ 'label' => 'Venues', 'url' => 'ticketmaster/venues' ],
             'events' => [ 'label' => 'Events', 'url' => 'ticketmaster/events' ],
-            'settings' => [ 'label' => 'Settings', 'url' => 'ticketmaster/settings' ],
+            'settings' => [ 'label' => 'Settings', 'url' => 'settings/plugins/ticketmaster' ],
         ];
         return $item;
     }
