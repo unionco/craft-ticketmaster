@@ -11,24 +11,10 @@
           :label="index"
           :group="children"
           :name="`${name}[${label}]`"
-          :mapName="`${mapName}[${label}]`"
-          :mapNameDot="`${mapNameDot ? mapNameDot + '.' : ''}${label}`"
-          :mapped="mapped" />
+          />
       </table>
       <textarea v-else class="text fullwidth" :name="`${name}[${label}]`" :value="group" />
     </td>
-    <!-- <td class="form-group-select" v-if="!hasChildren()">
-      <div class="field">
-        <div class="select ltr" style="width: 100%;">
-          <select :name="`${mapName}[${label}]`" v-model="mapLabel" style="width: 100%;">
-            <option value="skip">Skip</option>
-            <option v-for="(option, index) in fields" v-bind:value="option.handle" v-bind:key="index">
-              {{ option.name }}
-            </option>
-          </select>
-        </div>
-      </div>
-    </td> -->
   </tr>
 </template>
 <script lang="js">

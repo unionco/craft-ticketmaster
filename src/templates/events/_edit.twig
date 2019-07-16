@@ -49,12 +49,29 @@
 
         {% for tab in tabs %}
             <div id="{{ tab.id }}"{% if not loop.first %} class="hidden"{% endif %}>
-                {% include "_includes/forms/field" with {
-                    label: 'Event Search'|t('ticketmaster'),
-                    id: 'eventSearch',
-                    input: eventSearchField.getInputHtml(event),
-                    fieldType: className(eventSearchField),
-                } only %}
+                {% if tab.id == 'publish' %}
+                    {% set eventPublishedField = craft.ticketmaster.createField("unionco\\ticketmaster\\fields\\EventSearch", {
+                        handle: 'published',
+                        id: 'published'
+                    }) %}
+                    {% include "_includes/forms/field" with {
+                        label: 'Event Published'|t('ticketmaster'),
+                        id: 'published',
+                        input: eventPublishedField.getInputHtml(event.published ?? event.payload),
+                        fieldType: className(eventPublishedField),
+                    } only %}
+                {% else %}
+                    {% set eventSearchField = craft.ticketmaster.createField("unionco\\ticketmaster\\fields\\EventSearch", {
+                        handle: 'payload',
+                        id: 'payload'
+                    }) %}
+                    {% include "_includes/forms/field" with {
+                        label: 'Event Search'|t('ticketmaster'),
+                        id: 'payload',
+                        input: eventSearchField.getInputHtml(event.payload),
+                        fieldType: className(eventSearchField),
+                    } only %}
+                {% endif %}
             </div>
         {% endfor %}
     </div>
@@ -94,7 +111,7 @@
         data() {
             {% block eventdetails %}
             var data = {{ {
-                eventId: event._payload.id,
+                eventId: event._payload.tmEventId,
                 venueId: event.tmVenueId
             }|json_encode|raw }};
             {% endblock %}
@@ -112,11 +129,11 @@
         }
     })
 {% endjs %}
-
+{# 
 {% if not event.slug %}
     {% js %}
         window.slugGenerator = new Craft.SlugGenerator('#title', '#slug', {
             charMap: {{ craft.cp.getAsciiCharMap(currentSite.language)|json_encode|raw }}
         });
     {% endjs %}
-{% endif %}
+{% endif %} #}

@@ -66,51 +66,6 @@ class SettingsController extends BaseController
     }
 
     /**
-     * Handle a request going to our plugin's index action URL,
-     * e.g.: actions/ticketmaster/base
-     *
-     * @return mixed
-     */
-    public function actionSections()
-    {
-        $variables = [];
-
-        return $this->renderTemplate('ticketmaster/cp/sections', $variables);
-    }
-
-    /**
-     * Handle a request going to our plugin's index action URL,
-     * e.g.: actions/ticketmaster/base
-     *
-     * @return mixed
-     */
-    public function actionLayouts()
-    {
-        $variables = [];
-
-        return $this->renderTemplate('ticketmaster/cp/layouts', $variables);
-    }
-
-    /**
-     * Handle a request going to our plugin's index action URL,
-     * e.g.: actions/ticketmaster/base
-     *
-     * @return mixed
-     */
-    public function actionSaveLayout()
-    {
-        $this->requirePostRequest();
-        $request = Craft::$app->getRequest();
-
-        // Set the field layout
-        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
-        $fieldLayout->type = Event::class;
-        Craft::$app->getFields()->saveLayout($fieldLayout);
-
-        return $this->redirectToPostedUrl($request);
-    }
-
-    /**
      * 
      */
     public function actionGetEntryTypes()

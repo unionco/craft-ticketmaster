@@ -88,6 +88,7 @@ class Install extends Migration
             'tmEventId' => $this->string()->notNull(),
             'title' => $this->string()->notNull(),
             'payload' => $this->text(),
+            'published' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()

@@ -377,11 +377,21 @@ class EventSearch extends Field
                 'handle' => $this->handle,
             ])
         );
-        $event = preg_replace(
-            '/\'/',
-            '&#039;',
-            $value->toJson()
-        );
+
+        /** If the value is coming from a custom field use the toJson method, if not, let it be */
+        if ($value instanceof EventModel) {
+            $event = preg_replace(
+                '/\'/',
+                '&#039;',
+                $value->toJson()
+            );
+        } else {
+            $event = preg_replace(
+                '/\'/',
+                '&#039;',
+                $value
+            );
+        }
 
         return '<div id="'.$containerId.'"><event-search :event=\''. $event.'\' :options=\''.$options.'\'></event-search></div>';
     }
@@ -413,6 +423,7 @@ class EventSearch extends Field
         $record->title = $value['title'];
 
         $record->payload = json_encode($value['payload']);
+
 
         $record->save();
 

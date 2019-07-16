@@ -11,31 +11,27 @@
 namespace unionco\ticketmaster;
 
 use Craft;
-use yii\base\Event;
 use craft\base\Plugin;
-use craft\web\UrlManager;
+use craft\console\Application as ConsoleApplication;
+use craft\events\PluginEvent;
+use craft\events\RegisterComponentTypesEvent;
+use craft\events\RegisterUrlRulesEvent;
+use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Plugins;
-use craft\services\Elements;
-
-use craft\events\PluginEvent;
-use craft\events\RegisterUrlRulesEvent;
-use unionco\ticketmaster\fields\Venues;
+use craft\web\twig\variables\CraftVariable;
+use craft\web\UrlManager;
+use unionco\ticketmaster\elements\Event as EventElement;
+use unionco\ticketmaster\elements\Venue as VenueElement;
+use unionco\ticketmaster\fields\EventSearch;
+use unionco\ticketmaster\fields\VenueSearch;
 use unionco\ticketmaster\models\Settings;
+use unionco\ticketmaster\services\Base as BaseService;
 use unionco\ticketmaster\services\Events as EventService;
 use unionco\ticketmaster\services\Venues as VenueService;
-use craft\web\twig\variables\CraftVariable;
-use craft\events\RegisterComponentTypesEvent;
-use craft\console\Application as ConsoleApplication;
-use unionco\ticketmaster\services\Base as BaseService;
-use unionco\ticketmaster\elements\Venue as VenueElement;
-
-use unionco\ticketmaster\variables\TicketmasterVariable;
 use unionco\ticketmaster\twigextensions\TicketmasterTwigExtension;
-use unionco\ticketmaster\fields\VenueSearch;
-use unionco\ticketmaster\elements\Event as EventElement;
-use unionco\ticketmaster\fields\EventSearch;
-use unionco\ticketmaster\fields\Events;
+use unionco\ticketmaster\variables\TicketmasterVariable;
+use yii\base\Event;
 
 /**
  * Craft plugins are very much like little applications in and of themselves. We’ve made
@@ -76,7 +72,7 @@ class Ticketmaster extends Plugin
      *
      * @var string
      */
-    public $schemaVersion = '1.0.3';
+    public $schemaVersion = '1.0.4';
 
     /**
      * @var bool Whether the plugin has a settings page in the CP

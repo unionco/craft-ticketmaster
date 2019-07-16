@@ -14,18 +14,18 @@
       </vue-autosuggest>
     </div>
     <div class="fields-container" v-if="event">
-      <h2>Additional Info</h2>
+      <h2>Event Info</h2>
       <input type="hidden" :name="`fields[${options.handle}][tmEventId]`" :value="event.tmEventId || event.id" />
       <input type="hidden" :name="`fields[${options.handle}][title]`" :value="event.title || event.name" />
-    <FormGroup
-      v-for="(group, index) in payloadFields"
-      v-bind:key="index"
-      :label="index"
-      :group="payloadFields[index]"
-      :mapped="mapped"
-      :name="`fields[${options.handle}][payload]`"
-      mapName="fields[mapped]"
-      mapNameDot="" />
+      <table>
+        <FormGroup
+          v-for="(group, index) in payloadFields"
+          v-bind:key="index"
+          :label="index"
+          :group="payloadFields[index]"
+          :name="`fields[${options.handle}][payload]`"
+        />
+      </table>
     </div>
   </div>
 </template>
@@ -84,14 +84,9 @@ export default class EventSearch extends Vue {
     };
   }
 
-  created() {
-    console.log('created event search');
-    // console.log(this.venue);
-  }
+  created() {}
 
-  mounted() {
-    console.log(this.eventFields);
-  }
+  mounted() {}
 
   onSelected(option) {
     this.event = option.item;
@@ -140,5 +135,9 @@ export default class EventSearch extends Vue {
   background: #eee;
   padding: 10px;
   border: 1px solid darken(#eee, 10%);
+}
+
+table {
+  width: 100%;
 }
 </style>

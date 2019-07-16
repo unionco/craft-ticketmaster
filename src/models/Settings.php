@@ -49,6 +49,11 @@ class Settings extends Model
      * @var string section
      */
     public $section;
+
+    /**
+     * @var boolean enableWhenPublish
+     */
+    public $enableWhenPublish;
     
     /**
      * @var string section

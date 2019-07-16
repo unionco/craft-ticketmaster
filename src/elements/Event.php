@@ -12,21 +12,22 @@
 namespace unionco\ticketmaster\elements;
 
 use Craft;
+use Adbar\Dot;
 use craft\base\Element;
-use unionco\ticketmaster\db\Table;
+use craft\helpers\Json;
+use craft\helpers\UrlHelper;
+use craft\helpers\DatetimeHelper;
 use craft\elements\actions\Delete;
+use unionco\ticketmaster\db\Table;
 use craft\elements\actions\Restore;
 use craft\elements\db\ElementQuery;
+use yii\base\InvalidConfigException;
 use unionco\ticketmaster\Ticketmaster;
 use craft\elements\db\ElementQueryInterface;
 use unionco\ticketmaster\elements\db\EventQuery;
-use craft\helpers\UrlHelper;
-use craft\helpers\Json;
-use yii\base\InvalidConfigException;
-use Adbar\Dot;
-use craft\helpers\DatetimeHelper;
-use unionco\ticketmaster\records\Venue as VenueRecord;
+use unionco\ticketmaster\elements\actions\Publish;
 use unionco\ticketmaster\models\Venue as VenueModel;
+use unionco\ticketmaster\records\Venue as VenueRecord;
 
 /**
  * Event Element.
@@ -94,6 +95,11 @@ class Event extends Element
      * @var string tmEventId
      */
     public $tmEventId;
+
+    /**
+     * @var string published
+     */
+    public $published;
 
     /**
      * @var string payload
@@ -249,6 +255,12 @@ class Event extends Element
             'successMessage' => Craft::t('ticketmaster', 'Events deleted.'),
         ]);
 
+        $actions[] = $elementsService->createAction([
+            'type' => Publish::class,
+            'confirmationMessage' => Craft::t('ticketmaster', 'Are you sure you want to publish the selected event(s)?'),
+            'successMessage' => Craft::t('ticketmaster', 'Events published.'),
+        ]);
+
         // Restore
         $actions[] = $elementsService->createAction([
             'type' => Restore::class,
@@ -389,114 +401,6 @@ class Event extends Element
     public function _published()
     {
         return Json::decode($this->published ?? '{}');
-    }
-
-    public function _getFieldLayout()
-    {
-        if ($this->published) {
-            $dot = new Dot($this->_published());
-        } else {
-            $dot = new Dot($this->_payload());
-        }
-
-        return [
-            'id' => $dot->get('id'),
-            'description' => [
-                'label' => 'Description',
-                'field' => 'craft\\fields\\PlainText',
-                'value' => $dot->get('description'),
-                'config' => ['handle' => 'fields[published][description]', 'multiline' => true, 'initialRows' => 4],
-            ],
-            'url' => [
-                'label' => 'Url',
-                'field' => 'craft\\fields\\Url',
-                'value' => $dot->get('url'),
-                'config' => ['handle' => 'fields[published][url]'],
-            ],
-            'startDate' => [
-                'label' => 'Start Date',
-                'field' => 'craft\\fields\\Date',
-                'value' => $dot->has('dates.start.dateTime.date') ? DatetimeHelper::toDateTime($dot->get('dates.start.dateTime')) : $dot->get('dates.start.dateTime'),
-                'config' => ['handle' => 'fields[published][dates][start][dateTime]', 'showDate' => true, 'showTime' => true],
-            ],
-            'endDate' => [
-                'label' => 'End Date',
-                'field' => 'craft\\fields\\Date',
-                'value' => $dot->has('dates.end.dateTime.date') ? DatetimeHelper::toDateTime($dot->get('dates.end.dateTime')) : $dot->get('dates.end.dateTime'),
-                'config' => ['handle' => 'fields[published][dates][end][dateTime]', 'showDate' => true, 'showTime' => true],
-            ],
-            'spanMultipleDays' => [
-                'label' => 'Spans Multiple Days',
-                'field' => 'craft\\fields\\Lightswitch',
-                'value' => (bool) $dot->get('dates.spanMultipleDays'),
-                'config' => ['handle' => 'fields[published][dates][spanMultipleDays]'],
-            ],
-            'status' => [
-                'label' => 'Event Status',
-                'field' => 'craft\\fields\\PlainText',
-                'value' => $dot->get('dates.status.code'),
-                'config' => ['handle' => 'fields[published][status][code]', 'multiline' => false],
-            ],
-            'info' => [
-                'label' => 'Info',
-                'field' => 'craft\\fields\\PlainText',
-                'value' => $dot->get('info'),
-                'config' => ['handle' => 'fields[published][info]', 'multiline' => true, 'initialRows' => 4],
-            ],
-            'additionalInfo' => [
-                'label' => 'Additional Info',
-                'field' => 'craft\\fields\\PlainText',
-                'value' => $dot->get('additionalInfo'),
-                'config' => ['handle' => 'fields[published][additionalInfo]', 'multiline' => true, 'initialRows' => 4],
-            ],
-            'pleaseNote' => [
-                'label' => 'Please Note',
-                'field' => 'craft\\fields\\PlainText',
-                'value' => $dot->get('pleaseNote'),
-                'config' => ['handle' => 'fields[published][pleaseNote]', 'multiline' => true, 'initialRows' => 4],
-            ],
-            'seatmap' => [
-                'label' => 'Seat Map',
-                'field' => 'craft\\fields\\Url',
-                'value' => $dot->get('seatmap.staticUrl'),
-                'config' => ['handle' => 'fields[published][seatmap][staticUrl]'],
-                'thumb' => true,
-            ],
-            'images' => [
-                'label' => 'Images',
-                'field' => 'craft\\fields\\Table',
-                'value' => array_map(function ($image) {
-                    return ['col1' => $image['col1'] ?? $image['url']];
-                }, $dot->get('images') ?? []),
-                'config' => [
-                    'handle' => 'fields[published][images]',
-                    'columns' => [
-                        'col1' => ['heading' => 'Image', 'handle' => 'url', 'type' => 'singleline'],
-                    ],
-                ],
-            ],
-            'priceRanges' => [
-                'label' => 'Price Ranges',
-                'field' => 'craft\\fields\\Table',
-                'value' => array_map(function ($price) {
-                    return [
-                        'col1' => $price['type'],
-                        'col2' => $price['currency'],
-                        'col3' => $price['min'],
-                        'col4' => $price['max'],
-                    ];
-                }, $dot->get('priceRanges') ?? []),
-                'config' => [
-                    'handle' => 'fields[published][priceRanges]',
-                    'columns' => [
-                        'col1' => ['heading' => 'Type', 'handle' => 'type', 'type' => 'singleline'],
-                        'col2' => ['heading' => 'Currency', 'handle' => 'currency', 'type' => 'singleline'],
-                        'col3' => ['heading' => 'Min', 'handle' => 'min', 'type' => 'singleline'],
-                        'col4' => ['heading' => 'Max', 'handle' => 'max', 'type' => 'singleline'],
-                    ],
-                ],
-            ],
-        ];
     }
 
     /**
@@ -672,6 +576,7 @@ class Event extends Element
                     'tmVenueId' => $this->tmVenueId,
                     'tmEventId' => $this->tmEventId,
                     'payload' => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
+                    'published' => is_array($this->published) ? Json::encode($this->published) : $this->published,
                 ])
                 ->execute();
         } else {
@@ -682,6 +587,7 @@ class Event extends Element
                     'tmVenueId' => $this->tmVenueId,
                     'tmEventId' => $this->tmEventId,
                     'payload' => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
+                    'published' => is_array($this->published) ? Json::encode($this->published) : $this->published,
                 ], ['id' => $this->id])
                 ->execute();
         }

@@ -72,7 +72,7 @@ class EventController extends BaseController
             'subNav' => 'events'
         ];
 
-        return $this->renderTemplate('ticketmaster/elements', $variables);
+        return $this->renderTemplate('ticketmaster/events', $variables);
     }
 
     /**
@@ -208,7 +208,7 @@ class EventController extends BaseController
         $variables['saveShortcutRedirect'] = $variables['continueEditingUrl'];
 
         // var_dump($variables);die;
-        return $this->renderTemplate('ticketmaster/event/_edit', $variables);
+        return $this->renderTemplate('ticketmaster/events/_edit', $variables);
     }
 
     /**
@@ -250,6 +250,8 @@ class EventController extends BaseController
             // if my event has a craftEntryId then update it
             // else create a new one
             Ticketmaster::$plugin->events->publishEvent($event);
+            
+            Craft::$app->getSession()->setNotice(Craft::t('app', 'Event published.'));
 
             return $this->redirectToPostedUrl($event);
         }
@@ -303,10 +305,10 @@ class EventController extends BaseController
 
         $event->title = $request->getBodyParam('title', $event->title);
         $event->slug = $request->getBodyParam('slug', $event->slug);
-        $event->venueId = $request->getBodyParam('venueId', $event->venueId);
+        $event->tmVenueId = $request->getBodyParam('venueId', $event->tmVenueId);
         $event->tmEventId = $request->getBodyParam('tmEventId', $event->tmEventId);
 
-        $event->payload = Json::encode($request->getBodyParam('fields.payload', $event->_payload()));
-        $event->published = Json::encode($request->getBodyParam('fields.published', $event->_published()));
+        $event->payload = Json::encode($request->getBodyParam('fields.payload.payload', $event->_payload()));
+        $event->published = Json::encode($request->getBodyParam('fields.published.payload', $event->_published()));
     }
 }

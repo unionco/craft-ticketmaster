@@ -6,25 +6,22 @@
 {% set context = 'index' %}
 
 {% block actionButton %}
-    {% if elementType == "unionco\\ticketmaster\\elements\\Event" %}
-        {% set venues = craft.ticketmaster.venues.all %}
-        <div class="btngroup">
-            <input class="btn" value="{{ 'Fetch'|t('ticketmaster') }}">
+    {% set venues = craft.ticketmaster.venues.all %}
+    <div class="btngroup">
+        <input class="btn" value="{{ 'Fetch'|t('ticketmaster') }}">
 
-            <div class="btn menubtn"></div>
-            <div class="menu">
-                <ul>
-                    {% for venue in venues %}
-                        <li>
-                            <a data-fetch-events="{{ venue.tmVenueId }}" class="formsubmit" href="#{{ venue.id }}">{{ venue.title }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
+        <div class="btn menubtn"></div>
+        <div class="menu">
+            <ul>
+                {% for venue in venues %}
+                    <li>
+                        <a data-fetch-events="{{ venue.tmVenueId }}" class="formsubmit" href="#{{ venue.id }}">{{ venue.title }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
-    {% endif %}
+    </div>
 {% endblock %}
-
 
 {% block initJs %}
     Craft.elementIndex = Craft.createElementIndex('{{ elementType|e("js") }}', $('#main'), {

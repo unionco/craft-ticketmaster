@@ -13,6 +13,7 @@ namespace unionco\ticketmaster\models;
 
 use Craft;
 use craft\base\Model;
+use craft\helpers\Json;
 
 /**
  * Ticketmaster Settings Model.
@@ -61,14 +62,20 @@ class Event extends Model
 
     public function toJson()
     {
-        $payload = json_decode($this->payload);
+        $payload = Json::decode($this->payload);
+        // $published = json_decode($this->published);
 
-        return json_encode([
+        return Json::encode([
             'id' => $this->id,
             'title' => $this->title,
             'tmEventId' => $this->tmEventId,
             'payload' => $payload,
         ]);
+    }
+
+    public function tm()
+    {
+        return Json::decode($this->payload);
     }
 
     /**

@@ -13,9 +13,13 @@ namespace unionco\ticketmaster\services;
 use Craft;
 use Adbar\Dot;
 use craft\helpers\Json;
+use craft\elements\Entry;
+use craft\helpers\StringHelper;
 use unionco\ticketmaster\Ticketmaster;
 use unionco\ticketmaster\elements\Event;
 use unionco\ticketmaster\models\Venue as VenueModel;
+use unionco\ticketmaster\records\Event as EventRecord;
+// use unionco\ticketmaster\models\Event as EventModel;
 
 /**
  * Base Service
@@ -104,12 +108,16 @@ class Events extends Base
         }
 
         $event->tmEventId = $eventDetail['id'];
+        $eventDetail['tmEventId'] = $event->tmEventId;
+
+        // unset certain fields we dont need in the payload
+        unset($eventDetail['name']);
+        unset($eventDetail['id']);
+
         $event->payload = Json::encode($eventDetail);
 
         try {
             $result = Craft::$app->getElements()->saveElement($event);
-            // $event->validate();
-            // die(var_dump($event->getErrors()));
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -120,94 +128,49 @@ class Events extends Base
     /**
      *
      */
-    public function transformPayload(array $data)
-    {
-        $dot = new Dot($data);
-
-        return [
-            "id" => $dot->get('id'),
-            "description" => [
-                "label" => "Description",
-                "field" => "craft\\fields\\PlainText",
-                "value" => $dot->get('description'),
-                "config" => ["handle" => "payload[description]", "multiline" => true, "initialRows" => 4]
-            ],
-            "url" => [
-                "label" => "Url",
-                "field" => "craft\\fields\\Url",
-                "value" => $dot->get('url'),
-                "config" => ["handle" => "payload[url]"]
-            ],
-            "startDate" => [
-                "label" => "Start Date",
-                "field" => "craft\\fields\\Date",
-                "value" => $dot->get('dates.start.dateTime'),
-                "config" => ["handle" => "payload[startDate]", "showDate" => true, "showTime" => true]
-            ],
-            "endDate" => [
-                "label" => "End Date",
-                "field" => "craft\\fields\\Date",
-                "value" => $dot->get('dates.end.dateTime'),
-                "config" => ["handle" => "payload[endDate]", "showDate" => true, "showTime" => true]
-            ],
-            "spanMultipleDays" => [
-                "label" => "Spans Multiple Days",
-                "field" => "craft\\fields\\Lightswitch",
-                "value" => (bool) $dot->get('dates.spanMultipleDays'),
-                "config" => ["handle" => "payload[spanMultipleDays]"],
-            ],
-            "status" => [
-                "label" => "Event Status",
-                "field" => "craft\\fields\\PlainText",
-                "value" => $dot->get('dates.status.code'),
-                "config" => ["handle" => "payload[status]", "multiline" => false]
-            ],
-            "info" => [
-                "label" => "Info",
-                "field" => "craft\\fields\\PlainText",
-                "value" => $dot->get('info'),
-                "config" => ["handle" => "payload[info]", "multiline" => true, "initialRows" => 4]
-            ],
-            "additionalInfo" => [
-                "label" => "Additional Info",
-                "field" => "craft\\fields\\PlainText",
-                "value" => $dot->get('additionalInfo'),
-                "config" => ["handle" => "payload[additionalInfo]", "multiline" => true, "initialRows" => 4]
-            ],
-            "pleaseNote" => [
-                "label" => "Please Note",
-                "field" => "craft\\fields\\PlainText",
-                "value" => $dot->get('pleaseNote'),
-                "config" => ["handle" => "payload[pleaseNote]", "multiline" => true, "initialRows" => 4]
-            ],
-            "seatmap" => [
-                "label" => "Seat Map",
-                "field" => "craft\\fields\\Url",
-                "value" => $dot->get('seatmap.staticUrl'),
-                "config" => ["handle" => "payload[seatmap]"],
-                "thumb" => true
-            ],
-            "images" => [
-                "label" => "Images",
-                "field" => "craft\\fields\\Table",
-                "value" => array_map(function($image) {
-                    return ["col1" => $image['url']];
-                }, $dot->get('images')),
-                "config" => [
-                    "handle" => "payload[images]",
-                    "columns" => [
-                        "col1" => [ "heading" => "Image", "handle" => "image", "type" => "singleline" ]
-                    ]
-                ],
-            ]
-        ];
-    }
-
-    /**
-     *
-     */
     public function publishEvent(Event $event)
     {
+        $settings = Ticketmaster::$plugin->getSettings();
+        $enabled = $settings->enableWhenPublish;
+        $section = Craft::$app->getSections()->getSectionByUid($settings->section);
+        $entryType = $settings->sectionEntryType;
 
+        $record = EventRecord::findOne(
+            [
+                'tmEventId' => $event->tmEventId,
+            ]
+        );
+
+        if (!$record) {
+            // create a new entry && get field layout
+            $craftEvent = new Entry();
+            $craftEvent->sectionId = $section->id;
+            $craftEvent->typeId = $entryType;
+            $craftEvent->title = $event->title;
+            $craftEvent->slug = StringHelper::toKebabCase($event->title);
+            $craftEvent->enabled = $enabled;
+
+            $fieldLayoutFields = $craftEvent->getFieldLayout()->getFields();
+            $eventSearchField = array_filter($fieldLayoutFields, function ($field) {
+                return $field instanceof \unionco\ticketmaster\fields\EventSearch;
+            });
+            
+            if ($eventSearchField) {
+                $eventSearchField = array_pop($eventSearchField);
+            } else {
+                // throw error
+            }
+
+            $craftEvent->{$eventSearchField->handle} = [
+                "title" => $event->title,
+                "tmEventId" => $event->tmEventId,
+                "payload" => $event->published ? $event->_published() : $event->_payload()
+            ];
+
+            return Craft::$app->getElements()->saveElement($craftEvent, $enabled ? true: false);
+        }
+
+        $record->payload = $event->published ? $event->published : $event->payload;
+        return $record->save();
     }
 }

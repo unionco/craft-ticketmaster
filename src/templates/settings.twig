@@ -63,7 +63,7 @@
             <label id="settings-sectionEntryType-label" class="required" for="sectionEntryType">
                 Entry Type
             </label>
-            <div class="instructions"><p>{{ 'sectionEntryType to map the ticketmaster events when published'|t('ticketmaster') }}</p></div>
+            <div class="instructions"><p>{{ 'Entry Type to map the ticketmaster events when published'|t('ticketmaster') }}</p></div>
         </div>
         <div class="select ltr">
             {% verbatim %}
@@ -75,6 +75,14 @@
             {% endverbatim %}
         </div>
     </div>
+
+    {{ forms.lightswitchField({
+        label: 'Enable when published'|t('ticketmaster'),
+        instructions: 'When you publish an event, should the entry be enabled by default or not. Keep in mind that if you have other custom required fields, enabling this feature will cause problems.'|t('ticketmaster'),
+        id: 'enableWhenPublish',
+        name: 'enableWhenPublish',
+        on: settings.enableWhenPublish ?? false,
+    }) }}
 
     <div class="field">
         <div class="heading">

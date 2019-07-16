@@ -75,6 +75,7 @@ class EventQuery extends ElementQuery
             'ticketmaster_event_elements.tmVenueId',
             'ticketmaster_event_elements.tmEventId',
             'ticketmaster_event_elements.payload',
+            'ticketmaster_event_elements.published',
         ]);
 
         if ($this->tmVenueId) {
