@@ -5,20 +5,21 @@
     </td>
     <td class="form-group-fields" :class="{ 'has-children' : hasChildren() }">
       <table class="hasChildren" v-if="hasChildren()">
-        <FormGroup
+        <form-group
           v-for="(children, index) in group"
           v-bind:key="index"
           :label="index"
           :group="children"
           :name="`${name}[${label}]`"
-          />
+          ></form-group>
       </table>
-      <textarea v-else class="text fullwidth" :name="`${name}[${label}]`" :value="group" />
+      <textarea ref="textarea" v-else class="text fullwidth" :name="`${name}[${label}]`" :value="group" />
     </td>
   </tr>
 </template>
 <script lang="js">
 import { Component, Vue } from 'vue-property-decorator';
+import autosize from 'autosize';
 import get from 'lodash.get';
 import Input from './Input';
 
@@ -61,6 +62,10 @@ export default class FormGroup extends Vue {
     const payload = JSON.parse(JSON.stringify(this.mapped));
 
     return get(payload, path) || 'skip';
+  }
+
+  mounted() {
+    autosize(this.$refs.textarea);
   }
 
   hasChildren() {

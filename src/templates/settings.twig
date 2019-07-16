@@ -105,9 +105,11 @@
                             <div class="field">
                                 <div class="select ltr" style="width: 100%;">
                                     <select :name="'settings[apiFields]['+ index +'][field]'" v-model="row.field" style="width: 100%;">
-                                        <option v-for="option in availableFields" v-bind:value="option.handle">
-                                            {{ option.name }}
-                                        </option>
+                                        <optgroup v-for="group in availableFields" :label="group.group">
+                                            <option v-for="option in group.options" v-bind:value="option.handle">
+                                                {{ option.name }}
+                                            </option>
+                                        </optgroup>
                                     </select>
                                 </div>
                             </div>

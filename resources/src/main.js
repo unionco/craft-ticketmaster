@@ -1,5 +1,6 @@
 import VenueSearch from './components/VenueSearch';
 import EventSearch from './components/EventSearch';
+import FormGroup from './components/FormGroup';
 import { t } from './filters/translate';
 
 const VueSimpleMapPlugin = {
@@ -8,6 +9,7 @@ const VueSimpleMapPlugin = {
     
     Vue.component('venue-search', VenueSearch);
     Vue.component('event-search', EventSearch);
+    Vue.component('form-group', FormGroup);
   }
 };
 

@@ -80,18 +80,18 @@ export default class EventSearch extends Vue {
       onInputChange: this.onInputChange,
       class: 'text nicetext fullwidth',
       placeholder: t('Search for a venue'),
-      initialValue: this.initialValue,
+      initialValue: this.eventFields.title || this.initialValue,
     };
   }
 
   created() {}
 
-  mounted() {}
+  mounted() {
+    console.log('EventSearch', this);
+  }
 
   onSelected(option) {
     this.event = option.item;
-    console.log(this.eventFields);
-    this.$emit('selected', option.item);
   }
 
   onInputChange(text) {

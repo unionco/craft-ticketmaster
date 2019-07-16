@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@vue/web-component-wrapper": "^1.2.0",
+    "autosize": "^4.0.2",
     "lodash.get": "^4.4.2",
     "qs": "^6.7.0",
     "vue": "^2.5.21",

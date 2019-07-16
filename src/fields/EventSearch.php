@@ -375,6 +375,7 @@ class EventSearch extends Field
             json_encode([
                 'apiKey' => $apiKey,
                 'handle' => $this->handle,
+                'apiFields' => $settings->apiFields
             ])
         );
 

@@ -93,16 +93,40 @@ class TicketmasterVariable
     public function getApiFields()
     {
         return [
-            [ 'name' => 'Id', 'handle' => 'id' ],
-            [ 'name' => 'Name', 'handle' => 'name' ],
-            [ 'name' => 'URL', 'handle' => 'url' ],
-            [ 'name' => 'Images', 'handle' => 'images' ],
-            [ 'name' => 'Seatmap', 'handle' => 'seatmap' ],
-            [ 'name' => 'Classifications', 'handle' => 'classifications' ],
-            [ 'name' => 'Dates', 'handle' => 'dates' ],
-            [ 'name' => 'Price Ranges', 'handle' => 'priceRanges' ],
-            [ 'name' => 'Sales', 'handle' => 'sales' ],
-            [ 'name' => 'TicketLimit', 'handle' => 'ticketLimit' ],
+            [ 'group' => 'Basic', 'options' => [
+                [ 'name' => 'Id', 'handle' => 'id' ],
+                [ 'name' => 'Name', 'handle' => 'name' ],
+                [ 'name' => 'URL', 'handle' => 'url' ],
+                [ 'name' => 'Info', 'handle' => 'info' ],
+                [ 'name' => 'Please Note', 'handle' => 'pleaseNote' ],
+                [ 'name' => 'Seatmap', 'handle' => 'seatmap.staticUrl' ],
+                [ 'name' => 'Ticket Limit', 'handle' => 'ticketLimit.info' ],
+            ]],
+            [ 'group' => 'Images', 'options' => [
+                [ 'name' => 'Images', 'handle' => 'images.*.url' ]
+            ]],
+            [ 'group' => 'Dates', 'options' => [
+                [ 'name' => 'Start -> Datetime', 'handle' => 'dates.start.dateTime' ],
+                [ 'name' => 'End -> Datetime', 'handle' => 'dates.end.dateTime' ],
+                [ 'name' => 'Timezone', 'handle' => 'dates.timezone' ],
+                [ 'name' => 'Spans Multiple Days', 'handle' => 'dates.spanMultipleDays' ],
+                [ 'name' => 'Status', 'handle' => 'dates.status.code' ],
+            ]],
+            [ 'group' => 'Classifications', 'options' => [
+                [ 'name' => 'Segment', 'handle' => 'classifications.0.segment.name' ],
+                [ 'name' => 'Genre', 'handle' => 'classifications.0.genre.name' ],
+                [ 'name' => 'Type', 'handle' => 'classifications.0.type.name' ],
+                [ 'name' => 'Family', 'handle' => 'classifications.0.family' ],
+            ]],
+            [ 'group' => 'Price Ranges', 'options' => [
+                [ 'name' => 'Min', 'handle' => 'priceRanges.*.min' ],
+                [ 'name' => 'Max', 'handle' => 'priceRanges.*.max' ],
+                [ 'name' => 'Currency', 'handle' => 'priceRanges.*.currency' ],
+            ]],
+            [ 'group' => 'Sales', 'options' => [
+                [ 'name' => 'Start Datetime', 'handle' => 'sales.public.startDateTime' ],
+                [ 'name' => 'End Datetime', 'handle' => 'sales.public.endDateTime' ],
+            ]]
         ];
     }
 }

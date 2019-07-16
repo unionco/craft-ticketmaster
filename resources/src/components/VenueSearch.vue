@@ -210,7 +210,9 @@ export default class VenueSearch extends Vue {
 
   created() {}
 
-  mounted() {}
+  mounted() {
+    console.log('VenueSearch', this);
+  }
 
   onSelected(option) {
     this.venue = option.item;
