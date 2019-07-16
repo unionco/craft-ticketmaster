@@ -11,9 +11,12 @@
 
 namespace unionco\ticketmaster\models;
 
+use Adbar\Dot;
 use Craft;
 use craft\base\Model;
 use craft\helpers\Json;
+use unionco\ticketmaster\models\TicketmasterEvent;
+use unionco\ticketmaster\Ticketmaster;
 
 /**
  * Ticketmaster Settings Model.
@@ -57,6 +60,8 @@ class Event extends Model
     public $dateUpdated;
     public $uid;
 
+    private $_doc;
+
     // Public Methods
     // =========================================================================
 
@@ -73,9 +78,20 @@ class Event extends Model
         ]);
     }
 
-    public function tm()
+    /**
+     * Helper method to reach any ticketmaster field
+     */
+    public function tm(string $handle = null)
     {
-        return Json::decode($this->payload);
+        if (is_null($this->_doc)) {
+            $this->_doc = new Dot(Json::decode($this->payload));
+        }
+        
+        if (!$handle) {
+            return $this->_doc->all();
+        }
+
+        return $this->_doc->get($handle);
     }
 
     /**
