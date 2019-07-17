@@ -72,7 +72,7 @@ class Ticketmaster extends Plugin
      *
      * @var string
      */
-    public $schemaVersion = '1.0.4';
+    public $schemaVersion = '1.0.5';
 
     /**
      * @var bool Whether the plugin has a settings page in the CP
