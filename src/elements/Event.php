@@ -12,11 +12,9 @@
 namespace unionco\ticketmaster\elements;
 
 use Craft;
-use Adbar\Dot;
 use craft\base\Element;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
-use craft\helpers\DatetimeHelper;
 use craft\elements\actions\Delete;
 use unionco\ticketmaster\db\Table;
 use craft\elements\actions\Restore;
@@ -424,7 +422,7 @@ class Event extends Element
         $status = parent::getStatus();
 
         // If event id exist in ticketmaster_events table == self::STATUS_PUBLISHED
-        // but if its published and is dirty (isDirty) then == self::STATUS_UPDATED 
+        // but if its published and is dirty (isDirty) then == self::STATUS_UPDATED
         // else self::STATUS_NEW
 
         return self::STATUS_NEW;

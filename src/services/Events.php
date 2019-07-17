@@ -1,17 +1,17 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x
+ * Ticketmaster plugin for Craft CMS 3.x.
  *
  * Ticket master ticket feed for venues.
  *
- * @link      https://github.com/unionco
+ * @see      https://github.com/unionco
+ *
  * @copyright Copyright (c) 2019 Union
  */
 
 namespace unionco\ticketmaster\services;
 
 use Craft;
-use Adbar\Dot;
 use craft\helpers\Json;
 use craft\elements\Entry;
 use craft\helpers\StringHelper;
@@ -26,7 +26,7 @@ use unionco\ticketmaster\records\Event as EventRecord;
 use unionco\ticketmaster\fields\EventSearch;
 
 /**
- * Base Service
+ * Base Service.
  *
  * All of your plugin’s business logic should go in services, including saving data,
  * retrieving data, etc. They provide APIs that your controllers, template variables,
@@ -35,14 +35,14 @@ use unionco\ticketmaster\fields\EventSearch;
  * https://craftcms.com/docs/plugins/services
  *
  * @author    Union
- * @package   Ticketmaster
+ *
  * @since     1.0.0
  */
 class Events extends Base
 {
     // Public Methods
     // =========================================================================
-    const ENDPOINT = "discovery/v2/events";
+    const ENDPOINT = 'discovery/v2/events';
 
     /**
      * {@inheritdoc}
@@ -56,7 +56,7 @@ class Events extends Base
             [
                 'ownerId' => $element->id,
                 'ownerSiteId' => $element->siteId,
-                'fieldId' => $field->id
+                'fieldId' => $field->id,
             ]
         );
 
@@ -72,9 +72,7 @@ class Events extends Base
 
         $record->payload = json_encode($value['payload']);
 
-
         $record->save();
-
     }
 
     /**
@@ -135,31 +133,29 @@ class Events extends Base
         return $model;
     }
 
-    /**
-     *
-     */
     public function getEventById(int $eventId)
     {
         return Craft::$app->getElements()->getElementById($eventId, Event::class);
     }
 
     /**
-     * Get events from ticketmaster
+     * Get events from ticketmaster.
      *
      * @param venueId string (ticketmaster venue id)
+     *
      * @return mixed
      */
     public function getEventByVenueId(string $venueId)
     {
         $response = $this->makeRequest('GET', static::ENDPOINT, [
-            "query" => [
+            'query' => [
                 'venueId' => $venueId,
                 'size' => 100,
                 'source' => 'ticketmaster',
                 'includeTBA' => 'no',
                 'includeTBD' => 'no',
                 'includeTest' => 'no',
-            ]
+            ],
         ]);
 
         if ($response['_embedded'] && $response['_embedded']['events']) {
@@ -169,12 +165,9 @@ class Events extends Base
         return [];
     }
 
-    /**
-     *
-     */
     public function getEventDetail(string $eventId)
     {
-        $response = $this->makeRequest('GET', static::ENDPOINT . "/" . $eventId);
+        $response = $this->makeRequest('GET', static::ENDPOINT.'/'.$eventId);
 
         if (isset($response['id'])) {
             return $response;
@@ -184,10 +177,11 @@ class Events extends Base
     }
 
     /**
-     * Save ticketmaste event to event element
+     * Save ticketmaste event to event element.
      *
      * @param eventDetail array from tm
      * @param venue element
+     *
      * @return mixed Throwable||Event;
      */
     public function saveEvent(array $eventDetail, VenueModel $venue)
@@ -220,9 +214,6 @@ class Events extends Base
         return $event;
     }
 
-    /**
-     *
-     */
     public function publishEvent(Event $event)
     {
         $settings = Ticketmaster::$plugin->getSettings();
@@ -257,15 +248,16 @@ class Events extends Base
             }
 
             $craftEvent->{$eventSearchField->handle} = [
-                "title" => $event->title,
-                "tmEventId" => $event->tmEventId,
-                "payload" => $event->published ? $event->_published() : $event->_payload()
+                'title' => $event->title,
+                'tmEventId' => $event->tmEventId,
+                'payload' => $event->published ? $event->_published() : $event->_payload(),
             ];
 
-            return Craft::$app->getElements()->saveElement($craftEvent, $enabled ? true: false);
+            return Craft::$app->getElements()->saveElement($craftEvent, $enabled ? true : false);
         }
 
         $record->payload = $event->published ? $event->published : $event->payload;
+
         return $record->save();
     }
 }

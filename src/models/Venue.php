@@ -94,7 +94,7 @@ class Venue extends Model
     }
 
     /**
-     * Helper method to reach any ticketmaster field
+     * Helper method to reach any ticketmaster field.
      */
     public function tm(string $handle = null)
     {

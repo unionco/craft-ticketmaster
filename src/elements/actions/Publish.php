@@ -67,7 +67,7 @@ class Publish extends ElementAction
     }
 
     /**
-     * 
+     *
      */
     private function _publishElements(array $elements, int &$successCount, int &$failCount)
     {
