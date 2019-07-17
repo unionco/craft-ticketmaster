@@ -92,4 +92,20 @@ class Venue extends Model
             'payload' => $payload,
         ]);
     }
+
+    /**
+     * Helper method to reach any ticketmaster field
+     */
+    public function tm(string $handle = null)
+    {
+        if (is_null($this->_doc)) {
+            $this->_doc = new Dot(Json::decode($this->payload));
+        }
+
+        if (!$handle) {
+            return $this->_doc->all();
+        }
+
+        return $this->_doc->get($handle);
+    }
 }
