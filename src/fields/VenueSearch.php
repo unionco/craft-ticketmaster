@@ -17,10 +17,7 @@ use craft\base\Field;
 use craft\base\ElementInterface;
 use unionco\ticketmaster\Ticketmaster;
 use unionco\ticketmaster\assetbundles\Ticketmaster\TicketmasterAsset;
-use unionco\ticketmaster\records\Venue as VenueRecord;
-use unionco\ticketmaster\db\Table;
 use craft\elements\db\ElementQueryInterface;
-use unionco\ticketmaster\models\Venue as VenueModel;
 
 /**
  * VenueFinder Field.
@@ -119,23 +116,7 @@ class VenueSearch extends Field
      */
     public function normalizeValue($value, ElementInterface $element = null)
     {
-        $record = VenueRecord::findOne(
-            [
-                'ownerId' => $element->id,
-                'ownerSiteId' => $element->siteId,
-                'fieldId' => $this->id,
-            ]
-        );
-
-        if (\Craft::$app->request->getIsPost() && $value) {
-            $model = new VenueModel($value);
-        } elseif ($record) {
-            $model = new VenueModel($record->getAttributes());
-        } else {
-            $model = new VenueModel();
-        }
-
-        return $model;
+        return Ticketmaster::$plugin->venues->normalizeValue($this, $value, $element);
     }
 
     /**
@@ -391,33 +372,7 @@ class VenueSearch extends Field
      */
     public function afterElementSave(ElementInterface $element, bool $isNew)
     {
-        /** @var Element $owner */
-        $locale = $element->getSite()->language;
-        /** @var Map $value */
-        $value = $element->getFieldValue($this->handle);
-
-        $record = VenueRecord::findOne(
-            [
-                'ownerId' => $element->id,
-                'ownerSiteId' => $element->siteId,
-                'fieldId' => $this->id,
-            ]
-        );
-
-        if (!$record) {
-            $record = new VenueRecord();
-            $record->ownerId = $element->id;
-            $record->ownerSiteId = $element->siteId;
-            $record->fieldId = $this->id;
-        }
-
-        $record->tmVenueId = $value['tmVenueId'];
-        $record->title = $value['title'];
-
-        $record->payload = json_encode($value['payload']);
-
-        $record->save();
-
+        Ticketmaster::$plugin->venues->afterElementSave($this, $element, $isNew);
         parent::afterElementSave($element, $isNew);
     }
 
@@ -426,22 +381,6 @@ class VenueSearch extends Field
      */
     public function modifyElementsQuery(ElementQueryInterface $query, $value)
     {
-        if (!$value) {
-            return;
-        }
-        /** @var ElementQuery $query */
-        $tableName = Table::VENUES;
-
-        $query->join(
-            'JOIN',
-            "{$tableName} tmVenues",
-            [
-                'and',
-                '[[elements.id]] = [[tmVenues.ownerId]]',
-                '[[elements_sites.siteId]] = [[tmVenues.ownerSiteId]]',
-            ]
-        );
-
-        return;
+        return Ticketmaster::$plugin->venues->modifyElementsQuery($query, $value);
     }
 }

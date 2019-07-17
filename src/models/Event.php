@@ -86,7 +86,7 @@ class Event extends Model
         if (is_null($this->_doc)) {
             $this->_doc = new Dot(Json::decode($this->payload));
         }
-        
+
         if (!$handle) {
             return $this->_doc->all();
         }

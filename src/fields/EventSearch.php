@@ -16,11 +16,9 @@ use yii\db\Schema;
 use craft\base\Field;
 use craft\base\ElementInterface;
 use unionco\ticketmaster\Ticketmaster;
-use unionco\ticketmaster\assetbundles\Ticketmaster\TicketmasterAsset;
-use unionco\ticketmaster\db\Table;
 use craft\elements\db\ElementQueryInterface;
 use unionco\ticketmaster\models\Event as EventModel;
-use unionco\ticketmaster\records\Event as EventRecord;
+use unionco\ticketmaster\assetbundles\Ticketmaster\TicketmasterAsset;
 
 /**
  * VenueFinder Field.
@@ -119,23 +117,7 @@ class EventSearch extends Field
      */
     public function normalizeValue($value, ElementInterface $element = null)
     {
-        $record = EventRecord::findOne(
-            [
-                'ownerId' => $element->id,
-                'ownerSiteId' => $element->siteId,
-                'fieldId' => $this->id,
-            ]
-        );
-
-        if (\Craft::$app->request->getIsPost() && $value) {
-            $model = new EventModel($value);
-        } elseif ($record) {
-            $model = new EventModel($record->getAttributes());
-        } else {
-            $model = new EventModel();
-        }
-
-        return $model;
+        return Ticketmaster::$plugin->events->normalizeValue($this, $value, $element);
     }
 
     /**
@@ -402,31 +384,7 @@ class EventSearch extends Field
      */
     public function afterElementSave(ElementInterface $element, bool $isNew)
     {
-        $locale = $element->getSite()->language;
-        $value = $element->getFieldValue($this->handle);
-
-        $record = EventRecord::findOne(
-            [
-                'ownerId' => $element->id,
-                'ownerSiteId' => $element->siteId,
-                'fieldId' => $this->id,
-            ]
-        );
-
-        if (!$record) {
-            $record = new EventRecord();
-            $record->ownerId = $element->id;
-            $record->ownerSiteId = $element->siteId;
-            $record->fieldId = $this->id;
-        }
-
-        $record->tmEventId = $value['tmEventId'];
-        $record->title = $value['title'];
-
-        $record->payload = json_encode($value['payload']);
-
-
-        $record->save();
+        Ticketmaster::$plugin->events->afterElementSave($this, $element, $isNew);
 
         parent::afterElementSave($element, $isNew);
     }
@@ -436,22 +394,7 @@ class EventSearch extends Field
      */
     public function modifyElementsQuery(ElementQueryInterface $query, $value)
     {
-        if (!$value) {
-            return;
-        }
-        /** @var ElementQuery $query */
-        $tableName = Table::EVENTS;
-
-        $query->join(
-            'JOIN',
-            "{$tableName} tmEvents",
-            [
-                'and',
-                '[[elements.id]] = [[tmEvents.ownerId]]',
-                '[[elements_sites.siteId]] = [[tmEvents.ownerSiteId]]',
-            ]
-        );
-
-        return;
+        // die(var_dump($query));
+        return Ticketmaster::$plugin->events->modifyElementsQuery($query, $value);
     }
 }
