@@ -423,27 +423,11 @@ class Event extends Element
     {
         $status = parent::getStatus();
 
-        if (isset($this->craftEntryId)) {
-            return self::STATUS_PUBLISHED;
-        }
+        // If event id exist in ticketmaster_events table == self::STATUS_PUBLISHED
+        // but if its published and is dirty (isDirty) then == self::STATUS_UPDATED 
+        // else self::STATUS_NEW
 
-        // if ($status == self::STATUS_ENABLED && $this->postDate) {
-        //     $currentTime = DateTimeHelper::currentTimeStamp();
-        //     $postDate = $this->postDate->getTimestamp();
-        //     $expiryDate = ($this->expiryDate ? $this->expiryDate->getTimestamp() : null);
-
-        //     if ($postDate <= $currentTime && ($expiryDate === null || $expiryDate > $currentTime)) {
-        //         return self::STATUS_LIVE;
-        //     }
-
-        //     if ($postDate > $currentTime) {
-        //         return self::STATUS_PENDING;
-        //     }
-
-        //     return self::STATUS_EXPIRED;
-        // }
-
-        return $status;
+        return self::STATUS_NEW;
     }
 
     /**
