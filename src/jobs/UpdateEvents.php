@@ -1,22 +1,24 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x
+ * Ticketmaster plugin for Craft CMS 3.x.
  *
  * Ticket master ticket feed for venues.
  *
- * @link      https://github.com/unionco
+ * @see      https://github.com/unionco
+ *
  * @copyright Copyright (c) 2019 Union
  */
 
 namespace unionco\ticketmaster\jobs;
 
 use unionco\ticketmaster\Ticketmaster;
-
 use Craft;
 use craft\queue\BaseJob;
+use union\ticketmaster\Plugin;
+use unionco\ticketmaster\jobs\UpdateVenueEvents;
 
 /**
- * UpdateEvents job
+ * UpdateEvents job.
  *
  * Jobs are run in separate process via a Queue of pending jobs. This allows
  * you to spin lengthy processing off into a separate PHP process that does not
@@ -42,46 +44,41 @@ use craft\queue\BaseJob;
  * More info: https://github.com/yiisoft/yii2-queue
  *
  * @author    Union
- * @package   Ticketmaster
+ *
  * @since     1.0.0
  */
 class UpdateEvents extends BaseJob
 {
-    // Public Properties
-    // =========================================================================
+    public $siteHandle;
 
-    /**
-     * Some attribute
-     *
-     * @var string
-     */
-    public $someAttribute = 'Some Default';
-
-    // Public Methods
-    // =========================================================================
-
-    /**
-     * When the Queue is ready to run your job, it will call this method.
-     * You don't need any steps or any other special logic handling, just do the
-     * jobs that needs to be done here.
-     *
-     * More info: https://github.com/yiisoft/yii2-queue
-     */
     public function execute($queue)
     {
-        // Do work here
+        $venues = Plugin::$plugin->venues->getAllBoplexVenues();
+
+        $count = count($venues);
+
+        for ($step = 0; $step < $count; ++$step) {
+            $this->setProgress($queue, $step / $count);
+
+            $events = Plugin::$plugin->venues->getEvents($venues[$step]->ticketmasterVenueId);
+
+            if ($events) {
+                Craft::$app->queue->push(new UpdateVenueEvents([
+                    'description' => 'Fetching ('.count($events).") events for {$veneues[$step]->title} in {$this->siteHandle}",
+                    'events' => $events,
+                    'venue' => [
+                        'id' => $venues[$step]->id,
+                    ],
+                    'siteHandle' => $this->siteHandle,
+                ]));
+            }
+        }
+
+        return true;
     }
 
-    // Protected Methods
-    // =========================================================================
-
-    /**
-     * Returns a default description for [[getDescription()]], if [[description]] isn’t set.
-     *
-     * @return string The default task description
-     */
-    protected function defaultDescription(): string
+    protected function defaultDescription()
     {
-        return Craft::t('ticketmaster', 'UpdateEvents');
+        return 'Fetching all events.';
     }
 }
