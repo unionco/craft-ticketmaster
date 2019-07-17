@@ -88,11 +88,9 @@ class EventController extends BaseController
         $eventId = $request->getBodyParam('eventId');
         $venueId = $request->getBodyParam('venueId');
 
-        $venue = VenueRecord::find()
-            ->tmVenueId($venueId)
-            ->one();
-
-        if (!$venue) {
+        $venueRecord = VenueRecord::findOne(['tmVenueId' => $venueId]);
+        
+        if (!$venueRecord) {
             return $this->asJson([
                 'errors' => [
                     "No venue exist for id {$venueId}"
@@ -107,9 +105,10 @@ class EventController extends BaseController
             ]);
         }
 
+        $venueModel = new VenueModel($venueRecord);
         try {
             $event = $eventService->getEventDetail((string) $eventId);
-            $result = $eventService->saveEvent($event, $venue);
+            $result = $eventService->saveEvent($event, $venueModel);
         } catch (Throwable $th) {
             return $this->asJson([
                 "success" => false,

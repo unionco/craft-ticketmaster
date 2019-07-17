@@ -141,7 +141,7 @@ class Events extends Base
             ]
         );
 
-        if (!$record) {
+        if (!$record) { 
             // create a new entry && get field layout
             $craftEvent = new Entry();
             $craftEvent->sectionId = $section->id;
