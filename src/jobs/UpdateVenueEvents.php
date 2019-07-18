@@ -3,7 +3,9 @@
 namespace unionco\ticketmaster\jobs;
 
 use craft\queue\BaseJob;
-use union\ticketmaster\Plugin;
+use unionco\ticketmaster\Ticketmaster;
+use unionco\ticketmaster\models\Venue as VenueModel;
+use unionco\ticketmaster\records\Venue as VenueRecord;
 
 class UpdateVenueEvents extends BaseJob
 {
@@ -13,23 +15,21 @@ class UpdateVenueEvents extends BaseJob
 
     public function execute($queue)
     {
-        $eventService = Plugin::$plugin->events;
+        $eventService = Ticketmaster::$plugin->events;
         $count = count($this->events);
+        $venueRecord = VenueRecord::find()->where(['id' => $this->venue])->one();
+        $venueModel = new VenueModel($venueRecord->getAttributes());
 
         for ($step = 0; $step < $count; ++$step) {
             $this->setProgress($queue, $step / $count);
 
             $event = $this->events[$step];
 
-            $eventDetails = $eventService->getEventDetails($event->id);
+            $eventDetails = $eventService->getEventDetail($event['id']);
 
             if ($eventDetails) {
-                // transform
-                $readyEvent = $eventService->transform($eventDetails);
-                $readyEvent['relatedPlace'] = [$this->venue['id']];
-
                 // save
-                $eventService->save($readyEvent, $this->siteHandle);
+                $eventService->saveEvent($eventDetails, $venueModel);
             } else {
                 return false;
             }

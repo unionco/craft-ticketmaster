@@ -14,9 +14,7 @@ use Craft;
 
 use Throwable;
 use yii\web\Response;
-// use craft\helpers\StringHelper;
 use craft\helpers\Json;
-use craft\web\Controller;
 use craft\helpers\UrlHelper;
 use unionco\ticketmaster\Ticketmaster;
 use unionco\ticketmaster\elements\Event;
@@ -75,6 +73,7 @@ class EventController extends BaseController
         return $this->renderTemplate('ticketmaster/events', $variables);
     }
 
+
     /**
      *
      */
@@ -89,7 +88,7 @@ class EventController extends BaseController
         $venueId = $request->getBodyParam('venueId');
 
         $venueRecord = VenueRecord::findOne(['tmVenueId' => $venueId]);
-        
+
         if (!$venueRecord) {
             return $this->asJson([
                 'errors' => [
@@ -249,7 +248,7 @@ class EventController extends BaseController
             // if my event has a craftEntryId then update it
             // else create a new one
             Ticketmaster::$plugin->events->publishEvent($event);
-            
+
             Craft::$app->getSession()->setNotice(Craft::t('app', 'Event published.'));
 
             return $this->redirectToPostedUrl($event);

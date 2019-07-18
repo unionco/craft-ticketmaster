@@ -138,4 +138,9 @@ class Venues extends Base
 
         return $model;
     }
+
+    public function getVenues()
+    {
+        return VenueRecord::find()->all();
+    }
 }

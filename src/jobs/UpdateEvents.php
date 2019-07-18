@@ -14,7 +14,6 @@ namespace unionco\ticketmaster\jobs;
 use unionco\ticketmaster\Ticketmaster;
 use Craft;
 use craft\queue\BaseJob;
-use union\ticketmaster\Plugin;
 use unionco\ticketmaster\jobs\UpdateVenueEvents;
 
 /**
@@ -53,25 +52,23 @@ class UpdateEvents extends BaseJob
 
     public function execute($queue)
     {
-        $venues = Plugin::$plugin->venues->getAllBoplexVenues();
+        $venues = Ticketmaster::$plugin->venues->getVenues();
 
         $count = count($venues);
 
         for ($step = 0; $step < $count; ++$step) {
             $this->setProgress($queue, $step / $count);
 
-            $events = Plugin::$plugin->venues->getEvents($venues[$step]->ticketmasterVenueId);
+            $events = Ticketmaster::$plugin->events->getEventByVenueId($venues[$step]->tmVenueId);
 
-            if ($events) {
-                Craft::$app->queue->push(new UpdateVenueEvents([
-                    'description' => 'Fetching ('.count($events).") events for {$veneues[$step]->title} in {$this->siteHandle}",
+            Craft::$app->queue->push(new UpdateVenueEvents([
+                    'description' => 'Fetching ('.count($events).") events for {$venues[$step]->title} in {$this->siteHandle}",
                     'events' => $events,
                     'venue' => [
                         'id' => $venues[$step]->id,
                     ],
                     'siteHandle' => $this->siteHandle,
                 ]));
-            }
         }
 
         return true;

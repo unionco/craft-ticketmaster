@@ -1,15 +1,11 @@
 <?php
-namespace union\ticketmaster\console;
+namespace unionco\ticketmaster\console\controllers;
 
 use Yii;
 use Craft;
 use Exception;
 use yii\console\Controller;
-use yii\helpers\Console;
-use union\ticketmaster\Plugin;
-use craft\helpers\FileHelper;
-use craft\helpers\StringHelper;
-use union\ticketmaster\jobs\UpdateEvents;
+use unionco\ticketmaster\jobs\UpdateEvents;
 
 class SyncController extends Controller
 {
@@ -20,7 +16,8 @@ class SyncController extends Controller
      */
     public function actionIndex()
     {
-        Yii::$app->log->targets = [];
+        // What does this do?
+        // Yii::$app->log->targets = [];
 
         $queue = Craft::$app->getQueue();
         $queue->push(new UpdateEvents([
