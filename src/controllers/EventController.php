@@ -142,7 +142,7 @@ class EventController extends BaseController
         }
 
         $venue = new VenueModel($venue);
-        $events = $eventService->getEventByVenueId($venue->tmVenueId);
+        $events = $eventService->getEventsByVenueId($venue->tmVenueId);
         foreach ($events as $key => $event) {
             $eventService->saveEvent($event, $venue);
         }

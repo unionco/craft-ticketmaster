@@ -381,6 +381,10 @@ class VenueSearch extends Field
      */
     public function modifyElementsQuery(ElementQueryInterface $query, $value)
     {
+        if (!Ticketmaster::$plugin) {
+            return;
+        }
+        
         return Ticketmaster::$plugin->venues->modifyElementsQuery($query, $value);
     }
 }

@@ -23,9 +23,7 @@ class UpdateVenueEvents extends BaseJob
         for ($step = 0; $step < $count; ++$step) {
             $this->setProgress($queue, $step / $count);
 
-            $event = $this->events[$step];
-
-            $eventDetails = $eventService->getEventDetail($event['id']);
+            $eventDetails = $this->events[$step];
 
             if ($eventDetails) {
                 // save

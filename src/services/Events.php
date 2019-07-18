@@ -145,7 +145,7 @@ class Events extends Base
      *
      * @return mixed
      */
-    public function getEventByVenueId(string $venueId)
+    public function getEventsByVenueId(string $venueId)
     {
         $response = $this->makeRequest('GET', static::ENDPOINT, [
             'query' => [
@@ -202,6 +202,8 @@ class Events extends Base
         // unset certain fields we dont need in the payload
         unset($eventDetail['name']);
         unset($eventDetail['id']);
+
+        // md5 event payload vs md5 Json::encode(eventDetail)
 
         $event->payload = Json::encode($eventDetail);
 

@@ -394,7 +394,10 @@ class EventSearch extends Field
      */
     public function modifyElementsQuery(ElementQueryInterface $query, $value)
     {
-        // die(var_dump($query));
+        if (!Ticketmaster::$plugin) {
+            return;
+        }
+
         return Ticketmaster::$plugin->events->modifyElementsQuery($query, $value);
     }
 }

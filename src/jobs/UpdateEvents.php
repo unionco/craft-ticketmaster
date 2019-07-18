@@ -56,19 +56,23 @@ class UpdateEvents extends BaseJob
 
         $count = count($venues);
 
+        $queue = Craft::$app->getQueue();
+
         for ($step = 0; $step < $count; ++$step) {
             $this->setProgress($queue, $step / $count);
 
-            $events = Ticketmaster::$plugin->events->getEventByVenueId($venues[$step]->tmVenueId);
+            $events = Ticketmaster::$plugin->events->getEventsByVenueId($venues[$step]->tmVenueId);
+            
+            $queue->push(new UpdateVenueEvents([
+                'description' => 'Fetching ('.count($events).") events for {$venues[$step]->title} in {$this->siteHandle}",
+                'events' => $events,
+                'venue' => [
+                    'id' => $venues[$step]->id,
+                ],
+                'siteHandle' => $this->siteHandle,
+            ]));
 
-            Craft::$app->queue->push(new UpdateVenueEvents([
-                    'description' => 'Fetching ('.count($events).") events for {$venues[$step]->title} in {$this->siteHandle}",
-                    'events' => $events,
-                    'venue' => [
-                        'id' => $venues[$step]->id,
-                    ],
-                    'siteHandle' => $this->siteHandle,
-                ]));
+            sleep(2);
         }
 
         return true;
