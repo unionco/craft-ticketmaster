@@ -2,7 +2,6 @@
     "name": "unionco/ticketmaster",
     "description": "Ticket master ticket feed for venues.",
     "type": "craft-plugin",
-    "version": "1.0.0",
     "keywords": [
         "craft",
         "cms",
