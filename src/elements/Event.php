@@ -429,14 +429,13 @@ class Event extends Element
 
         // If event id exist in ticketmaster_events table == self::STATUS_PUBLISHED
         if ($eventRecord = EventRecord::find()->where(['tmEventId' => $this->tmEventId])->one()) {
+            if ($this->published && $this->isDirty) {
+                return self::STATUS_UPDATED;
+            }
+
             return self::STATUS_PUBLISHED;
         }
         // but if its published and is dirty (isDirty) then == self::STATUS_UPDATED
-        if ($eventRecord) {
-            if ($eventRecord->published && $eventRecord->isDirty) {
-                return self::STATUS_UPDATED;
-            }
-        }
         // else self::STATUS_NEW
 
         return self::STATUS_NEW;
@@ -572,6 +571,7 @@ class Event extends Element
                     'tmVenueId' => $this->tmVenueId,
                     'tmEventId' => $this->tmEventId,
                     'isDirty' => false,
+                    // 'isPublished' => false,
                     'payload' => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
                     'published' => is_array($this->published) ? Json::encode($this->published) : $this->published,
                 ])
@@ -584,6 +584,7 @@ class Event extends Element
                     'tmVenueId' => $this->tmVenueId,
                     'tmEventId' => $this->tmEventId,
                     'isDirty' => $this->isDirty,
+                    // 'isPublished' => $this->isPublished,
                     'payload' => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
                     'published' => is_array($this->published) ? Json::encode($this->published) : $this->published,
                 ], ['id' => $this->id])

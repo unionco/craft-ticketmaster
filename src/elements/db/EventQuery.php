@@ -13,6 +13,7 @@ namespace unionco\ticketmaster\elements\db;
 // use Craft;
 use craft\helpers\Db;
 use craft\elements\db\ElementQuery;
+use unionco\ticketmaster\elements\Event;
 
 /**
  * EventQuery represents a SELECT SQL statement for events in a way that is independent of DBMS.
@@ -33,6 +34,11 @@ class EventQuery extends ElementQuery
      * @var string
      */
     public $tmEventId;
+
+    /**
+     * @var string
+     */
+    public $status;
 
 
     // Public Methods
@@ -56,6 +62,14 @@ class EventQuery extends ElementQuery
         $this->tmEventId = $value;
 
         return $this;
+    }
+
+    /**
+     *
+     */
+    public function status($value)
+    {
+        return parent::status($value);
     }
 
     // Protected Methods
@@ -88,5 +102,36 @@ class EventQuery extends ElementQuery
         }
 
         return parent::beforePrepare();
+    }
+
+    public function statusCondition(string $status)
+    {
+        switch($this->status) {
+            case Event::STATUS_PUBLISHED:
+                return [
+                    'and',
+                    [
+                        // 'ticketmaster_event_elements.isPublished' => true,
+                    ]
+                ];
+            case Event::STATUS_UPDATED:
+                return [
+                    'and',
+                    [
+                        // 'ticketmaster_event_elements.isPublished' => true,
+                        'ticketmaster_event_elements.isDirty' => true,
+                    ]
+                ];
+            case Event::STATUS_NEW:
+                return [
+                    'and',
+                    [
+                        // 'ticketmaster_event_elements.isPublished' => false,
+                        'ticketmaster_event_elements.isDirty' => false,
+                    ]
+                ];
+            default:
+                return [];
+        }
     }
 }
