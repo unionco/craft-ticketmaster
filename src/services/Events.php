@@ -204,6 +204,7 @@ class Events extends Base
         unset($eventDetail['id']);
 
         // md5 event payload vs md5 Json::encode(eventDetail)
+        $event->isDirty = $this->isDirty($event, $eventDetail);
 
         $event->payload = Json::encode($eventDetail);
 
@@ -214,6 +215,23 @@ class Events extends Base
         }
 
         return $event;
+    }
+
+    /**
+     * Determines if payload returned from TM is different from what is already in the database
+     *
+     * @param Event $event
+     * @param array $eventDetails
+     *
+     * @return boolean
+     */
+    public function isDirty(Event $event, array $eventDetail)
+    {
+        if (! $event->payload) {
+            return false;
+        }
+
+        return (md5($event->payload) === md5(JSON::encode($eventDetail)));
     }
 
     public function publishEvent(Event $event)

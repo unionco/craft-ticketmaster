@@ -69,6 +69,7 @@ class Install extends Migration
             'tmEventId' => $this->string()->notNull(),
             'title' => $this->string()->notNull(),
             'payload' => $this->text(),
+            'isDirty' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
@@ -89,6 +90,7 @@ class Install extends Migration
             'title' => $this->string()->notNull(),
             'payload' => $this->text(),
             'published' => $this->text(),
+            'isDirty' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
@@ -100,7 +102,7 @@ class Install extends Migration
             ['fieldId'],
             true
         );
-        
+
         return true;
     }
 
