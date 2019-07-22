@@ -26,6 +26,7 @@ use unionco\ticketmaster\elements\db\EventQuery;
 use unionco\ticketmaster\elements\actions\Publish;
 use unionco\ticketmaster\models\Venue as VenueModel;
 use unionco\ticketmaster\records\Venue as VenueRecord;
+use unionco\ticketmaster\records\Event as EventRecord;
 
 /**
  * Event Element.
@@ -427,7 +428,15 @@ class Event extends Element
         $status = parent::getStatus();
 
         // If event id exist in ticketmaster_events table == self::STATUS_PUBLISHED
+        if ($eventRecord = EventRecord::find()->where(['tmEventId' => $this->tmEventId])->one()) {
+            return self::STATUS_PUBLISHED;
+        }
         // but if its published and is dirty (isDirty) then == self::STATUS_UPDATED
+        if ($eventRecord) {
+            if ($eventRecord->published && $eventRecord->isDirty) {
+                return self::STATUS_UPDATED;
+            }
+        }
         // else self::STATUS_NEW
 
         return self::STATUS_NEW;
