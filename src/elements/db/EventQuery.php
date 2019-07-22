@@ -1,10 +1,11 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x
+ * Ticketmaster plugin for Craft CMS 3.x.
  *
  * Ticket master ticket feed for venues.
  *
- * @link      https://github.com/unionco
+ * @see      https://github.com/unionco
+ *
  * @copyright Copyright (c) 2019 Union
  */
 
@@ -17,13 +18,11 @@ use unionco\ticketmaster\elements\Event;
 
 /**
  * EventQuery represents a SELECT SQL statement for events in a way that is independent of DBMS.
- *
  */
 class EventQuery extends ElementQuery
 {
     // Public Properties
     // =========================================================================
-
 
     /**
      * @var int
@@ -40,13 +39,9 @@ class EventQuery extends ElementQuery
      */
     public $status;
 
-
     // Public Methods
     // =========================================================================
 
-    /**
-     *
-     */
     public function tmVenueId($value)
     {
         $this->tmVenueId = $value;
@@ -54,9 +49,6 @@ class EventQuery extends ElementQuery
         return $this;
     }
 
-    /**
-     *
-     */
     public function tmEventId($value)
     {
         $this->tmEventId = $value;
@@ -64,9 +56,6 @@ class EventQuery extends ElementQuery
         return $this;
     }
 
-    /**
-     *
-     */
     public function status($value)
     {
         return parent::status($value);
@@ -76,7 +65,7 @@ class EventQuery extends ElementQuery
     // =========================================================================
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function beforePrepare(): bool
     {
@@ -90,6 +79,7 @@ class EventQuery extends ElementQuery
             'ticketmaster_event_elements.tmEventId',
             'ticketmaster_event_elements.payload',
             'ticketmaster_event_elements.published',
+            'ticketmaster_event_elements.isPublished',
             'ticketmaster_event_elements.isDirty',
         ]);
 
@@ -106,29 +96,29 @@ class EventQuery extends ElementQuery
 
     public function statusCondition(string $status)
     {
-        switch($this->status) {
+        switch ($this->status) {
             case Event::STATUS_PUBLISHED:
                 return [
                     'and',
                     [
-                        // 'ticketmaster_event_elements.isPublished' => true,
-                    ]
+                        'ticketmaster_event_elements.isPublished' => true,
+                    ],
                 ];
             case Event::STATUS_UPDATED:
                 return [
                     'and',
                     [
-                        // 'ticketmaster_event_elements.isPublished' => true,
+                        'ticketmaster_event_elements.isPublished' => true,
                         'ticketmaster_event_elements.isDirty' => true,
-                    ]
+                    ],
                 ];
             case Event::STATUS_NEW:
                 return [
                     'and',
                     [
-                        // 'ticketmaster_event_elements.isPublished' => false,
+                        'ticketmaster_event_elements.isPublished' => false,
                         'ticketmaster_event_elements.isDirty' => false,
-                    ]
+                    ],
                 ];
             default:
                 return [];

@@ -252,8 +252,11 @@ class EventController extends BaseController
             Craft::$app->getSession()->setNotice(Craft::t('app', 'Event published.'));
 
             // remove isDirty from $event
+            $event->isDirty = false;
             // add ispublished
-            // Craft::$app->getElements()->saveElement($event)
+            $event->isPublished = true;
+
+            Craft::$app->getElements()->saveElement($event);
 
             return $this->redirectToPostedUrl($event);
         }
