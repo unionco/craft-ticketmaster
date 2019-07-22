@@ -111,6 +111,11 @@ class Event extends Element
     public $isDirty;
 
     /**
+     * @var boolean isPublished
+     */
+    public $isPublished;
+
+    /**
      * @var Venue|null
      */
     private $_venue;
