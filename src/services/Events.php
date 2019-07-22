@@ -71,7 +71,7 @@ class Events extends Base
     const EVENT_BEFORE_PUBLISH = 'beforePublish';
 
     /**
-     * @event 
+     * @event
      */
     const EVENT_MISSING_FIELD_PUBLISH = 'missingFieldPublish';
 
@@ -201,9 +201,9 @@ class Events extends Base
 
     /**
      * Get details for single event from ticketmaster api
-     * 
+     *
      * @param eventId string
-     * 
+     *
      * @return mixed Json||boolean
      */
     public function getEventDetail(string $eventId)
@@ -280,6 +280,7 @@ class Events extends Base
         $settings = Ticketmaster::$plugin->getSettings();
         $enabled = $settings->enableWhenPublish;
         $section = Craft::$app->getSections()->getSectionByUid($settings->section);
+        $siteIds = $section->getSiteIds();
         $entryType = $settings->sectionEntryType;
 
         $record = EventRecord::findOne(
@@ -296,6 +297,7 @@ class Events extends Base
             $element->title = $event->title;
             $element->slug = StringHelper::toKebabCase($event->title);
             $element->enabled = $enabled;
+            $element->siteId = array_shift($siteIds);
 
             $fieldLayoutFields = $element->getFieldLayout()->getFields();
             $eventSearchField = array_filter($fieldLayoutFields, function ($field) {
@@ -336,7 +338,7 @@ class Events extends Base
 
         // find the elemenet that this record belongs to then fire off an event
         $element = $this->getTrueOwner($record);
-        
+
         // Fire a 'beforeSaveElement' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_PUBLISH)) {
             $this->trigger(self::EVENT_BEFORE_PUBLISH, new OnPublishEvent([
@@ -352,12 +354,12 @@ class Events extends Base
     }
 
     /**
-     * 
+     *
      */
     private function getTrueOwner(ActiveRecordInterface $record)
     {
         $owner = $record->getOwner()->one();
-        
+
         // if its a matrix -> go up a level
         if ($owner->type === MatrixBlock::class) {
             $matrix = Craft::$app->getElements()->getElementById($owner->id, $owner->type);

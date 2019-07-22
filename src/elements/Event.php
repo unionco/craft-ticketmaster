@@ -355,10 +355,15 @@ class Event extends Element
             ],
         ];
 
-        $venueRecords = VenueRecord::find();
+        if ($criteria = Craft::$app->getRequest()->getParam('criteria')) {
+            $venueRecords = VenueRecord::findAll(['ownerSiteId' => $criteria['siteId']]);
+        } else {
+            $site = Craft::$app->getSites()->getCurrentSite();
+            $venueRecords = VenueRecord::findAll(['ownerSiteId' => $site->id]);
+        }
         $venues = array_map(function ($record) {
             return new VenueModel($record);
-        }, $venueRecords->all());
+        }, $venueRecords);
 
         foreach ($venues as $key => $venue) {
             $sources[] = [
@@ -589,7 +594,7 @@ class Event extends Element
                     'tmVenueId' => $this->tmVenueId,
                     'tmEventId' => $this->tmEventId,
                     'isDirty' => $this->isDirty,
-                    'isPublished' => $this->isPublished,
+                    'isPublished' => $this->isPublished ?? false,
                     'payload' => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
                     'published' => is_array($this->published) ? Json::encode($this->published) : $this->published,
                 ], ['id' => $this->id])

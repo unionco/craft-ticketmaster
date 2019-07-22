@@ -6,7 +6,7 @@
 {% set context = 'index' %}
 
 {% block actionButton %}
-    {% set venues = craft.ticketmaster.venues.all %}
+    {% set venues = craft.ticketmaster.venues %}
     <div class="btngroup">
         <input class="btn" value="{{ 'Fetch'|t('ticketmaster') }}">
 
