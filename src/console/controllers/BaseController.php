@@ -10,11 +10,12 @@
 
 namespace unionco\ticketmaster\console\controllers;
 
-use unionco\ticketmaster\Ticketmaster;
-
 use Craft;
-use yii\console\Controller;
+
 use yii\helpers\Console;
+use yii\console\Controller;
+use unionco\ticketmaster\Ticketmaster;
+use unionco\ticketmaster\records\Event as EventRecord;
 
 /**
  * Base Command
@@ -56,11 +57,14 @@ class BaseController extends Controller
      */
     public function actionIndex()
     {
-        $result = 'something';
+        $record = EventRecord::findOne([
+            'tmEventId' => 'G5eVZ4ISja_f7'
+        ]);
+        
+        // var_dump($record);
+        var_dump(get_class($record->getOwner()->one()));
 
-        echo "Welcome to the console BaseController actionIndex() method\n";
-
-        return $result;
+        exit();
     }
 
     /**

@@ -14,6 +14,9 @@ namespace unionco\ticketmaster\records;
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
 use unionco\ticketmaster\db\Table;
+use craft\records\Element;
+use craft\records\Site;
+use craft\records\Field;
 
 /**
  * Class Event record.
@@ -38,22 +41,32 @@ class Event extends ActiveRecord
     }
 
     /**
-     * Returns the section’s structure.
+     * Returns the tickmaster event's owner.
      *
-     * @return ActiveQueryInterface the relational query object
+     * @return ActiveQueryInterface The relational query object.
      */
-    public function getVenue(): ActiveQueryInterface
+    public function getOwner(): ActiveQueryInterface
     {
-        return $this->hasOne(Table::VENUES, ['id' => 'venueId']);
+        return $this->hasOne(Element::class, ['id' => 'ownerId']);
     }
 
     /**
-     * Returns the section’s structure.
+     * Returns the tickmaster event's owner's site.
      *
-     * @return ActiveQueryInterface the relational query object
+     * @return ActiveQueryInterface The relational query object.
      */
-    public function getStatus(): ActiveQueryInterface
+    public function getOwnerSite(): ActiveQueryInterface
     {
-        return $this->hasOne(Table::STATUS, ['id' => 'status']);
+        return $this->hasOne(Site::class, ['id' => 'ownerSiteId']);
+    }
+
+    /**
+     * Returns the tickmaster event's field.
+     *
+     * @return ActiveQueryInterface The relational query object.
+     */
+    public function getField(): ActiveQueryInterface
+    {
+        return $this->hasOne(Field::class, ['id' => 'fieldId']);
     }
 }

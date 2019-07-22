@@ -9,7 +9,9 @@
           @selected="onSelected">
         <template slot-scope="{suggestion}">
           {{suggestion.item.name}}
-          <span class="light">– {{suggestion.item._embedded.venues[0].name}}, {{ suggestion.item._embedded.venues[0].city.name }}, {{ suggestion.item._embedded.venues[0].state.name }}</span>
+          <span v-if="suggestion.item._embedded.venues.length" class="light">
+            – {{suggestion.item._embedded.venues[0].name}}, <span v-if="suggestion.item._embedded.venues[0].city">{{ suggestion.item._embedded.venues[0].city.name }}</span>, <span v-if="suggestion.item._embedded.venues[0].state">{{ suggestion.item._embedded.venues[0].state.name }}</span>
+          </span>
         </template>
       </vue-autosuggest>
     </div>
@@ -115,6 +117,7 @@ export default class EventSearch extends Vue {
       .then((res) => {
         if (res && res._embedded && res._embedded.events.length) {
           this.suggestions = [{ data: res._embedded.events }];
+          console.log([{ data: res._embedded.events }]);
         }
       })
       .catch();

@@ -14,16 +14,19 @@ namespace unionco\ticketmaster\services;
 use Craft;
 use craft\helpers\Json;
 use craft\elements\Entry;
+use craft\elements\MatrixBlock;
 use craft\helpers\StringHelper;
 use craft\base\ElementInterface;
 use unionco\ticketmaster\db\Table;
 use unionco\ticketmaster\Ticketmaster;
 use unionco\ticketmaster\elements\Event;
 use craft\elements\db\ElementQueryInterface;
-use unionco\ticketmaster\models\Venue as VenueModel;
-use unionco\ticketmaster\models\Event as EventModel;
-use unionco\ticketmaster\records\Event as EventRecord;
 use unionco\ticketmaster\fields\EventSearch;
+use unionco\ticketmaster\events\OnPublishEvent;
+use unionco\ticketmaster\models\Event as EventModel;
+use unionco\ticketmaster\models\Venue as VenueModel;
+use unionco\ticketmaster\records\Event as EventRecord;
+use yii\db\ActiveRecordInterface;
 
 /**
  * Base Service.
@@ -40,9 +43,40 @@ use unionco\ticketmaster\fields\EventSearch;
  */
 class Events extends Base
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @var endpoint string
+     */
+    const ENDPOINT = 'discovery/v2/events';
+
+    /**
+     * @event OnPublishEvent The event that is triggered when publishing an event.
+     *
+     * ---
+     * ```php
+     * use unionco\ticketmaster\events\OnPublishEvent;
+     * use unionco\ticketmaster\services\Events;
+     * use yii\base\Event;
+     *
+     * Event::on(Events::class,
+     *     Events::EVENT_BEFORE_PUBLISH,
+     *     function(OnPublishEvent $event) {
+     *         // do stuff
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_BEFORE_PUBLISH = 'beforePublish';
+
+    /**
+     * @event 
+     */
+    const EVENT_MISSING_FIELD_PUBLISH = 'missingFieldPublish';
+
     // Public Methods
     // =========================================================================
-    const ENDPOINT = 'discovery/v2/events';
 
     /**
      * {@inheritdoc}
@@ -165,6 +199,13 @@ class Events extends Base
         return [];
     }
 
+    /**
+     * Get details for single event from ticketmaster api
+     * 
+     * @param eventId string
+     * 
+     * @return mixed Json||boolean
+     */
     public function getEventDetail(string $eventId)
     {
         $response = $this->makeRequest('GET', static::ENDPOINT.'/'.$eventId);
@@ -249,14 +290,14 @@ class Events extends Base
 
         if (!$record) {
             // create a new entry && get field layout
-            $craftEvent = new Entry();
-            $craftEvent->sectionId = $section->id;
-            $craftEvent->typeId = $entryType;
-            $craftEvent->title = $event->title;
-            $craftEvent->slug = StringHelper::toKebabCase($event->title);
-            $craftEvent->enabled = $enabled;
+            $element = new Entry();
+            $element->sectionId = $section->id;
+            $element->typeId = $entryType;
+            $element->title = $event->title;
+            $element->slug = StringHelper::toKebabCase($event->title);
+            $element->enabled = $enabled;
 
-            $fieldLayoutFields = $craftEvent->getFieldLayout()->getFields();
+            $fieldLayoutFields = $element->getFieldLayout()->getFields();
             $eventSearchField = array_filter($fieldLayoutFields, function ($field) {
                 return $field instanceof \unionco\ticketmaster\fields\EventSearch;
             });
@@ -265,19 +306,66 @@ class Events extends Base
                 $eventSearchField = array_pop($eventSearchField);
             } else {
                 // throw error
+                if ($this->hasEventHandlers(self::EVENT_MISSING_FIELD_PUBLISH)) {
+                    $this->trigger(self::EVENT_MISSING_FIELD_PUBLISH, new OnPublishEvent([
+                        'element' => $element,
+                        'tmEvent' => $event,
+                        'isNew' => true,
+                    ]));
+                }
+                return true;
             }
 
-            $craftEvent->{$eventSearchField->handle} = [
+            $element->{$eventSearchField->handle} = [
                 'title' => $event->title,
                 'tmEventId' => $event->tmEventId,
                 'payload' => $event->published ? $event->_published() : $event->_payload(),
             ];
 
+            // Fire a 'beforeSaveElement' event
+            if ($this->hasEventHandlers(self::EVENT_BEFORE_PUBLISH)) {
+                $this->trigger(self::EVENT_BEFORE_PUBLISH, new OnPublishEvent([
+                    'element' => $element,
+                    'tmEvent' => $event,
+                    'isNew' => true
+                ]));
+            }
+
             return Craft::$app->getElements()->saveElement($craftEvent, $enabled ? true : false);
+        }
+
+        // find the elemenet that this record belongs to then fire off an event
+        $element = $this->getTrueOwner($record);
+        
+        // Fire a 'beforeSaveElement' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_PUBLISH)) {
+            $this->trigger(self::EVENT_BEFORE_PUBLISH, new OnPublishEvent([
+                'element' => $element,
+                'tmEvent' => $event,
+                'isNew' => false
+            ]));
         }
 
         $record->payload = $event->published ? $event->published : $event->payload;
 
         return $record->save();
+    }
+
+    /**
+     * 
+     */
+    private function getTrueOwner(ActiveRecordInterface $record)
+    {
+        $owner = $record->getOwner()->one();
+        
+        // if its a matrix -> go up a level
+        if ($owner->type === MatrixBlock::class) {
+            $matrix = Craft::$app->getElements()->getElementById($owner->id, $owner->type);
+            return Craft::$app->getElements()->getElementById($matrix->owner->id, \get_class($matrix->owner));
+        }
+
+        // TODO - Add support for supertable and neo
+
+        return Craft::$app->getElements()->getElementById($owner->id, $owner->type);
     }
 }

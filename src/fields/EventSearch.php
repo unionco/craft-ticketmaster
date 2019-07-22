@@ -234,7 +234,7 @@ class EventSearch extends Field
     {
         // Render the settings template
         return Craft::$app->getView()->renderTemplate(
-            'ticketmaster/_includes/fields/venue-search-settings',
+            'ticketmaster/_includes/fields/event-search-settings',
             [
                 'field' => $this,
             ]
