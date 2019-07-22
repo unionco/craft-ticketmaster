@@ -562,6 +562,7 @@ class Event extends Element
                     'title' => $this->title,
                     'tmVenueId' => $this->tmVenueId,
                     'tmEventId' => $this->tmEventId,
+                    'isDirty' => false,
                     'payload' => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
                     'published' => is_array($this->published) ? Json::encode($this->published) : $this->published,
                 ])
@@ -573,6 +574,7 @@ class Event extends Element
                     'title' => $this->title,
                     'tmVenueId' => $this->tmVenueId,
                     'tmEventId' => $this->tmEventId,
+                    'isDirty' => $this->isDirty,
                     'payload' => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
                     'published' => is_array($this->published) ? Json::encode($this->published) : $this->published,
                 ], ['id' => $this->id])

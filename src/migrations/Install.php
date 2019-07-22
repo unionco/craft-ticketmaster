@@ -69,7 +69,6 @@ class Install extends Migration
             'tmEventId' => $this->string()->notNull(),
             'title' => $this->string()->notNull(),
             'payload' => $this->text(),
-            'isDirty' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
@@ -84,7 +83,6 @@ class Install extends Migration
 
         $this->createTable(Table::EVENT_ELEMENTS, [
             'id' => $this->primaryKey(),
-            'fieldId' => $this->integer(),
             'tmVenueId' => $this->string()->notNull(),
             'tmEventId' => $this->string()->notNull(),
             'title' => $this->string()->notNull(),
@@ -95,13 +93,6 @@ class Install extends Migration
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
         ]);
-
-        $this->createIndex(
-            null,
-            Table::EVENTS,
-            ['fieldId'],
-            true
-        );
 
         return true;
     }

@@ -272,7 +272,7 @@ class Events extends Base
             return false;
         }
 
-        return (md5($event->payload) === md5(JSON::encode($eventDetail)));
+        return (md5($event->payload) !== md5(JSON::encode($eventDetail)));
     }
 
     public function publishEvent(Event $event)
@@ -331,7 +331,7 @@ class Events extends Base
                 ]));
             }
 
-            return Craft::$app->getElements()->saveElement($craftEvent, $enabled ? true : false);
+            return Craft::$app->getElements()->saveElement($element, $enabled ? true : false);
         }
 
         // find the elemenet that this record belongs to then fire off an event
