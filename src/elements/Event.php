@@ -507,8 +507,8 @@ class Event extends Element
                     'tmEventId' => $this->tmEventId,
                     'isDirty' => false,
                     'isPublished' => false,
-                    'payload' => $this->_payload(),
-                    'published' => $this->_published()
+                    'payload' => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
+                    'published' => is_array($this->published) ? Json::encode($this->published) : $this->published,
                 ])
                 ->execute();
         } else {
@@ -520,8 +520,8 @@ class Event extends Element
                     'tmEventId' => $this->tmEventId,
                     'isDirty' => $this->isDirty,
                     'isPublished' => $this->isPublished ?? false,
-                    'payload' => $this->_payload(),
-                    'published' => $this->_published()
+                    'payload' => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
+                    'published' => is_array($this->published) ? Json::encode($this->published) : $this->published,
                 ], ['id' => $this->id])
                 ->execute();
         }
