@@ -56,16 +56,19 @@ class EventService extends Base
     public function baseQuery()
     {
         $query = EventRecord::find();
-        $query->leftJoin('{{%elements}}', '[[ticketmaster_events.ownerId]] = [[elements.id]]');
-        $query->where([
-            'and',
-            [
-                'not', 
-                ['elements.revisionId' => null]
-            ],
-            ['elements.dateDeleted' => null]
-        ]);
-        $query->groupBy('ticketmaster_events.ownerId');
+
+        if (version_compare(Craft::$app->getInfo()->version, '3.2', '>=')) {
+            $query->leftJoin('{{%elements}}', '[[ticketmaster_events.ownerId]] = [[elements.id]]');
+            $query->where([
+                'and',
+                [
+                    'not', 
+                    ['elements.revisionId' => null]
+                ],
+                ['elements.dateDeleted' => null]
+            ]);
+            $query->groupBy('ticketmaster_events.ownerId');
+        }
 
         return $query;
     }

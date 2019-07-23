@@ -11,6 +11,7 @@
 
 namespace unionco\ticketmaster\services;
 
+use Craft;
 use craft\base\ElementInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Json;
@@ -56,16 +57,19 @@ class VenueService extends Base
     public function baseQuery()
     {
         $query = VenueRecord::find();
-        $query->leftJoin('{{%elements}}', '[[ticketmaster_venues.ownerId]] = [[elements.id]]');
-        $query->where([
-            'and',
-            [
-                'not', 
-                ['elements.revisionId' => null]
-            ],
-            ['elements.dateDeleted' => null]
-        ]);
-        $query->groupBy('ticketmaster_venues.ownerId');
+
+        if (version_compare(Craft::$app->getInfo()->version, '3.2', '>=')) {
+            $query->leftJoin('{{%elements}}', '[[ticketmaster_venues.ownerId]] = [[elements.id]]');
+            $query->where([
+                'and',
+                [
+                    'not', 
+                    ['elements.revisionId' => null]
+                ],
+                ['elements.dateDeleted' => null]
+            ]);
+            $query->groupBy('ticketmaster_venues.ownerId');
+        }
 
         return $query;
     }
