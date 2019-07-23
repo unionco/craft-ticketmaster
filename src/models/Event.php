@@ -65,7 +65,12 @@ class Event extends Model
     // Public Methods
     // =========================================================================
 
-    public function toJson()
+    /**
+     * Convert the payload to JSON
+     *
+     * @return string
+     */
+    public function toJson(): string
     {
         $payload = is_string($this->payload) ? Json::decode($this->payload) : $this->payload;
 
@@ -79,8 +84,13 @@ class Event extends Model
 
     /**
      * Helper method to reach any ticketmaster field
+
+     *
+     * @param string $handle
+     *
+     * @return mixed
      */
-    public function tm(string $handle = null)
+    public function tm(string $handle = null): string
     {
         if (is_null($this->_doc)) {
             $this->_doc = new Dot(Json::decode($this->payload));
