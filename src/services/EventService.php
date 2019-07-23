@@ -111,7 +111,7 @@ class EventService extends Base
     /**
      * {@inheritdoc}
      */
-    public function modifyElementsQuery(ElementQueryInterface $query, $value)
+    public function modifyElementsQuery(EventSearch $field, ElementQueryInterface $query, $value)
     {
         if (!$value) {
             return;
@@ -128,6 +128,13 @@ class EventService extends Base
                 '[[elements_sites.siteId]] = [[tmEvents.ownerSiteId]]',
             ]
         );
+
+        if (isset($query->{$field->handle})) {
+            $query->where([
+                'and',
+                ['tmEventId' => $query->{$field->handle}]
+            ]);
+        }
 
         return;
     }

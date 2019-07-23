@@ -207,6 +207,6 @@ class VenueSearch extends Field
             return;
         }
         
-        return Ticketmaster::$plugin->venues->modifyElementsQuery($query, $value);
+        return Ticketmaster::$plugin->venues->modifyElementsQuery($this, $query, $value);
     }
 }

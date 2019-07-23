@@ -57,11 +57,11 @@ class ElementService extends Base
      * ---
      * ```php
      * use unionco\ticketmaster\events\OnPublishEvent;
-     * use unionco\ticketmaster\services\Events;
+     * use unionco\ticketmaster\services\ElementService;
      * use yii\base\Event;
      *
-     * Event::on(Events::class,
-     *     Events::EVENT_BEFORE_PUBLISH,
+     * Event::on(ElementService::class,
+     *     ElementService::EVENT_BEFORE_PUBLISH,
      *     function(OnPublishEvent $event) {
      *         // do stuff
      *     }
@@ -274,14 +274,18 @@ class ElementService extends Base
     {
         $owner = $record->getOwner()->one();
 
-        // if its a matrix -> go up a level
+        // todo:: fix this
         if ($owner->type === MatrixBlock::class) {
             $matrix = Craft::$app->getElements()->getElementById($owner->id, $owner->type);
             return Craft::$app->getElements()->getElementById($matrix->owner->id, \get_class($matrix->owner));
         }
 
         // TODO - Add support for supertable and neo
+        $element = $owner->type::find();
+        $element->id = $record->ownerId;
+        $element->siteId = $record->ownerSiteId;
+        $element->status = null;
 
-        return Craft::$app->getElements()->getElementById($owner->id, $owner->type);
+        return $element->one();
     }
 }

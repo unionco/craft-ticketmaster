@@ -117,7 +117,7 @@ class VenueService extends Base
     /**
      * {@inheritdoc}
      */
-    public function modifyElementsQuery(ElementQueryInterface $query, $value)
+    public function modifyElementsQuery(VenueSearch $field, ElementQueryInterface $query, $value)
     {
         if (!$value) {
             return;
@@ -134,6 +134,13 @@ class VenueService extends Base
                 '[[elements_sites.siteId]] = [[tmVenues.ownerSiteId]]',
             ]
         );
+
+        if (isset($query->{$field->handle})) {
+            $query->where([
+                'and',
+                ['tmVenueId' => $query->{$field->handle}]
+            ]);
+        }
 
         return;
     }
