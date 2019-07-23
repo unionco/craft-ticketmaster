@@ -12,11 +12,11 @@
 namespace unionco\ticketmaster\records;
 
 use craft\db\ActiveRecord;
-use yii\db\ActiveQueryInterface;
-use unionco\ticketmaster\db\Table;
 use craft\records\Element;
-use craft\records\Site;
 use craft\records\Field;
+use craft\records\Site;
+use unionco\ticketmaster\db\Table;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Class Event record.

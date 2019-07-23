@@ -19,12 +19,13 @@
       <h2>Event Info</h2>
       <input type="hidden" :name="`fields[${options.handle}][tmEventId]`" :value="event.tmEventId || event.id" />
       <input type="hidden" :name="`fields[${options.handle}][title]`" :value="event.title || event.name" />
-      <table>
+
+      <table class="table">
         <FormGroup
           v-for="(group, index) in payloadFields"
           v-bind:key="index"
           :label="index"
-          :group="payloadFields[index]"
+          :group="group"
           :name="`fields[${options.handle}][payload]`"
         />
       </table>
@@ -73,6 +74,21 @@ export default class EventSearch extends Vue {
     return this.event;
   }
 
+  get tabs() {
+    return [
+      {
+        label: 'General',
+        fields: [
+          { label: 'Type', handle: 'type' },
+          { label: 'Event Url', handle: 'url' },
+          { label: 'Event ID', handle: 'tmEventId' },
+          { label: 'Info', handle: 'info' },
+          { label: 'Please Note', handle: 'pleaseNote' },
+        ]
+      }
+    ];
+  }
+
   get payloadFields() {
     return get(this.eventFields, 'payload') || this.eventFields;
   }
@@ -89,7 +105,7 @@ export default class EventSearch extends Vue {
   created() {}
 
   mounted() {
-    console.log('EventSearch', this);
+    console.log('EventSearch', this.payloadFields);
   }
 
   onSelected(option) {
@@ -135,9 +151,9 @@ export default class EventSearch extends Vue {
 
 <style lang="scss" scoped>
 .fields-container {
-  background: #eee;
+  background: #f5f5f5;
   padding: 10px;
-  border: 1px solid darken(#eee, 10%);
+  border: 1px solid darken(#f5f5f5, 10%);
 }
 
 table {

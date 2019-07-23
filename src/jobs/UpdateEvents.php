@@ -61,7 +61,7 @@ class UpdateEvents extends BaseJob
         for ($step = 0; $step < $count; ++$step) {
             $this->setProgress($queue, $step / $count);
 
-            $events = Ticketmaster::$plugin->events->getEventsByVenueId($venues[$step]->tmVenueId);
+            $events = Ticketmaster::$plugin->elements->getEventsByVenueId($venues[$step]->tmVenueId);
             
             $queue->push(new UpdateVenueEvents([
                 'description' => 'Fetching ('.count($events).") events for {$venues[$step]->title} in {$this->siteHandle}",

@@ -15,7 +15,6 @@ use Craft;
 use yii\helpers\Console;
 use yii\console\Controller;
 use unionco\ticketmaster\Ticketmaster;
-use unionco\ticketmaster\records\Event as EventRecord;
 
 /**
  * Base Command
@@ -46,41 +45,4 @@ class BaseController extends Controller
 {
     // Public Methods
     // =========================================================================
-
-    /**
-     * Handle ticketmaster/base console commands
-     *
-     * The first line of this method docblock is displayed as the description
-     * of the Console Command in ./craft help
-     *
-     * @return mixed
-     */
-    public function actionIndex()
-    {
-        $record = EventRecord::findOne([
-            'tmEventId' => 'G5eVZ4ISja_f7'
-        ]);
-        
-        // var_dump($record);
-        var_dump(get_class($record->getOwner()->one()));
-
-        exit();
-    }
-
-    /**
-     * Handle ticketmaster/base/do-something console commands
-     *
-     * The first line of this method docblock is displayed as the description
-     * of the Console Command in ./craft help
-     *
-     * @return mixed
-     */
-    public function actionDoSomething()
-    {
-        $result = 'something';
-
-        echo "Welcome to the console BaseController actionDoSomething() method\n";
-
-        return $result;
-    }
 }

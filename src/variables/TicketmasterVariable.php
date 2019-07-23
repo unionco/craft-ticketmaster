@@ -11,9 +11,8 @@
 namespace unionco\ticketmaster\variables;
 
 use Craft;
-
+use craft\base\FieldInterface;
 use unionco\ticketmaster\Ticketmaster;
-use Adbar\Dot;
 
 /**
  * Ticketmaster Variable
@@ -33,29 +32,29 @@ class TicketmasterVariable
     // =========================================================================
 
     /**
-     * Whatever you want to output to a Twig template can go into a Variable method.
-     * You can have as many variable functions as you want.  From any Twig template,
-     * call it like this:
-     *
-     *     {{ craft.ticketmaster.exampleVariable }}
-     *
-     * Or, if your variable requires parameters from Twig:
-     *
-     *     {{ craft.ticketmaster.exampleVariable(twigValue) }}
-     *
-     * @param null $optional
-     * @return string
+     * {@inheritdoc}
      */
     public function venues($criteria = [])
     {
         return Ticketmaster::$plugin->venues->getVenues();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSetting($handle)
     {
         return Ticketmaster::$plugin->getSettings()->{$handle} ?? null;
     }
 
+    /**
+     * Created a field dynamically
+     * 
+     * @param class stirng
+     * @param params array
+     * 
+     * @return FieldInterface
+     */
     public function createField($class, $params)
     {
         $field = new $class();
@@ -80,12 +79,6 @@ class TicketmasterVariable
         return $options;
     }
 
-    public function makeDot($array = [])
-    {
-        $dot = new Dot($array);
-        return $dot;
-    }
-
     public function getApiFields()
     {
         return [
@@ -99,7 +92,10 @@ class TicketmasterVariable
                 [ 'name' => 'Ticket Limit', 'handle' => 'ticketLimit.info' ],
             ]],
             [ 'group' => 'Images', 'options' => [
-                [ 'name' => 'Images', 'handle' => 'images.*.url' ]
+                [ 'name' => 'Image Url', 'handle' => 'images.*.url' ],
+                [ 'name' => 'Image Ratio', 'handle' => 'images.*.ratio' ],
+                [ 'name' => 'Image Width', 'handle' => 'images.*.width' ],
+                [ 'name' => 'Image Height', 'handle' => 'images.*.height' ]
             ]],
             [ 'group' => 'Dates', 'options' => [
                 [ 'name' => 'Start -> Datetime', 'handle' => 'dates.start.dateTime' ],

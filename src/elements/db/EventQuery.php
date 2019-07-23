@@ -11,9 +11,9 @@
 
 namespace unionco\ticketmaster\elements\db;
 
-// use Craft;
-use craft\helpers\Db;
+use Craft;
 use craft\elements\db\ElementQuery;
+use craft\helpers\Db;
 use unionco\ticketmaster\elements\Event;
 
 /**

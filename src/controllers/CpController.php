@@ -11,7 +11,6 @@
 namespace unionco\ticketmaster\controllers;
 
 use Craft;
-
 use craft\web\Controller;
 use unionco\ticketmaster\Ticketmaster;
 

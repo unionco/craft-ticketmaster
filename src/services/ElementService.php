@@ -12,28 +12,22 @@
 namespace unionco\ticketmaster\services;
 
 use Craft;
-use craft\helpers\Json;
+use craft\base\ElementInterface;
 use craft\elements\Entry;
 use craft\elements\MatrixBlock;
+use craft\helpers\Json;
 use craft\helpers\StringHelper;
-use unionco\ticketmaster\Ticketmaster;
 use unionco\ticketmaster\elements\Event;
 use unionco\ticketmaster\events\OnPublishEvent;
 use unionco\ticketmaster\models\Venue as VenueModel;
+use unionco\ticketmaster\Ticketmaster;
 use yii\db\ActiveRecordInterface;
-use craft\base\ElementInterface;
 
 /**
- * Base Service.
- *
- * All of your plugin’s business logic should go in services, including saving data,
- * retrieving data, etc. They provide APIs that your controllers, template variables,
- * and other plugins can interact with.
- *
- * https://craftcms.com/docs/plugins/services
- *
+ * Element Service.
+ * 
  * @author    Union
- *
+ * @package   Ticketmaster
  * @since     1.0.0
  */
 class ElementService extends Base

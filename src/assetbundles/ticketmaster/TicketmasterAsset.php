@@ -54,14 +54,13 @@ class TicketmasterAsset extends AssetBundle
             VueAsset::class,
         ];
 
-        if (getenv('ENVIRONMENT') === "dev") {
+        if (getenv('TM_ENABLE_DEV')) {
 			$this->js = [
 				'http://localhost:8080/app.js',
 			];
 		} else {
 			$this->css = [
 				'css/app.css',
-				// 'css/chunk-vendors.css',
 			];
 
 			$this->js = [

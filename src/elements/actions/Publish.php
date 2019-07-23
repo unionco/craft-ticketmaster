@@ -12,8 +12,8 @@ namespace unionco\ticketmaster\elements\actions;
 
 use Craft;
 use craft\base\ElementAction;
-use unionco\ticketmaster\Ticketmaster;
 use craft\elements\db\ElementQueryInterface;
+use unionco\ticketmaster\Ticketmaster;
 
 /**
  * EventQuery represents a SELECT SQL statement for events in a way that is independent of DBMS.

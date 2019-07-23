@@ -23,8 +23,12 @@
  */
 
 return [
-
-    // This controls blah blah blah
-    "apiKey" => true,
-
+    "consumerKey" => "",
+    "consumerSecret" => "",
+    "section" => "",
+    "sectionEntryType" => "",
+    "enableWhenPublish" => false,
+    
+    // not currently in use
+    "apiFields" => []
 ];

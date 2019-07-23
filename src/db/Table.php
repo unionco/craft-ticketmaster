@@ -21,6 +21,5 @@ abstract class Table
 {
     const VENUES = '{{%ticketmaster_venues}}';
     const EVENTS = '{{%ticketmaster_events}}';
-    const STATUS = '{{%ticketmaster_event_status}}';
     const EVENT_ELEMENTS = '{{%ticketmaster_event_elements}}';
 }

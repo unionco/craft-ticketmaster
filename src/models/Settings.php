@@ -59,14 +59,12 @@ class Settings extends Model
      * @var string section
      */
     public $sectionEntryType;
-
+    
     /**
      * @var array sectionMap
      */
-    public $sectionMap = [
-        [ 'ticketmaster' => 'title', 'section' => 'title' ]
-    ];
-    
+    public $sectionMap;
+
     /**
      * @var array sectionMap
      */

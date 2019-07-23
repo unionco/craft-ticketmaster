@@ -11,10 +11,10 @@
 
 namespace unionco\ticketmaster\models;
 
-use unionco\ticketmaster\Ticketmaster;
 use Craft;
 use craft\base\Model;
 use craft\helpers\Json;
+use unionco\ticketmaster\Ticketmaster;
 
 /**
  * Ticketmaster Settings Model.

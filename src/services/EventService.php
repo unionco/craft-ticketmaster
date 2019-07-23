@@ -12,14 +12,15 @@
 namespace unionco\ticketmaster\services;
 
 use Craft;
-use craft\helpers\Json;
 use craft\base\ElementInterface;
+use craft\elements\db\ElementQueryInterface;
+use craft\helpers\Json;
 use unionco\ticketmaster\db\Table;
 use unionco\ticketmaster\elements\Event;
-use craft\elements\db\ElementQueryInterface;
 use unionco\ticketmaster\fields\EventSearch;
 use unionco\ticketmaster\models\Event as EventModel;
 use unionco\ticketmaster\records\Event as EventRecord;
+use yii\db\ActiveQuery;
 
 /**
  * Event Field Service.
@@ -31,11 +32,18 @@ use unionco\ticketmaster\records\Event as EventRecord;
  * https://craftcms.com/docs/plugins/services
  *
  * @author    Union
- *
+ * @package   Ticketmaster
  * @since     1.0.0
  */
 class EventService extends Base
 {
+    /**
+     * Get event by ticketmaster event id
+     * 
+     * @param string eventId
+     * 
+     * @return EventRecord
+     */
     public function getEventByEventId(string $eventId)
     {
         $record = $this->baseQuery();
@@ -44,6 +52,11 @@ class EventService extends Base
         return $record->one();
     }
 
+    /**
+     * Get events from field data
+     * 
+     * @return EventRecord[]
+     */
     public function getEvents()
     {
         $records = $this->baseQuery();
@@ -51,6 +64,11 @@ class EventService extends Base
         return $records->all();
     }
 
+    /**
+     * Base event query grouped by ownerid
+     * 
+     * @return ActiveQuery
+     */
     public function baseQuery()
     {
         $query = EventRecord::find();

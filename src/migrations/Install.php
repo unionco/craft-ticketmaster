@@ -89,7 +89,7 @@ class Install extends Migration
             'payload' => $this->text(),
             'published' => $this->text(),
             'isDirty' => $this->boolean(),
-            'isPublished' => $this->boolean(),
+            'isPublished' => $this->boolean()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()

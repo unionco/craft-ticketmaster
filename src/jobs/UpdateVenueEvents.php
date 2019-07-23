@@ -15,7 +15,7 @@ class UpdateVenueEvents extends BaseJob
 
     public function execute($queue)
     {
-        $eventService = Ticketmaster::$plugin->events;
+        $eventService = Ticketmaster::$plugin->elements;
         $count = count($this->events);
         $venueRecord = VenueRecord::find()->where(['id' => $this->venue])->one();
         $venueModel = new VenueModel($venueRecord->getAttributes());

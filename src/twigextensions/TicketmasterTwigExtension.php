@@ -11,13 +11,9 @@
 namespace unionco\ticketmaster\twigextensions;
 
 use Craft;
-
-use DateTime;
 use Twig_Extension;
 use Twig_SimpleFilter;
-use Twig_SimpleFunction;
 use union\app\UnionModule;
-use craft\helpers\UrlHelper;
 
 /**
  * @author    UNION
@@ -48,10 +44,7 @@ class TicketmasterTwigExtension extends Twig_Extension
      */
     public function getFilters()
     {
-        return [
-            new Twig_SimpleFilter('get', [$this, 'get']),
-            new Twig_SimpleFilter('isArray', 'is_array'),
-        ];
+        return [];
     }
 
     /**
@@ -62,13 +55,5 @@ class TicketmasterTwigExtension extends Twig_Extension
     public function getFunctions()
     {
         return [];
-    }
-
-    /**
-     * 
-     */
-    public function get($object, $path)
-    {
-        return '';
     }
 }

@@ -19,18 +19,13 @@ use unionco\ticketmaster\db\Table;
 use unionco\ticketmaster\fields\VenueSearch;
 use unionco\ticketmaster\models\Venue as VenueModel;
 use unionco\ticketmaster\records\Venue as VenueRecord;
+use yii\db\ActiveQuery;
 
 /**
- * Base Service.
- *
- * All of your plugin’s business logic should go in services, including saving data,
- * retrieving data, etc. They provide APIs that your controllers, template variables,
- * and other plugins can interact with.
- *
- * https://craftcms.com/docs/plugins/services
+ * Venue Service.
  *
  * @author    Union
- *
+ * @package   Ticketmaster
  * @since     1.0.0
  */
 class VenueService extends Base
@@ -39,6 +34,13 @@ class VenueService extends Base
     // =========================================================================
     const ENDPOINT = 'discovery/v2/venues';
 
+    /**
+     * Get venue by ticketmaster venue id
+     * 
+     * @param string venueId
+     * 
+     * @return VenueRecord
+     */
     public function getVenueById(string $venueId)
     {
         $record = $this->baseQuery();
@@ -47,6 +49,11 @@ class VenueService extends Base
         return $record->one();
     }
 
+    /**
+     * Get venues from field data
+     * 
+     * @return VenueRecord[]
+     */
     public function getVenues()
     {
         $records = $this->baseQuery();
@@ -54,6 +61,11 @@ class VenueService extends Base
         return $records->all();
     }
 
+    /**
+     * Base event query grouped by ownerid
+     * 
+     * @return ActiveQuery
+     */
     public function baseQuery()
     {
         $query = VenueRecord::find();

@@ -10,23 +10,16 @@
 
 namespace unionco\ticketmaster\services;
 
-use unionco\ticketmaster\Ticketmaster;
-
 use Craft;
 use craft\base\Component;
+use craft\helpers\Json;
 use GuzzleHttp\Client as RestClient;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7;
-use craft\helpers\Json;
+use unionco\ticketmaster\Ticketmaster;
 
 /**
  * Base Service
- *
- * All of your plugin’s business logic should go in services, including saving data,
- * retrieving data, etc. They provide APIs that your controllers, template variables,
- * and other plugins can interact with.
- *
- * https://craftcms.com/docs/plugins/services
  *
  * @author    Union
  * @package   Ticketmaster

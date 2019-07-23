@@ -129,11 +129,3 @@
         }
     })
 {% endjs %}
-{# 
-{% if not event.slug %}
-    {% js %}
-        window.slugGenerator = new Craft.SlugGenerator('#title', '#slug', {
-            charMap: {{ craft.cp.getAsciiCharMap(currentSite.language)|json_encode|raw }}
-        });
-    {% endjs %}
-{% endif %} #}

@@ -113,11 +113,6 @@ class Event extends Element
      */
     public $isPublished;
 
-    /**
-     * @var Venue|null
-     */
-    private $_venue;
-
     // Static Methods
     // =========================================================================
 
@@ -385,16 +380,6 @@ class Event extends Element
         ]);
     }
 
-    /**
-     * Returns whether the current user can edit the element.
-     *
-     * @return bool
-     */
-    public function getIsEditable(): bool
-    {
-        return true;
-    }
-
     // Indexes, etc.
     // -------------------------------------------------------------------------
 
@@ -416,6 +401,17 @@ class Event extends Element
         return self::STATUS_NEW;
     }
 
+    /**
+     * Returns whether the current user can edit the element.
+     *
+     * @return bool
+     */
+    public function getIsEditable(): bool
+    {
+        return true;
+    }
+
+    
     /**
      * {@inheritdoc}
      *

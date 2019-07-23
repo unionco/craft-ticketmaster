@@ -15,7 +15,6 @@ use Adbar\Dot;
 use Craft;
 use craft\base\Model;
 use craft\helpers\Json;
-use unionco\ticketmaster\models\TicketmasterEvent;
 use unionco\ticketmaster\Ticketmaster;
 
 /**

@@ -84,6 +84,14 @@
         on: settings.enableWhenPublish ?? false,
     }) }}
 
+    {{ forms.textareaField({
+        label: 'Hidden Api Fields'|t('ticketmaster'),
+        instructions: 'Each api field handle to hide on a new line.'|t('ticketmaster'),
+        id: 'apiFields',
+        name: 'apiFields',
+        rows: 10
+    }) }}
+
     {# <div class="field">
         <div class="heading">
             <label id="settings-apiFields-label" class="required" for="settings-apiFields">

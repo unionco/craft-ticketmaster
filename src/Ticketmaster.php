@@ -118,15 +118,6 @@ class Ticketmaster extends Plugin
         // Twig
         Craft::$app->view->registerTwigExtension(new TicketmasterTwigExtension());
 
-        // Register our site routes
-        // Event::on(
-        //     UrlManager::class,
-        //     UrlManager::EVENT_REGISTER_SITE_URL_RULES,
-        //     function (RegisterUrlRulesEvent $event) {
-        //         $event->rules['siteActionTrigger1'] = 'ticketmaster/base';
-        //     }
-        // );
-
         // Register our CP routes
         Event::on(
             UrlManager::class,
@@ -227,7 +218,6 @@ class Ticketmaster extends Plugin
         $item['url'] = 'ticketmaster';
         $item['subnav'] = [
             'ticketmaster' => [ 'label' => 'Dashboard', 'url' => 'ticketmaster' ],
-            // 'venues' => [ 'label' => 'Venues', 'url' => 'ticketmaster/venues' ],
             'events' => [ 'label' => 'Events', 'url' => 'ticketmaster/events' ],
             'settings' => [ 'label' => 'Settings', 'url' => 'settings/plugins/ticketmaster' ],
         ];
