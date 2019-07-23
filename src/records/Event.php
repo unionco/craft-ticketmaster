@@ -43,7 +43,7 @@ class Event extends ActiveRecord
     /**
      * Returns the tickmaster event's owner.
      *
-     * @return ActiveQueryInterface The relational query object.
+     * @return ActiveQueryInterface the relational query object
      */
     public function getOwner(): ActiveQueryInterface
     {
@@ -53,7 +53,7 @@ class Event extends ActiveRecord
     /**
      * Returns the tickmaster event's owner's site.
      *
-     * @return ActiveQueryInterface The relational query object.
+     * @return ActiveQueryInterface the relational query object
      */
     public function getOwnerSite(): ActiveQueryInterface
     {
@@ -63,7 +63,7 @@ class Event extends ActiveRecord
     /**
      * Returns the tickmaster event's field.
      *
-     * @return ActiveQueryInterface The relational query object.
+     * @return ActiveQueryInterface the relational query object
      */
     public function getField(): ActiveQueryInterface
     {

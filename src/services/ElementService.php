@@ -16,17 +16,12 @@ use craft\helpers\Json;
 use craft\elements\Entry;
 use craft\elements\MatrixBlock;
 use craft\helpers\StringHelper;
-use craft\base\ElementInterface;
-use unionco\ticketmaster\db\Table;
 use unionco\ticketmaster\Ticketmaster;
 use unionco\ticketmaster\elements\Event;
-use craft\elements\db\ElementQueryInterface;
-use unionco\ticketmaster\fields\EventSearch;
 use unionco\ticketmaster\events\OnPublishEvent;
-use unionco\ticketmaster\models\Event as EventModel;
 use unionco\ticketmaster\models\Venue as VenueModel;
-use unionco\ticketmaster\records\Event as EventRecord;
 use yii\db\ActiveRecordInterface;
+use craft\base\ElementInterface;
 
 /**
  * Base Service.
@@ -78,6 +73,13 @@ class ElementService extends Base
     // Public Methods
     // =========================================================================
 
+    /**
+     * Get Event for given ID
+     *
+     * @param integer $eventId
+     *
+     * @return ElementInterface|null
+     */
     public function getEventById(int $eventId)
     {
         return Craft::$app->getElements()->getElementById($eventId, Event::class);
@@ -111,7 +113,7 @@ class ElementService extends Base
     }
 
     /**
-     * Get details for single event from ticketmaster api
+     * Get details for single event from ticketmaster api.
      *
      * @param eventId string
      *
@@ -174,24 +176,28 @@ class ElementService extends Base
     }
 
     /**
-     * Determines if payload returned from TM is different from what is already in the database
+     * Determines if payload returned from TM is different from what is already in the database.
      *
      * @param Event $event
-     * @param array $eventDetails
+     * @param array $eventDetail
      *
-     * @return boolean
+     * @return bool
      */
     public function isDirty(Event $event, array $eventDetail)
     {
-        if (! $event->payload) {
+        if (!$event->payload) {
             return false;
         }
 
-        return (md5($event->payload) !== md5(JSON::encode($eventDetail)));
+        return md5($event->payload) !== md5(JSON::encode($eventDetail));
     }
 
     /**
-     * 
+     * Publish the event
+     *
+     * @param Event $event
+     *
+     * @return bool
      */
     public function publishEvent(Event $event)
     {
@@ -202,7 +208,7 @@ class ElementService extends Base
         $entryType = $settings->sectionEntryType;
 
         $record = Ticketmaster::$plugin->events->getEventByEventId($event->tmEventId);
-        
+
         if (!$record) {
             // create a new entry && get field layout
             $element = new Entry();
@@ -229,6 +235,7 @@ class ElementService extends Base
                         'isNew' => true,
                     ]));
                 }
+
                 return true;
             }
 
@@ -243,7 +250,7 @@ class ElementService extends Base
                 $this->trigger(self::EVENT_BEFORE_PUBLISH, new OnPublishEvent([
                     'element' => $element,
                     'tmEvent' => $event,
-                    'isNew' => true
+                    'isNew' => true,
                 ]));
             }
 
@@ -258,7 +265,7 @@ class ElementService extends Base
             $this->trigger(self::EVENT_BEFORE_PUBLISH, new OnPublishEvent([
                 'element' => $element,
                 'tmEvent' => $event,
-                'isNew' => false
+                'isNew' => false,
             ]));
         }
 
@@ -268,7 +275,11 @@ class ElementService extends Base
     }
 
     /**
+     * Attempts to find the true owner of the record, even if it's an instance of a Matrix Block
      *
+     * @param ActiveRecordInterface $record
+     *
+     * @return ElementInterface
      */
     private function getTrueOwner(ActiveRecordInterface $record)
     {
@@ -277,6 +288,7 @@ class ElementService extends Base
         // todo:: fix this
         if ($owner->type === MatrixBlock::class) {
             $matrix = Craft::$app->getElements()->getElementById($owner->id, $owner->type);
+
             return Craft::$app->getElements()->getElementById($matrix->owner->id, \get_class($matrix->owner));
         }
 
