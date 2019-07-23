@@ -104,7 +104,11 @@ class Events extends Base
         $record->tmEventId = $value['tmEventId'];
         $record->title = $value['title'];
 
-        $record->payload = json_encode($value['payload']);
+        if (!is_string($value['payload'])) {
+            $record->payload = Json::encode($value['payload']) ?? '';
+        } else {
+            $record->payload = $value['payload'];
+        }
 
         $record->save();
     }
@@ -247,7 +251,11 @@ class Events extends Base
         // md5 event payload vs md5 Json::encode(eventDetail)
         $event->isDirty = $this->isDirty($event, $eventDetail);
 
-        $event->payload = Json::encode($eventDetail);
+        if (!is_string($eventDetail)) {
+            $event->payload = Json::encode($eventDetail) ?? '';
+        } else {
+            $event->payload = $eventDetail;
+        }
 
         try {
             $result = Craft::$app->getElements()->saveElement($event);
@@ -275,6 +283,9 @@ class Events extends Base
         return (md5($event->payload) !== md5(JSON::encode($eventDetail)));
     }
 
+    /**
+     * 
+     */
     public function publishEvent(Event $event)
     {
         $settings = Ticketmaster::$plugin->getSettings();

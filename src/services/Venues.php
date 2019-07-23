@@ -12,9 +12,10 @@
 namespace unionco\ticketmaster\services;
 
 use craft\base\ElementInterface;
+use craft\elements\db\ElementQueryInterface;
+use craft\helpers\Json;
 use unionco\ticketmaster\db\Table;
 use unionco\ticketmaster\fields\VenueSearch;
-use craft\elements\db\ElementQueryInterface;
 use unionco\ticketmaster\models\Venue as VenueModel;
 use unionco\ticketmaster\records\Venue as VenueRecord;
 
@@ -73,10 +74,14 @@ class Venues extends Base
             $record->fieldId = $field->id;
         }
 
-        $record->tmVenueId = $value['tmVenueId'];
-        $record->title = $value['title'];
+        $record->tmVenueId = $value['tmVenueId'] ?? '';
+        $record->title = $value['title'] ?? '';
 
-        $record->payload = json_encode($value['payload']);
+        if (!is_string($value['payload'])) {
+            $record->payload = Json::encode($value['payload']) ?? '';
+        } else {
+            $record->payload = $value['payload'];
+        }
 
         $record->save();
     }
@@ -141,6 +146,18 @@ class Venues extends Base
 
     public function getVenues()
     {
-        return VenueRecord::find()->all();
+        $records = VenueRecord::find();
+        $records->leftJoin('{{%elements}}', '[[ticketmaster_venues.ownerId]] = [[elements.id]]');
+        $records->where([
+            'and',
+            [
+                'not', 
+                ['elements.revisionId' => null]
+            ],
+            ['elements.dateDeleted' => null]
+        ]);
+        $records->groupBy('ticketmaster_venues.ownerId');
+
+        return $records->all();
     }
 }

@@ -67,8 +67,7 @@ class Event extends Model
 
     public function toJson()
     {
-        $payload = Json::decode($this->payload);
-        // $published = json_decode($this->published);
+        $payload = is_string($this->payload) ? Json::decode($this->payload) : $this->payload;
 
         return Json::encode([
             'id' => $this->id,

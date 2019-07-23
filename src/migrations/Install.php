@@ -66,8 +66,8 @@ class Install extends Migration
             'ownerId' => $this->integer()->notNull(),
             'ownerSiteId' => $this->integer()->notNull(),
             'fieldId' => $this->integer()->notNull(),
-            'tmEventId' => $this->string()->notNull(),
-            'title' => $this->string()->notNull(),
+            'tmEventId' => $this->string(),
+            'title' => $this->string(),
             'payload' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -83,9 +83,9 @@ class Install extends Migration
 
         $this->createTable(Table::EVENT_ELEMENTS, [
             'id' => $this->primaryKey(),
-            'tmVenueId' => $this->string()->notNull(),
-            'tmEventId' => $this->string()->notNull(),
-            'title' => $this->string()->notNull(),
+            'tmVenueId' => $this->string(),
+            'tmEventId' => $this->string(),
+            'title' => $this->string(),
             'payload' => $this->text(),
             'published' => $this->text(),
             'isDirty' => $this->boolean(),
@@ -103,11 +103,17 @@ class Install extends Migration
      */
     protected function addForeignKeys()
     {
+        // Foreign keys for venues field
         $this->addForeignKey(null, Table::VENUES, ['ownerId'], '{{%elements}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, Table::VENUES, ['ownerSiteId'], '{{%sites}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::VENUES, ['fieldId'], '{{%fields}}', ['id'], 'CASCADE', 'CASCADE');
+        
+        // Foreign keys for events field
         $this->addForeignKey(null, Table::EVENTS, ['ownerId'], '{{%elements}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, Table::EVENTS, ['ownerSiteId'], '{{%sites}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::EVENTS, ['fieldId'], '{{%fields}}', ['id'], 'CASCADE', 'CASCADE');
+
+        // Foreign key to elements table
+        $this->addForeignKey(null, Table::EVENT_ELEMENTS, ['id'], '{{%elements}}', ['id'], 'CASCADE', 'CASCADE');
     }
 }

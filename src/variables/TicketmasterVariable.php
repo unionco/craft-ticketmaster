@@ -50,11 +50,7 @@ class TicketmasterVariable
      */
     public function venues($criteria = [])
     {
-
-        $site = Craft::$app->getSites()->getCurrentSite();
-        $venueRecords = VenueRecord::findAll(['ownerSiteId' => $site->id]);
-
-        return $venueRecords;
+        return Ticketmaster::$plugin->venues->getVenues();
     }
 
     public function getSetting($handle)
