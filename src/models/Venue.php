@@ -40,11 +40,34 @@ class Venue extends Model
      */
     public $id;
 
+    /**
+     * @var int ownerId
+     */
     public $ownerId;
+
+    /**
+     * @var int ownerSiteId
+     */
     public $ownerSiteId;
+
+    /**
+     * @var int fieldId
+     */
     public $fieldId;
+
+    /**
+     * @var string dateCreated
+     */
     public $dateCreated;
+
+    /**
+     * @var string dateUpdated
+     */
     public $dateUpdated;
+
+    /**
+     * @var string uid
+     */
     public $uid;
 
     /**

@@ -53,42 +53,42 @@ class Event extends Model
     public $tmEventId;
 
     /**
-     * @var string
+     * @var string payload
      */
     public $payload;
 
     /**
-     * @var int
+     * @var int ownerId
      */
     public $ownerId;
 
     /**
-     * @var int
+     * @var int ownerSiteId
      */
     public $ownerSiteId;
 
     /**
-     * @var int
+     * @var int fieldId
      */
     public $fieldId;
 
     /**
-     * @var string
+     * @var string dateCreated
      */
     public $dateCreated;
 
     /**
-     * @var string
+     * @var string dateUpdated
      */
     public $dateUpdated;
 
     /**
-     * @var string
+     * @var string uid
      */
     public $uid;
 
     /**
-     * @var mixed
+     * @var string|array doc
      */
     private $_doc;
 
