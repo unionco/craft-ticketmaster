@@ -63,7 +63,7 @@ class VenueService extends Base
             $query->where([
                 'and',
                 [
-                    'not', 
+                    'not',
                     ['elements.revisionId' => null]
                 ],
                 ['elements.dateDeleted' => null]
@@ -96,20 +96,13 @@ class VenueService extends Base
         );
 
         if (!$record) {
-            $record = new VenueRecord();
-            $record->ownerId = $element->id;
-            $record->ownerSiteId = $element->siteId;
-            $record->fieldId = $field->id;
+            $record = $this->createNewRecord($element, $field);
         }
 
         $record->tmVenueId = $value['tmVenueId'] ?? '';
         $record->title = $value['title'] ?? '';
 
-        if (!is_string($value['payload'])) {
-            $record->payload = Json::encode($value['payload']) ?? '';
-        } else {
-            $record->payload = $value['payload'];
-        }
+        $record->payload = $this->handlePayload($value);
 
         $record->save();
     }
@@ -177,5 +170,39 @@ class VenueService extends Base
         }
 
         return $model;
+    }
+
+    /**
+     * If no event record is found, create a new one
+     *
+     * @param ElementInterface $element
+     * @param VenueSearch $field
+     *
+     * @return VenueRecord
+     */
+    private function createNewRecord(ElementInterface $element, VenueSearch $field)
+    {
+        $record = new VenueRecord();
+        $record->ownerId = $element->id;
+        $record->ownerSiteId = $element->siteId;
+        $record->fieldId = $field->id;
+
+        return $record;
+    }
+
+    /**
+     * Ensures the payload is in the proper JSON format
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
+    private function handlePayload($value)
+    {
+        if (! is_string($value['payload'])) {
+            return Json::encode($value['payload']) ?? '';
+        }
+
+        return $value['payload'];
     }
 }
