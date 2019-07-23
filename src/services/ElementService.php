@@ -74,9 +74,9 @@ class ElementService extends Base
     // =========================================================================
 
     /**
-     * Get Event for given ID
+     * Get Event for given ID.
      *
-     * @param integer $eventId
+     * @param int $eventId
      *
      * @return ElementInterface|null
      */
@@ -193,7 +193,7 @@ class ElementService extends Base
     }
 
     /**
-     * Publish the event
+     * Publish the event.
      *
      * @param Event $event
      *
@@ -275,7 +275,7 @@ class ElementService extends Base
     }
 
     /**
-     * Attempts to find the true owner of the record, even if it's an instance of a Matrix Block
+     * Attempts to find the true owner of the record, even if it's an instance of a Matrix Block.
      *
      * @param ActiveRecordInterface $record
      *

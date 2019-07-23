@@ -15,7 +15,6 @@ use Craft;
 use craft\helpers\Json;
 use craft\base\ElementInterface;
 use unionco\ticketmaster\db\Table;
-use unionco\ticketmaster\Ticketmaster;
 use unionco\ticketmaster\elements\Event;
 use craft\elements\db\ElementQueryInterface;
 use unionco\ticketmaster\fields\EventSearch;
@@ -37,7 +36,6 @@ use unionco\ticketmaster\records\Event as EventRecord;
  */
 class EventService extends Base
 {
-
     public function getEventByEventId(string $eventId)
     {
         $record = $this->baseQuery();
@@ -62,10 +60,10 @@ class EventService extends Base
             $query->where([
                 'and',
                 [
-                    'not', 
-                    ['elements.revisionId' => null]
+                    'not',
+                    ['elements.revisionId' => null],
                 ],
-                ['elements.dateDeleted' => null]
+                ['elements.dateDeleted' => null],
             ]);
             $query->groupBy('ticketmaster_events.ownerId');
         }
@@ -90,23 +88,17 @@ class EventService extends Base
         );
 
         if (!$record) {
-            $record = new EventRecord();
-            $record->ownerId = $element->id;
-            $record->ownerSiteId = $element->siteId;
-            $record->fieldId = $field->id;
+            $record = $this->createNewRecord($element, $field);
         }
 
         $record->tmEventId = $value['tmEventId'];
         $record->title = $value['title'];
 
-        if (!is_string($value['payload'])) {
-            $record->payload = Json::encode($value['payload']) ?? '';
-        } else {
-            $record->payload = $value['payload'];
-        }
+        $record->payload = $this->handlePayload($value);
 
         $record->save();
     }
+
 
     /**
      * {@inheritdoc}
@@ -132,7 +124,7 @@ class EventService extends Base
         if (isset($query->{$field->handle})) {
             $query->where([
                 'and',
-                ['tmEventId' => $query->{$field->handle}]
+                ['tmEventId' => $query->{$field->handle}],
             ]);
         }
 
@@ -171,5 +163,39 @@ class EventService extends Base
         }
 
         return $model;
+    }
+
+    /**
+     * If no event record is found, create a new one
+     *
+     * @param ElementInterface $element
+     * @param EventSearch $field
+     *
+     * @return EventRecord
+     */
+    private function createNewRecord(ElementInterface $element, EventSearch $field)
+    {
+        $record = new EventRecord();
+        $record->ownerId = $element->id;
+        $record->ownerSiteId = $element->siteId;
+        $record->fieldId = $field->id;
+
+        return $record;
+    }
+
+    /**
+     * Ensures the payload is in the proper JSON format
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
+    private function handlePayload($value)
+    {
+        if (! is_string($value['payload'])) {
+            return Json::encode($value['payload']) ?? '';
+        }
+
+        return $value['payload'];
     }
 }
