@@ -82,7 +82,7 @@ class EventController extends BaseController
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
-        $eventService = Ticketmaster::$plugin->events;
+        $elementService = Ticketmaster::$plugin->elements;
         $request = Craft::$app->getRequest();
         $eventId = $request->getBodyParam('eventId');
         $venueId = $request->getBodyParam('venueId');
@@ -106,8 +106,8 @@ class EventController extends BaseController
 
         $venueModel = new VenueModel($venueRecord);
         try {
-            $event = $eventService->getEventDetail((string) $eventId);
-            $result = $eventService->saveEvent($event, $venueModel);
+            $event = $elementService->getEventDetail((string) $eventId);
+            $result = $elementService->saveEvent($event, $venueModel);
         } catch (Throwable $th) {
             return $this->asJson([
                 "success" => false,
@@ -127,7 +127,7 @@ class EventController extends BaseController
     {
         $this->requireAcceptsJson();
 
-        $eventService = Ticketmaster::$plugin->events;
+        $elementService = Ticketmaster::$plugin->elements;
         $request = Craft::$app->getRequest();
         $venueId = $request->getBodyParam('venueId');
 
@@ -142,9 +142,9 @@ class EventController extends BaseController
         }
 
         $venue = new VenueModel($venue);
-        $events = $eventService->getEventsByVenueId($venue->tmVenueId);
+        $events = $elementService->getEventsByVenueId($venue->tmVenueId);
         foreach ($events as $key => $event) {
-            $eventService->saveEvent($event, $venue);
+            $elementService->saveEvent($event, $venue);
         }
 
         return $this->asJson([
@@ -247,7 +247,7 @@ class EventController extends BaseController
             // $eventService publish this ish
             // if my event has a craftEntryId then update it
             // else create a new one
-            Ticketmaster::$plugin->events->publishEvent($event);
+            Ticketmaster::$plugin->elements->publishEvent($event);
 
             Craft::$app->getSession()->setNotice(Craft::t('app', 'Event published.'));
 

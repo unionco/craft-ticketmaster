@@ -13,8 +13,6 @@ namespace unionco\ticketmaster\variables;
 use Craft;
 
 use unionco\ticketmaster\Ticketmaster;
-use unionco\ticketmaster\elements\Venue;
-use unionco\ticketmaster\records\Venue as VenueRecord;
 use Adbar\Dot;
 
 /**

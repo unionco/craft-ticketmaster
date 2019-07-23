@@ -374,13 +374,12 @@ class Event extends Element
     
     public function toJson()
     {
-        $payload = Json::decode($this->payload);
-
         return Json::encode([
             'id' => $this->id,
             'title' => $this->title,
             'tmEventId' => $this->tmEventId,
-            'payload' => $payload,
+            'payload' => $this->_payload(),
+            'published' => $this->_published(),
         ]);
     }
 

@@ -32,20 +32,42 @@ use unionco\ticketmaster\records\Venue as VenueRecord;
  *
  * @since     1.0.0
  */
-class Venues extends Base
+class VenueService extends Base
 {
     // Public Methods
     // =========================================================================
     const ENDPOINT = 'discovery/v2/venues';
 
-    public function getVenueById(int $venueId)
+    public function getVenueById(string $venueId)
     {
-        $record = VenueRecord::findOne(['tmVenueId' => $venueId]);
-        if ($record) {
-            return new VenueModel($record);
-        }
+        $record = $this->baseQuery();
+        $record->andWhere(['tmVenueId' => $venueId]);
 
-        return false;
+        return $record->one();
+    }
+
+    public function getVenues()
+    {
+        $records = $this->baseQuery();
+
+        return $records->all();
+    }
+
+    public function baseQuery()
+    {
+        $query = VenueRecord::find();
+        $query->leftJoin('{{%elements}}', '[[ticketmaster_venues.ownerId]] = [[elements.id]]');
+        $query->where([
+            'and',
+            [
+                'not', 
+                ['elements.revisionId' => null]
+            ],
+            ['elements.dateDeleted' => null]
+        ]);
+        $query->groupBy('ticketmaster_venues.ownerId');
+
+        return $query;
     }
 
     /**
@@ -142,22 +164,5 @@ class Venues extends Base
         }
 
         return $model;
-    }
-
-    public function getVenues()
-    {
-        $records = VenueRecord::find();
-        $records->leftJoin('{{%elements}}', '[[ticketmaster_venues.ownerId]] = [[elements.id]]');
-        $records->where([
-            'and',
-            [
-                'not', 
-                ['elements.revisionId' => null]
-            ],
-            ['elements.dateDeleted' => null]
-        ]);
-        $records->groupBy('ticketmaster_venues.ownerId');
-
-        return $records->all();
     }
 }

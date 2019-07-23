@@ -73,7 +73,7 @@ class Publish extends ElementAction
     {
         foreach ($elements as $element) {
             try {
-                $result = Ticketmaster::$plugin->events->publishEvent($element);
+                $result = Ticketmaster::$plugin->elements->publishEvent($element);
                 if (!$result) {
                     throw new Exception("Error publishing event", 1);
                 }

@@ -27,8 +27,9 @@ use unionco\ticketmaster\fields\EventSearch;
 use unionco\ticketmaster\fields\VenueSearch;
 use unionco\ticketmaster\models\Settings;
 use unionco\ticketmaster\services\Base as BaseService;
-use unionco\ticketmaster\services\Events as EventService;
-use unionco\ticketmaster\services\Venues as VenueService;
+use unionco\ticketmaster\services\EventService;
+use unionco\ticketmaster\services\ElementService;
+use unionco\ticketmaster\services\VenueService;
 use unionco\ticketmaster\twigextensions\TicketmasterTwigExtension;
 use unionco\ticketmaster\variables\TicketmasterVariable;
 use yii\base\Event;
@@ -104,6 +105,7 @@ class Ticketmaster extends Plugin
         self::$plugin = $this;
 
         $this->setComponents([
+            'elements' => ElementService::class,
             'events' => EventService::class,
             'venues' => VenueService::class,
         ]);

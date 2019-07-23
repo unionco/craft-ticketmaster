@@ -41,7 +41,7 @@ use yii\db\ActiveRecordInterface;
  *
  * @since     1.0.0
  */
-class Events extends Base
+class ElementService extends Base
 {
     // Constants
     // =========================================================================
@@ -77,99 +77,6 @@ class Events extends Base
 
     // Public Methods
     // =========================================================================
-
-    /**
-     * {@inheritdoc}
-     */
-    public function afterElementSave(EventSearch $field, ElementInterface $element, bool $isNew)
-    {
-        $locale = $element->getSite()->language;
-        $value = $element->getFieldValue($field->handle);
-
-        $record = EventRecord::findOne(
-            [
-                'ownerId' => $element->id,
-                'ownerSiteId' => $element->siteId,
-                'fieldId' => $field->id,
-            ]
-        );
-
-        if (!$record) {
-            $record = new EventRecord();
-            $record->ownerId = $element->id;
-            $record->ownerSiteId = $element->siteId;
-            $record->fieldId = $field->id;
-        }
-
-        $record->tmEventId = $value['tmEventId'];
-        $record->title = $value['title'];
-
-        if (!is_string($value['payload'])) {
-            $record->payload = Json::encode($value['payload']) ?? '';
-        } else {
-            $record->payload = $value['payload'];
-        }
-
-        $record->save();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function modifyElementsQuery(ElementQueryInterface $query, $value)
-    {
-        if (!$value) {
-            return;
-        }
-        /** @var ElementQuery $query */
-        $tableName = Table::EVENTS;
-
-        $query->join(
-            'JOIN',
-            "{$tableName} tmEvents",
-            [
-                'and',
-                '[[elements.id]] = [[tmEvents.ownerId]]',
-                '[[elements_sites.siteId]] = [[tmEvents.ownerSiteId]]',
-            ]
-        );
-
-        return;
-    }
-
-    /**
-     * Normalizes the field’s value for use.
-     *
-     * This method is called when the field’s value is first accessed from the element. For example, the first time
-     * `entry.myFieldHandle` is called from a template, or right before [[getInputHtml()]] is called. Whatever
-     * this method returns is what `entry.myFieldHandle` will likewise return, and what [[getInputHtml()]]’s and
-     * [[serializeValue()]]’s $value arguments will be set to.
-     *
-     * @param mixed                 $value   The raw field value
-     * @param ElementInterface|null $element The element the field is associated with, if there is one
-     *
-     * @return mixed The prepared field value
-     */
-    public function normalizeValue(EventSearch $field, $value, ElementInterface $element = null)
-    {
-        $record = EventRecord::findOne(
-            [
-                'ownerId' => $element->id,
-                'ownerSiteId' => $element->siteId,
-                'fieldId' => $field->id,
-            ]
-        );
-
-        if (\Craft::$app->request->getIsPost() && $value) {
-            $model = new EventModel($value);
-        } elseif ($record) {
-            $model = new EventModel($record->getAttributes());
-        } else {
-            $model = new EventModel();
-        }
-
-        return $model;
-    }
 
     public function getEventById(int $eventId)
     {
@@ -222,7 +129,7 @@ class Events extends Base
     }
 
     /**
-     * Save ticketmaste event to event element.
+     * Save ticketmaster event to event element.
      *
      * @param eventDetail array from tm
      * @param venue element
@@ -294,12 +201,8 @@ class Events extends Base
         $siteIds = $section->getSiteIds();
         $entryType = $settings->sectionEntryType;
 
-        $record = EventRecord::findOne(
-            [
-                'tmEventId' => $event->tmEventId,
-            ]
-        );
-
+        $record = Ticketmaster::$plugin->events->getEventByEventId($event->tmEventId);
+        
         if (!$record) {
             // create a new entry && get field layout
             $element = new Entry();

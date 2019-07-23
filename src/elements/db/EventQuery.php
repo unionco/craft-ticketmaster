@@ -94,6 +94,9 @@ class EventQuery extends ElementQuery
         return parent::beforePrepare();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function statusCondition(string $status)
     {
         switch ($this->status) {
