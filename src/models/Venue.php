@@ -12,9 +12,11 @@
 namespace unionco\ticketmaster\models;
 
 use Craft;
+use Adbar\Dot;
 use craft\base\Model;
 use craft\helpers\Json;
 use unionco\ticketmaster\Ticketmaster;
+use unionco\ticketmaster\elements\Event;
 
 /**
  * Ticketmaster Settings Model.
@@ -85,6 +87,11 @@ class Venue extends Model
      */
     public $payload;
 
+    /**
+     * @var string url
+     */
+    private $_doc;
+
     // Public Methods
     // =========================================================================
 
@@ -131,5 +138,20 @@ class Venue extends Model
         }
 
         return $this->_doc->get($handle);
+    }
+
+    public function getUrl()
+    {
+        $owner = Craft::$app->getElements()->getElementById($this->ownerId);
+        
+        return $owner->getCpEditUrl();
+    }
+
+    public function events()
+    {
+        $query = Event::find()
+            ->tmVenueId($this->tmVenueId);
+
+        return $query->all();
     }
 }

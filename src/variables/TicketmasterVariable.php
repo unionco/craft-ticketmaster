@@ -13,6 +13,8 @@ namespace unionco\ticketmaster\variables;
 use Craft;
 use craft\base\FieldInterface;
 use unionco\ticketmaster\Ticketmaster;
+use unionco\ticketmaster\elements\Event;
+use unionco\ticketmaster\models\Venue as VenueModel;
 
 /**
  * Ticketmaster Variable
@@ -31,12 +33,27 @@ class TicketmasterVariable
     // Public Methods
     // =========================================================================
 
+    public function events($criteria = [])
+    {
+        $query = Event::find();
+        Craft::configure($query, $criteria);
+        
+        return $query;
+    }
+
     /**
      * {@inheritdoc}
      */
     public function venues($criteria = [])
     {
-        return Ticketmaster::$plugin->venues->getVenues();
+        $venueRecords = Ticketmaster::$plugin->venues->getVenues();
+        $venues = [];
+
+        foreach ($venueRecords as $key => $record) {
+            $venues[] = new VenueModel($record);
+        }
+
+        return $venues;
     }
 
     /**

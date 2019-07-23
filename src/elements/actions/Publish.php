@@ -71,12 +71,16 @@ class Publish extends ElementAction
      */
     private function _publishElements(array $elements, int &$successCount, int &$failCount)
     {
+        $elementService = Craft::$app->getElements();
+
         foreach ($elements as $element) {
             try {
                 $result = Ticketmaster::$plugin->elements->publishEvent($element);
                 if (!$result) {
                     throw new Exception("Error publishing event", 1);
                 }
+                $element->isPublished = true;
+                $elementService->saveElement($element);
             } catch (\Throwable $th) {
                 $failCount++;
                 continue;

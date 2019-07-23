@@ -27,15 +27,126 @@
 {# The URL to this plugin's base CP section #}
 {% set pluginCpUrl = url('ticketmaster') %}
 
-{# Content that should appear in the page header#}
-{% set extraPageHeaderHtml %}
-    <div class="buttons">
-        <a href="{{ pluginCpUrl }}" class="btn submit add icon">{{ "Click Me!"|t('ticketmaster') }}</a>
-    </div>
-{% endset %}
+{% set venues = craft.ticketmaster.venues %}
+{% set newEvents = craft.ticketmaster.events({ status: 'new' }).all %}
+{% set updatedEvents = craft.ticketmaster.events({ status: 'updated' }).all %}
 
 {# The content of the CP Section#}
-{% set content %}
-    <h2>{{ "Index CP Section body goes here"|t('ticketmaster') }}</h2>
-    <p class="textline"></p>
+{% set content %}    
+    <style>
+        .dashboard-row {
+            display: flex;
+            margin: 0 -24px;
+        }
+        .dashboard-col {
+            padding: 0 24px;
+            flex: 1;
+            max-width: calc(100% / 3);
+        }
+    </style>
+
+    <div class="dashboard wrapper">
+        <div class="wrapper-inner">
+            <div class="dashboard-row">
+                <div class="dashboard-col">
+                    <h4>Venues</h4>
+                    <table class="data fullwidth">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Num. Events</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for venue in venues %}
+                                <tr>
+                                    <td>{{ venue.tmVenueId }}</td>
+                                    <td>
+                                        <a href="{{ venue.getUrl }}" style="font-weight: bold;">{{ venue.title }}</a>
+                                    </td>
+                                    <td>
+                                        {{ venue.tm('city.name') }}, {{ venue.tm('state.stateCode') }}
+                                    </td>   
+                                    <td style="text-align: center">
+                                        {{ venue.events | length }}
+                                    </td>   
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="dashboard-col">
+                    <h4>New Events</h4>
+                    <table class="data fullwidth">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Name</th>
+                                <th>Venue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if newEvents | length %}
+                                {% for event in newEvents %}
+                                    <tr>
+                                        <td>{{ event.tmEventId }}</td>
+                                        <td>
+                                            <a href="{{ event.getCpEditUrl }}" style="font-weight: bold;">{{ event.title }}</a>
+                                        </td>
+                                        <td>
+                                            {{ event.tmVenueId }}
+                                        </td> 
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" style="text-align: center">
+                                        <p>No New Events</p>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="dashboard-col">
+                    <h4>Updated Events</h4>
+                    <table class="data fullwidth">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Name</th>
+                                <th>Venue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if updatedEvents | length %}
+                                {% for event in updatedEvents %}
+                                    <tr>
+                                        <td>{{ event.tmEventId }}</td>
+                                        <td>
+                                            <a href="{{ event.getCpEditUrl }}" style="font-weight: bold;">{{ event.title }}</a>
+                                        </td>
+                                        <td>
+                                            {{ event.tmVenueId }}
+                                        </td> 
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" style="text-align: center">
+                                        <p>No Updated Events</p>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endset %}
