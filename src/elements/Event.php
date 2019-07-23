@@ -104,12 +104,12 @@ class Event extends Element
     public $payload;
 
     /**
-     * @var boolean isDirty
+     * @var bool isDirty
      */
     public $isDirty;
 
     /**
-     * @var boolean isPublished
+     * @var bool isPublished
      */
     public $isPublished;
 
@@ -132,7 +132,7 @@ class Event extends Element
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function pluralDisplayName(): string
     {
@@ -354,24 +354,26 @@ class Event extends Element
     public function _payload()
     {
         if (is_string($this->payload)) {
-            return Json::decode($this->payload ?? '{}');    
+            return Json::decode($this->payload ?? '{}');
         }
+
         return $this->payload;
     }
 
     public function _published()
     {
         if (is_string($this->published)) {
-            return Json::decode($this->published ?? '{}');    
+            return Json::decode($this->published ?? '{}');
         }
+
         return $this->published;
     }
 
-    public function dot() 
+    public function dot()
     {
         return new Dot($this->_payload());
     }
-    
+
     public function toJson()
     {
         return Json::encode([
@@ -469,6 +471,7 @@ class Event extends Element
         switch ($attribute) {
             case 'venue':
                 $venue = $this->dot()->get('_embedded.venues.0.name');
+
                 return $venue;
         }
 
