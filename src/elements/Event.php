@@ -194,9 +194,9 @@ class Event extends Element
     public static function statuses(): array
     {
         return [
-            self::STATUS_NEW => ['label' => Craft::t('ticketmaster', 'New'), 'color' => 'blue'],
-            self::STATUS_UPDATED => ['label' => Craft::t('ticketmaster', 'Updated'), 'color' => 'pink'],
-            self::STATUS_PUBLISHED => ['label' => Craft::t('ticketmaster', 'Published'), 'color' => 'yellow'],
+            self::STATUS_NEW => ['label' => Craft::t('ticketmaster', 'New'), 'color' => 'purple'],
+            self::STATUS_UPDATED => ['label' => Craft::t('ticketmaster', 'Updated'), 'color' => 'orange'],
+            self::STATUS_PUBLISHED => ['label' => Craft::t('ticketmaster', 'Published'), 'color' => 'green'],
         ];
     }
 

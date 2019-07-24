@@ -17,6 +17,7 @@
 {% import "_includes/forms" as forms %}
 
 {% do view.registerAssetBundle("unionco\\ticketmaster\\assetbundles\\ticketmaster\\TicketmasterAsset") %}
+{% includeJsFile 'https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js' %}
 
 {# Link for the ? icon at the bottom of the page #}
 {% set docsUrl = "https://github.com/unionco/ticketmaster/blob/master/README.md" %}
@@ -30,123 +31,210 @@
 {% set venues = craft.ticketmaster.venues %}
 {% set newEvents = craft.ticketmaster.events({ status: 'new' }).all %}
 {% set updatedEvents = craft.ticketmaster.events({ status: 'updated' }).all %}
+{% set publishedEvents = craft.ticketmaster.events({ status: 'published' }).all %}
 
 {# The content of the CP Section#}
 {% set content %}    
     <style>
         .dashboard-row {
             display: flex;
-            margin: 0 -24px;
+            flex-wrap: wrap;
+            margin: 0 -16px;
         }
         .dashboard-col {
-            padding: 0 24px;
             flex: 1;
-            max-width: calc(100% / 3);
+        }
+        .dashboard-col .dashboard-row {
+            margin: 0;
+        }
+        .dashboard-col.u-30 {
+            flex: 1;
+            max-width: 30%;
+        }
+        .dashboard-card {
+            background: #FFFFFF;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            box-shadow: 0px 4px 8px -6px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            margin: 0 16px 24px;
+        }
+        .dashboard-card-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+        }
+        .dashboard-card-header h4 {
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .dashboard-card-content {
+            padding: 8px 16px;
+        }
+        .dashboard-card-content.has-chart {
+            padding: 24px;
+        }
+        .dashboard-data {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 150px;
+        }
+        .dashboard-data h1 {
+            color: #262626;
+            font-size: 72px;
+            font-weight: bold;
+            margin-bottom: 0px;
+        }
+        .chart {
+            width: 100%;
+        }
+
+        @media all and (min-width: 1024px) and (max-width: 1280px) { }
+        
+        @media all and (min-width: 768px) and (max-width: 1024px) {
+            .dashboard-col {
+                flex-basis: 100%;
+            }
+            .dashboard-col.u-30 {
+                min-width: 100%;
+            }
+        }
+        
+        @media all and (max-width: 768px) {
+            .dashboard-col {
+                flex-basis: 100%;
+            }
+            .dashboard-col.u-30 {
+                min-width: 100%;
+            }
         }
     </style>
 
     <div class="dashboard wrapper">
         <div class="wrapper-inner">
             <div class="dashboard-row">
-                <div class="dashboard-col">
-                    <h4>Venues</h4>
-                    <table class="data fullwidth">
-                        <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th>Name</th>
-                                <th>Location</th>
-                                <th>Num. Events</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for venue in venues %}
-                                <tr>
-                                    <td>{{ venue.tmVenueId }}</td>
-                                    <td>
-                                        <a href="{{ venue.getUrl }}" style="font-weight: bold;">{{ venue.title }}</a>
-                                    </td>
-                                    <td>
-                                        {{ venue.tm('city.name') }}, {{ venue.tm('state.stateCode') }}
-                                    </td>   
-                                    <td style="text-align: center">
-                                        {{ venue.events | length }}
-                                    </td>   
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div class="dashboard-col u-30">
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-header">
+                            <h4>Overview</h4>
+                        </div>
+                        <div class="dashboard-card-content has-chart">
+                            <canvas class="chart" id="myChart" height="350"></canvas>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="dashboard-col">
-                    <h4>New Events</h4>
-                    <table class="data fullwidth">
-                        <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th>Name</th>
-                                <th>Venue</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if newEvents | length %}
-                                {% for event in newEvents %}
+                    <div class="dashboard-row">
+                        <div class="dashboard-col">
+                            <div class="dashboard-card">
+                                <div class="dashboard-card-header">
+                                    <h4>New Events</h4>
+                                </div>
+                                <div class="dashboard-card-content">
+                                    <div class="dashboard-data">
+                                        <h1>{{ newEvents | length }}</h1>
+                                        <a class="go nowrap" href="{{ url('ticketmaster/events') }}">View All</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dashboard-col">
+                            <div class="dashboard-card">
+                                <div class="dashboard-card-header">
+                                    <h4>Updated Events</h4>
+                                </div>
+                                <div class="dashboard-card-content">
+                                    <div class="dashboard-data">
+                                        <h1>{{ updatedEvents | length }}</h1>
+                                        <a class="go nowrap" href="{{ url('ticketmaster/events') }}">View All</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dashboard-col">
+                            <div class="dashboard-card">
+                                <div class="dashboard-card-header">
+                                    <h4>Published Events</h4>
+                                </div>
+                                <div class="dashboard-card-content">
+                                    <div class="dashboard-data">
+                                        <h1>{{ publishedEvents | length }}</h1>
+                                        <a class="go nowrap" href="{{ url('ticketmaster/events') }}">View All</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-header">
+                            <h4>Venues</h4>
+                        </div>
+                        <div class="dashboard-card-content">
+                            <table class="data fullwidth">
+                                <thead>
                                     <tr>
-                                        <td>{{ event.tmEventId }}</td>
-                                        <td>
-                                            <a href="{{ event.getCpEditUrl }}" style="font-weight: bold;">{{ event.title }}</a>
-                                        </td>
-                                        <td>
-                                            {{ event.tmVenueId }}
-                                        </td> 
+                                        <th>Id</th>
+                                        <th>Name</th>
+                                        <th>Location</th>
+                                        <th>Num. Events</th>
                                     </tr>
-                                {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td colspan="3" style="text-align: center">
-                                        <p>No New Events</p>
-                                    </td>
-                                </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="dashboard-col">
-                    <h4>Updated Events</h4>
-                    <table class="data fullwidth">
-                        <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th>Name</th>
-                                <th>Venue</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if updatedEvents | length %}
-                                {% for event in updatedEvents %}
-                                    <tr>
-                                        <td>{{ event.tmEventId }}</td>
-                                        <td>
-                                            <a href="{{ event.getCpEditUrl }}" style="font-weight: bold;">{{ event.title }}</a>
-                                        </td>
-                                        <td>
-                                            {{ event.tmVenueId }}
-                                        </td> 
-                                    </tr>
-                                {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td colspan="3" style="text-align: center">
-                                        <p>No Updated Events</p>
-                                    </td>
-                                </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
+                                </thead>
+                                <tbody>
+                                    {% for venue in venues %}
+                                        <tr>
+                                            <td>{{ venue.tmVenueId }}</td>
+                                            <td>
+                                                <a href="{{ venue.getUrl }}" style="font-weight: bold;">{{ venue.title }}</a>
+                                            </td>
+                                            <td>
+                                                {{ venue.tm('city.name') }}, {{ venue.tm('state.stateCode') }}
+                                            </td>   
+                                            <td style="text-align: center">
+                                                {{ venue.events | length }}
+                                            </td>   
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 {% endset %}
+
+{% js %}
+var ctx = document.getElementById('myChart').getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['New', 'Updated', 'Published'],
+        datasets: [{
+            label: 'Events',
+            data: [
+                {{ newEvents | length }},
+                {{ updatedEvents | length }},
+                {{ publishedEvents | length }}
+            ],
+            backgroundColor: [
+                '#800080',
+                '#F2842D',
+                '#27AE60'
+            ],
+            borderColor: [
+                '#800080',
+                '#F2842D',
+                '#27AE60'
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {}
+});
+{% endjs %}
