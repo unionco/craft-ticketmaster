@@ -44,6 +44,8 @@
 
 <style lang="scss" scoped>
 .field {
+  padding: 8px 0;
+  margin: 0;
   width: 100%;
 }
 </style>
