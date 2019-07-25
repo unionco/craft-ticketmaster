@@ -39,9 +39,9 @@ class EventService extends Base
 {
     /**
      * Get event by ticketmaster event id
-     * 
+     *
      * @param string eventId
-     * 
+     *
      * @return EventRecord
      */
     public function getEventByEventId(string $eventId)
@@ -54,7 +54,7 @@ class EventService extends Base
 
     /**
      * Get events from field data
-     * 
+     *
      * @return EventRecord[]
      */
     public function getEvents()
@@ -66,7 +66,7 @@ class EventService extends Base
 
     /**
      * Base event query grouped by ownerid
-     * 
+     *
      * @return ActiveQuery
      */
     public function baseQuery()
@@ -111,6 +111,10 @@ class EventService extends Base
 
         $record->tmEventId = $value['tmEventId'];
         $record->title = $value['title'];
+
+        // unset the same fields as in ElementService so md5s match when checking for updates
+        unset($value['tmEventId']);
+        $value['tmEventId'] = $record->tmEventId;
 
         $record->payload = $this->handlePayload($value);
 
