@@ -211,6 +211,8 @@ class EventService extends Base
 
         if (!Craft::$app->request->getIsConsoleRequest() && Craft::$app->request->getIsPost() && $value) {
             $model = new EventModel($value);
+        } elseif ($value) {
+            $model = new EventModel($value);
         } elseif ($record) {
             $model = new EventModel($record->getAttributes());
         } else {
