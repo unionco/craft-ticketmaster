@@ -214,6 +214,16 @@ class EventSearch extends Field
     /**
      * {@inheritdoc}
      */
+    public function afterElementDelete(ElementInterface $element)
+    {
+        Ticketmaster::$plugin->events->afterElementDelete($this, $element);
+
+        parent::afterElementDelete($element);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function modifyElementsQuery(ElementQueryInterface $query, $value)
     {
         if (!Ticketmaster::$plugin) {

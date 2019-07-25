@@ -411,7 +411,7 @@ class Event extends Element
         return true;
     }
 
-    
+
     /**
      * {@inheritdoc}
      *

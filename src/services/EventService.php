@@ -121,6 +121,39 @@ class EventService extends Base
         $record->save();
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function afterElementDelete(EventSearch $field, ElementInterface $element)
+    {
+        $value = $element->getFieldValue($field->handle);
+
+        $record = EventRecord::findOne(
+            [
+                'ownerId' => $element->id,
+                'ownerSiteId' => $element->siteId,
+                'fieldId' => $field->id,
+            ]
+        );
+
+        if (!$record) {
+            return true;
+        }
+
+        $element = Event::find()
+            ->tmEventId($record->tmEventId)
+            ->one();
+
+        if ($element) {
+            $element->isPublished = false;
+            Craft::$app->getElements()->saveElement($element);
+        }
+
+        $record->delete();
+
+        return true;
+    }
+
 
     /**
      * {@inheritdoc}
@@ -220,4 +253,5 @@ class EventService extends Base
 
         return $value['payload'];
     }
+
 }
