@@ -90,6 +90,7 @@ class Install extends Migration
             'published' => $this->text(),
             'isDirty' => $this->boolean(),
             'isPublished' => $this->boolean()->defaultValue(false),
+            'eventHash' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()

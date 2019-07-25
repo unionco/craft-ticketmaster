@@ -79,6 +79,7 @@ class Publish extends ElementAction
                 if (!$result) {
                     throw new Exception("Error publishing event", 1);
                 }
+                $element->isDirty = false;
                 $element->isPublished = true;
                 $elementService->saveElement($element);
             } catch (\Throwable $th) {

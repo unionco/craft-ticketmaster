@@ -13,7 +13,6 @@
         :value="value"
         :disabled="disabled"
         :rows="rows"
-        maxlength="255"
         @input="$emit('input', $event)"
       />
     </div>

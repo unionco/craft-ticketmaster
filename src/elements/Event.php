@@ -113,6 +113,11 @@ class Event extends Element
      */
     public $isPublished;
 
+    /**
+     * @var string hash
+     */
+    public $eventHash;
+
     // Static Methods
     // =========================================================================
 
@@ -342,7 +347,8 @@ class Event extends Element
             ['tmEventId', 'string'],
             ['tmVenueId', 'string'],
             ['payload', 'string'],
-            [['tmEventId', 'tmVenueId', 'payload'], 'required'],
+            ['eventHash', 'string'],
+            [['tmEventId', 'tmVenueId', 'payload'. 'eventHash'], 'required'],
         ]);
     }
 
@@ -505,6 +511,7 @@ class Event extends Element
                     'tmEventId' => $this->tmEventId,
                     'isDirty' => false,
                     'isPublished' => false,
+                    'eventHash' => $this->eventHash,
                     'payload' => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
                     'published' => is_array($this->published) ? Json::encode($this->published) : $this->published,
                 ])
@@ -518,6 +525,7 @@ class Event extends Element
                     'tmEventId' => $this->tmEventId,
                     'isDirty' => $this->isDirty,
                     'isPublished' => $this->isPublished ?? false,
+                    'eventHash' => $this->eventHash,
                     'payload' => is_array($this->payload) ? Json::encode($this->payload) : $this->payload,
                     'published' => is_array($this->published) ? Json::encode($this->published) : $this->published,
                 ], ['id' => $this->id])
