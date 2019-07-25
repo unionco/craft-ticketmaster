@@ -348,7 +348,7 @@ class Event extends Element
             ['tmVenueId', 'string'],
             ['payload', 'string'],
             ['eventHash', 'string'],
-            [['tmEventId', 'tmVenueId', 'payload'. 'eventHash'], 'required'],
+            [['tmEventId', 'tmVenueId', 'payload', 'eventHash'], 'required'],
         ]);
     }
 
