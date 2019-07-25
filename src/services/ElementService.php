@@ -146,13 +146,19 @@ class ElementService extends Base
 
         $event->tmEventId = $eventDetail['id'];
         $eventDetail['tmEventId'] = $event->tmEventId;
+        
+        // has for later comparison
+        $hash = md5(Json::encode($eventDetail));
 
         // unset certain fields we dont need in the payload
         unset($eventDetail['name']);
         unset($eventDetail['id']);
 
-        // md5 event payload vs md5 Json::encode(eventDetail)
-        $event->isDirty = $this->isDirty($event, $eventDetail);
+        // md5 event payload vs md5 Json::encode(eventDetail)        
+        $event->isDirty = $this->isDirty($event, $hash);
+
+        // set the hash after the check
+        $event->eventHash = $hash;
 
         if (!is_string($eventDetail)) {
             $event->payload = Json::encode($eventDetail) ?? '';
@@ -177,13 +183,13 @@ class ElementService extends Base
      *
      * @return bool
      */
-    public function isDirty(Event $event, array $eventDetail)
+    public function isDirty(Event $event, string $hash)
     {
-        if (!$event->payload) {
+        if (!$event->eventHash) {
             return false;
         }
 
-        return md5($event->payload) !== md5(JSON::encode($eventDetail));
+        return $event->eventHash !== $hash;
     }
 
     /**
