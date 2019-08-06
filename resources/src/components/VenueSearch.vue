@@ -214,7 +214,7 @@ export default class VenueSearch extends Vue {
 
   onSelected(option) {
     this.venue = option.item;
-    console.log(this.venueFields);
+    // console.log(this.venueFields);
     this.$emit('selected', option.item);
   }
 

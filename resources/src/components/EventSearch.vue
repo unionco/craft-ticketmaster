@@ -10,7 +10,10 @@
         <template slot-scope="{suggestion}">
           {{suggestion.item.name}}
           <span v-if="suggestion.item._embedded.venues.length" class="light">
-            – {{suggestion.item._embedded.venues[0].name}}, <span v-if="suggestion.item._embedded.venues[0].city">{{ suggestion.item._embedded.venues[0].city.name }}</span>, <span v-if="suggestion.item._embedded.venues[0].state">{{ suggestion.item._embedded.venues[0].state.name }}</span>
+            – {{suggestion.item._embedded.venues[0].name}},
+             <span v-if="suggestion.item._embedded.venues[0].city">{{ suggestion.item._embedded.venues[0].city.name }}</span>,
+             <span v-if="suggestion.item._embedded.venues[0].state">{{ suggestion.item._embedded.venues[0].state.name }}</span>
+             <span v-if="suggestion.item.readableStartDate"> {{ suggestion.item.readableStartDate }}</span>
           </span>
         </template>
       </vue-autosuggest>
@@ -216,6 +219,20 @@ export default class EventSearch extends Vue {
     }, 450);
   }
 
+  formatDate(dateTime) {
+    if (!dateTime) {
+      return false;
+    }
+    const date = new Date(dateTime);
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12 || 12;
+    minutes = minutes < 10 ? `0${minutes}` : minutes;
+    const strTime = `${hours}:${minutes}${ampm}`;
+    return `(${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().substr(2, 2)} @ ${strTime})`;
+  }
+
   search(value) {
     const params = qs.stringify({
       apikey: this.$props.options.apiKey,
@@ -226,10 +243,14 @@ export default class EventSearch extends Vue {
       .then((res) => {
         if (res && res._embedded && res._embedded.events.length) {
           this.suggestions = [{ data: res._embedded.events }];
-          console.log([{ data: res._embedded.events }]);
+          this.suggestions[0].data.map((suggestion) => {
+            suggestion.readableStartDate = this.formatDate(get(suggestion, 'dates.start.dateTime'));
+            console.log(suggestion);
+            return suggestion;
+          });
         }
       })
-      .catch();
+      .catch(err => console.log(err));
   }
 
   getPayloadFieldName(handle) {
