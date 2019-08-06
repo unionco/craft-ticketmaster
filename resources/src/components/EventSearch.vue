@@ -245,7 +245,6 @@ export default class EventSearch extends Vue {
           this.suggestions = [{ data: res._embedded.events }];
           this.suggestions[0].data.map((suggestion) => {
             suggestion.readableStartDate = this.formatDate(get(suggestion, 'dates.start.dateTime'));
-            console.log(suggestion);
             return suggestion;
           });
         }
