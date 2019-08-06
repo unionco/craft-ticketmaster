@@ -113,13 +113,12 @@ class Event extends Model
 
     /**
      * Helper method to reach any ticketmaster field
-
      *
      * @param string $handle
      *
      * @return mixed
      */
-    public function tm(string $handle = null): string
+    public function tm(string $handle = null)
     {
         if (is_null($this->_doc)) {
             $this->_doc = new Dot(Json::decode($this->payload));
