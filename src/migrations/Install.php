@@ -33,6 +33,9 @@ class Install extends Migration
         // Place uninstallation code here...
         $this->dropTableIfExists(Table::EVENTS);
         $this->dropTableIfExists(Table::VENUES);
+
+        // delete all ticketmaster event elements
+        $this->dropTableIfExists(Table::EVENT_ELEMENTS);
         return true;
     }
 

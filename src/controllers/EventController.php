@@ -63,6 +63,45 @@ class EventController extends BaseController
     /**
      *
      */
+    public function actionDismissUpdate()
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+
+        $elementService = Ticketmaster::$plugin->elements;
+        $request = Craft::$app->getRequest();
+        $eventId = $request->getBodyParam('eventId');
+
+        if (!$eventId) {
+            return $this->asJson([
+                "success" => false,
+                "error" => "Must provide an event id"
+            ]);
+        }
+
+        $event = Event::find()
+            ->tmEventId($eventId)
+            ->one();
+
+        if (!$event) {
+            return $this->asJson([
+                "success" => false,
+                "error" => "No event with id {$eventId}"
+            ]);
+        }
+
+        $event->isDirty = false;
+
+        Craft::$app->getElements()->saveElement($event);
+
+        return $this->asJson([
+            "success" => true
+        ]);
+    }
+
+    /**
+     *
+     */
     public function actionStoreEvent()
     {
         $this->requireAcceptsJson();

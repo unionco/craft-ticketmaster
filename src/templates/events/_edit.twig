@@ -84,6 +84,24 @@
     {% if event.id %}
         <div id="eventdetails" class="meta read-only">
             <div class="data">
+                <h5 class="heading">{{ "Status"|t('app') }}</h5>
+                {# {{ forms.selectField({
+                    name: "status",
+                    value: event.status,
+                    options: [{
+                        label: 'New',
+                        value: 'new'
+                    },{
+                        label: 'Updated',
+                        value: 'updated'
+                    },{
+                        label: 'Published',
+                        value: 'published'
+                    }]
+                }) }} #}
+                <div class="value">{{ event.status | ucfirst }}</div>
+            </div>
+            <div class="data">
                 <h5 class="heading">{{ "Created at"|t('app') }}</h5>
                 <div class="value">{{ event.dateCreated|datetime('short') }}</div>
             </div>
@@ -91,7 +109,9 @@
                 <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
                 <div class="value">{{ event.dateUpdated|datetime('short') }}</div>
             </div>
+            <hr/>
             <div class="data">
+                <p class="heading">Refreshes the data from Ticketmaster.</p>
                 <div class="value">
                     {% verbatim %}
                     <div class="btn" @click="refresh">
@@ -100,6 +120,20 @@
                     </div>
                 </div>
             </div>
+
+            {% if event.status == 'updated' %}
+                <hr/>
+                <div class="data">
+                    <p class="heading">Dismiss this update from Ticketmaster.</p>
+                    <div class="value">
+                        {% verbatim %}
+                        <div class="btn" @click="dismiss">
+                        {% endverbatim %}
+                            {{ "Dismiss Update"|t('ticketmaster') }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     {% endif %}
 {% endblock %}
@@ -119,6 +153,14 @@
         },
 
         methods: {
+            dismiss() {
+                Craft.postActionRequest('ticketmaster/event/dismiss-update', {  eventId: this.eventId }, function (response) {
+                    if (response.success) {
+                        window.location.reload();
+                    }
+                }.bind(this));
+            },
+
             refresh() {
                 Craft.postActionRequest('ticketmaster/event/store-event', {  eventId: this.eventId, venueId: this.venueId }, function (response) {
                     if (response.success) {
