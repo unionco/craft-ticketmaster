@@ -25,6 +25,7 @@ use unionco\ticketmaster\elements\db\EventQuery;
 use unionco\ticketmaster\elements\actions\Publish;
 use unionco\ticketmaster\models\Venue as VenueModel;
 use unionco\ticketmaster\records\Event as EventRecord;
+use unionco\ticketmaster\elements\actions\Dismiss;
 
 /**
  * Event Element.
@@ -233,6 +234,12 @@ class Event extends Element
             'type' => Publish::class,
             'confirmationMessage' => Craft::t('ticketmaster', 'Are you sure you want to publish the selected event(s)?'),
             'successMessage' => Craft::t('ticketmaster', 'Events published.'),
+        ]);
+
+        $actions[] = $elementsService->createAction([
+            'type' => Dismiss::class,
+            'confirmationMessage' => Craft::t('ticketmaster', 'Are you sure you want to dismiss the selected updated event(s)?'),
+            'successMessage' => Craft::t('ticketmaster', 'Updates dismissed.'),
         ]);
 
         // Restore

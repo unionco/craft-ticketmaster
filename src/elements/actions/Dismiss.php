@@ -19,7 +19,7 @@ use unionco\ticketmaster\Ticketmaster;
  * EventQuery represents a SELECT SQL statement for events in a way that is independent of DBMS.
  *
  */
-class Publish extends ElementAction
+class Dismiss extends ElementAction
 {
     /**
      * @var string|null The message that should be shown after the elements get deleted
@@ -36,7 +36,7 @@ class Publish extends ElementAction
      */
     public function getTriggerLabel(): string
     {
-        return Craft::t('ticketmaster', 'Publish');
+        return Craft::t('ticketmaster', 'Dismiss');
     }
 
     /**
@@ -53,14 +53,14 @@ class Publish extends ElementAction
 
         // Did all of them fail?
         if ($successCount === 0) {
-            $this->setMessage(Craft::t('ticketmaster', 'Could not published events due to validation errors.'));
+            $this->setMessage(Craft::t('ticketmaster', 'Could not dismiss updates due to validation errors.'));
             return false;
         }
 
         if ($failCount !== 0) {
-            $this->setMessage(Craft::t('ticketmaster', 'Could not publish all events due to validation errors.'));
+            $this->setMessage(Craft::t('ticketmaster', 'Could not dismiss all updates due to validation errors.'));
         } else {
-            $this->setMessage(Craft::t('ticketmaster', 'Events published.'));
+            $this->setMessage(Craft::t('ticketmaster', 'Update(s) dismissed'));
         }
 
         return true;
@@ -77,10 +77,9 @@ class Publish extends ElementAction
             try {
                 $result = Ticketmaster::$plugin->elements->publishEvent($element);
                 if (!$result) {
-                    throw new Exception("Error publishing event", 1);
+                    throw new Exception("Error dismissing update", 1);
                 }
                 $element->isDirty = false;
-                $element->isPublished = true;
                 $elementService->saveElement($element);
             } catch (\Throwable $th) {
                 $failCount++;
