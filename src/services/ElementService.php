@@ -25,7 +25,7 @@ use yii\db\ActiveRecordInterface;
 
 /**
  * Element Service.
- * 
+ *
  * @author    Union
  * @package   Ticketmaster
  * @since     1.0.0
@@ -36,7 +36,7 @@ class ElementService extends Base
     // =========================================================================
 
     /**
-     * @var endpoint string
+     * @var string endpoint
      */
     const ENDPOINT = 'discovery/v2/events';
 
@@ -146,7 +146,7 @@ class ElementService extends Base
 
         $event->tmEventId = $eventDetail['id'];
         $eventDetail['tmEventId'] = $event->tmEventId;
-        
+
         // has for later comparison
         $hash = md5(Json::encode($eventDetail));
 
@@ -154,7 +154,7 @@ class ElementService extends Base
         unset($eventDetail['name']);
         unset($eventDetail['id']);
 
-        // md5 event payload vs md5 Json::encode(eventDetail)        
+        // md5 event payload vs md5 Json::encode(eventDetail)
         $event->isDirty = $this->isDirty($event, $hash);
 
         // set the hash after the check
@@ -254,7 +254,9 @@ class ElementService extends Base
                 ]));
             }
 
-            return Craft::$app->getElements()->saveElement($element, $enabled ? true : false);
+            Craft::$app->getElements()->saveElement($element, $enabled ? true : false);
+
+            return $element;
         }
 
         // find the elemenet that this record belongs to then fire off an event
@@ -270,8 +272,9 @@ class ElementService extends Base
         }
 
         $record->payload = $event->published ? $event->published : $event->payload;
+        $record->save();
 
-        return $record->save();
+        return $element;
     }
 
     /**

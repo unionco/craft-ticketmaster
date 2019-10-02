@@ -254,7 +254,7 @@ class EventController extends BaseController
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
-                    'errors' => $venue->getErrors(),
+                    'errors' => $event->getErrors(),
                 ]);
             }
 
@@ -268,11 +268,11 @@ class EventController extends BaseController
             return null;
         }
 
-        if ($isPublish = $request->getBodyParam('publish')) {
+        if ($request->getBodyParam('publish') || $request->getBodyParam('publish-and-view')) {
             // $eventService publish this ish
             // if my event has a craftEntryId then update it
             // else create a new one
-            Ticketmaster::$plugin->elements->publishEvent($event);
+            $element = Ticketmaster::$plugin->elements->publishEvent($event);
 
             Craft::$app->getSession()->setNotice(Craft::t('app', 'Event published.'));
 
@@ -283,7 +283,11 @@ class EventController extends BaseController
 
             Craft::$app->getElements()->saveElement($event);
 
-            return $this->redirectToPostedUrl($event);
+            if ($request->getBodyParam('publish-and-view')) {
+                return $this->redirect($element->getCpEditUrl());
+            }
+
+            return $this->redirectToPostedUrl($element);
         }
 
         if ($request->getAcceptsJson()) {

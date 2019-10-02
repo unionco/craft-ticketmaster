@@ -401,13 +401,12 @@ class Event extends Element
      */
     public function getStatus()
     {
-        $status = parent::getStatus();
+        // $status = parent::getStatus();
 
-        if ($eventRecord = EventRecord::find()->where(['tmEventId' => $this->tmEventId])->one()) {
-            if ($this->published && $this->isDirty) {
+        if ($this->isPublished) {
+            if ($this->isDirty) {
                 return self::STATUS_UPDATED;
             }
-
             return self::STATUS_PUBLISHED;
         }
 

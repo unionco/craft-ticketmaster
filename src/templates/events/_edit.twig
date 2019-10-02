@@ -22,6 +22,7 @@
                     {{ "Save and continue editing"|t('ticketmaster') }}
                 </a></li>
                 <li><a class="formsubmit" data-param="publish" data-value="1">{{ "Publish Event"|t('ticketmaster') }}</a></li>
+                <li><a class="formsubmit" data-param="publish-and-view" data-value="1">{{ "Publish and Go to Event"|t('ticketmaster') }}</a></li>
             </ul>
         </div>
     </div>
@@ -63,11 +64,12 @@
                 {% else %}
                     {% set eventSearchField = craft.ticketmaster.createField("unionco\\ticketmaster\\fields\\EventSearch", {
                         handle: 'payload',
-                        id: 'payload'
+                        id: 'payload',
                     }) %}
                     {% include "_includes/forms/field" with {
                         label: 'Event Search'|t('ticketmaster'),
                         id: 'payload',
+                        instructions: 'This tab is live data from Ticketmaster and should **NOT** be updated manually.',
                         input: eventSearchField.getInputHtml(event.payload),
                         fieldType: className(eventSearchField),
                     } only %}

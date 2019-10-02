@@ -106,6 +106,7 @@ class EventQuery extends ElementQuery
                     'and',
                     [
                         'ticketmaster_event_elements.isPublished' => true,
+                        'ticketmaster_event_elements.isDirty' => false,
                     ],
                 ];
             case Event::STATUS_UPDATED:

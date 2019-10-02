@@ -83,55 +83,6 @@
         name: 'enableWhenPublish',
         on: settings.enableWhenPublish ?? false,
     }) }}
-
-    {# {{ forms.textareaField({
-        label: 'Hidden Api Fields'|t('ticketmaster'),
-        instructions: 'Each api field handle to hide on a new line.'|t('ticketmaster'),
-        id: 'apiFields',
-        name: 'apiFields',
-        rows: 10
-    }) }} #}
-
-    {# <div class="field">
-        <div class="heading">
-            <label id="settings-apiFields-label" class="required" for="settings-apiFields">
-                {{ 'Ticketmaster Api Fields'|t('ticketmaster') }}
-            </label>
-        </div>
-        <div class="input ltr">
-            {% verbatim %}
-            <table class="shadow-box editable">
-                <thead>
-                    <tr>
-                        <th scope="col" class="">Ticketmaster<span class="info"><p>The field received from the ticketmaster api</p></span></th>
-                        <th scope="col" class=""></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(row, index) in apiFields" v-bind:key="index">
-                        <td class="textual">
-                            <div class="field">
-                                <div class="select ltr" style="width: 100%;">
-                                    <select :name="'settings[apiFields]['+ index +'][field]'" v-model="row.field" style="width: 100%;">
-                                        <optgroup v-for="group in availableFields" :label="group.group">
-                                            <option v-for="option in group.options" v-bind:value="option.handle">
-                                                {{ option.name }}
-                                            </option>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="thin action">
-                            <a @click="deleteRow(index)" class="delete icon" title="Delete"></a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="btn add icon" tabindex="0" style="opacity: 1; pointer-events: auto;" @click="addRow">Add a row</div>
-            {% endverbatim %}
-        </div>
-    </div> #}
 </div>
 
 {% js %}
@@ -175,17 +126,6 @@ new Vue({
                 if (response.success) {
                     this.entryTypes = response.types;
                     this.entryType = response.types[0].value;
-                    this.getFieldLayout();
-                }
-            }.bind(this));
-        },
-
-        getFieldLayout() {
-            var entryType = this.entryType;
-
-            Craft.postActionRequest('ticketmaster/settings/get-field-layout', {  entryType: entryType }, function (response) {
-                if (response.success) {
-                    this.fields = response.fields;
                 }
             }.bind(this));
         },
