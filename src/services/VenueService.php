@@ -36,9 +36,9 @@ class VenueService extends Base
 
     /**
      * Get venue by ticketmaster venue id
-     * 
+     *
      * @param string venueId
-     * 
+     *
      * @return VenueRecord
      */
     public function getVenueById(string $venueId)
@@ -51,7 +51,7 @@ class VenueService extends Base
 
     /**
      * Get venues from field data
-     * 
+     *
      * @return VenueRecord[]
      */
     public function getVenues()
@@ -63,7 +63,7 @@ class VenueService extends Base
 
     /**
      * Base event query grouped by ownerid
-     * 
+     *
      * @return ActiveQuery
      */
     public function baseQuery()
@@ -75,7 +75,15 @@ class VenueService extends Base
             $query->where([
                 'and',
                 [
-                    'not',
+                    'or',
+                    [
+                        'and',
+                        [
+                            'not',
+                            ['elements.revisionId' => null],
+                        ],
+                        ['type' => 'craft\\elements\\Entry']
+                    ],
                     ['elements.revisionId' => null]
                 ],
                 ['elements.dateDeleted' => null]
