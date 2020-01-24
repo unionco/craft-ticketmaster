@@ -77,10 +77,7 @@ class EventService extends Base
             $query->leftJoin('{{%elements}}', '[[ticketmaster_events.ownerId]] = [[elements.id]]');
             $query->where([
                 'and',
-                [
-                    'not',
-                    ['elements.revisionId' => null],
-                ],
+                ['elements.revisionId' => null],
                 ['elements.dateDeleted' => null],
             ]);
             $query->groupBy('ticketmaster_events.ownerId');
