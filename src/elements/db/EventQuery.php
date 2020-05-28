@@ -113,7 +113,7 @@ class EventQuery extends ElementQuery
                 return [
                     'and',
                     [
-                        'ticketmaster_event_elements.isPublished' => true,
+                        // 'ticketmaster_event_elements.isPublished' => true,
                         'ticketmaster_event_elements.isDirty' => true,
                     ],
                 ];
