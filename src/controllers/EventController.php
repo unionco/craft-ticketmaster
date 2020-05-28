@@ -345,6 +345,8 @@ class EventController extends BaseController
         $event->payload = Json::encode($request->getBodyParam('fields.payload.payload', $event->_payload()));
         $event->published = Json::encode($request->getBodyParam('fields.published.payload', $event->_published()));
 
-        $event->eventHash = md5($event->payload);
+        if (!$event->eventHash) {
+            $event->eventHash = md5($event->payload);
+        }
     }
 }
