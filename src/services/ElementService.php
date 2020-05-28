@@ -185,6 +185,11 @@ class ElementService extends Base
      */
     public function isDirty(Event $event, string $hash)
     {
+        // if its already dirty, keep it dirty
+        if ($event->isDirty) {
+            return true;
+        }
+
         if (!$event->eventHash) {
             return false;
         }
