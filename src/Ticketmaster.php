@@ -144,7 +144,7 @@ class Ticketmaster extends Plugin
         Event::on(
             Elements::class,
             Elements::EVENT_REGISTER_ELEMENT_TYPES,
-            function (RegisterComponentTypesEvent $event) {Î
+            function (RegisterComponentTypesEvent $event) {
                 $event->types[] = EventElement::class;
             }
         );
