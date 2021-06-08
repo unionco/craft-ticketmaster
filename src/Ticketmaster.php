@@ -22,7 +22,6 @@ use craft\services\Plugins;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
 use unionco\ticketmaster\elements\Event as EventElement;
-use unionco\ticketmaster\elements\Venue as VenueElement;
 use unionco\ticketmaster\fields\EventSearch;
 use unionco\ticketmaster\fields\VenueSearch;
 use unionco\ticketmaster\models\Settings;
@@ -145,8 +144,7 @@ class Ticketmaster extends Plugin
         Event::on(
             Elements::class,
             Elements::EVENT_REGISTER_ELEMENT_TYPES,
-            function (RegisterComponentTypesEvent $event) {
-                $event->types[] = VenueElement::class;
+            function (RegisterComponentTypesEvent $event) {Î
                 $event->types[] = EventElement::class;
             }
         );
