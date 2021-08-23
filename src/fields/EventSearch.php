@@ -18,7 +18,7 @@ use craft\base\ElementInterface;
 use unionco\ticketmaster\Ticketmaster;
 use craft\elements\db\ElementQueryInterface;
 use unionco\ticketmaster\models\Event as EventModel;
-use unionco\ticketmaster\assetbundles\Ticketmaster\TicketmasterAsset;
+use unionco\ticketmaster\assetbundles\ticketmaster\TicketmasterAsset;
 
 /**
  * VenueFinder Field.

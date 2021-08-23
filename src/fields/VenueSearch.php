@@ -16,7 +16,7 @@ use yii\db\Schema;
 use craft\base\Field;
 use craft\base\ElementInterface;
 use unionco\ticketmaster\Ticketmaster;
-use unionco\ticketmaster\assetbundles\Ticketmaster\TicketmasterAsset;
+use unionco\ticketmaster\assetbundles\ticketmaster\TicketmasterAsset;
 use craft\elements\db\ElementQueryInterface;
 
 /**
