@@ -4,9 +4,9 @@
 {% set elementType = elementType %}
 {% set selectedSubnavItem = subNav %}
 {% set context = 'index' %}
+{% set venues = craft.ticketmaster.venues %}
 
 {% block actionButton %}
-    {% set venues = craft.ticketmaster.venues %}
     <div class="btngroup">
         <input class="btn" value="{{ 'Fetch'|t('ticketmaster') }}">
 
@@ -24,24 +24,56 @@
 {% endblock %}
 
 {% block content %}
-    {% set newEvents = craft.ticketmaster.events({ status: 'new' }).all %}
-    <ul>
-        {% for newEvent in newEvents %}
-            <li>
-                <a>{{ newEvent.title }}</a>
-            </li>
-        {% endfor %}
-    </ul>
+    {% set newEvents = craft.ticketmaster.events({ status: 'published' }).all %}
+    <div class="tableview tablepane">
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>Event Title</th>
+                    <th>Venue</th>
+                    <th>TM Event Id</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for newEvent in newEvents %}
+                    {% for venue in venues %}
+                        {% if venue.tmVenueId == newEvent.tmVenueId %}
+                            {% set newEvent = newEvent|merge({'venue': venue.title}) %}
+                        {% endif %}
+                    {% endfor %}
+                    <tr data-venue="{{ newEvent.venue }}">
+                        <td>{{ newEvent.title }}</td>
+                        <td>{{ newEvent.venue }}</td>
+                        <td>{{ newEvent.tmEventId }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
 
 {% block initJs %}
-    Craft.elementIndex = Craft.createElementIndex('{{ elementType|e("js") }}', $('#main'), {
+    {# Craft.elementIndex = Craft.createElementIndex('{{ elementType|e("js") }}', $('#main'), {
         context:        '{{ context }}',
         storageKey:     'elementindex.{{ elementType|e("js") }}',
         criteria:       Craft.defaultIndexCriteria,
-    });
-    Craft.elementIndex.on('selectSource', function() {
+    }); #}
+    {# Craft.elementIndex.on('selectSource', function() {
         console.log('selectSource')
+    }); #}
+
+    $('a[data-handle="Ovens Auditorium"]').on('click', function () {
+        $('tr[data-venue="Ovens Auditorium"]').show();
+        $("tr[data-venue*='Bojangles']").hide();
+    });
+
+    $("a[data-handle*='Bojangles']").on('click', function () {
+        $("tr[data-venue*='Bojangles']").show();
+        $('tr[data-venue="Ovens Auditorium"]').hide();
+    });
+
+    $("a[data-key='*']").on('click', function () {
+        $("tr").show();
     });
 
     $('[data-fetch-events]').each(function () {
