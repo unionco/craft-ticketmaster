@@ -23,7 +23,7 @@
     </div>
 {% endblock %}
 
-{% set content %}
+{% block content %}
     {% set newEvents = craft.ticketmaster.events({ status: 'new' }).all %}
     <ul>
         {% for newEvent in newEvents %}
@@ -32,7 +32,7 @@
             </li>
         {% endfor %}
     </ul>
-{% endset %}
+{% endblock %}
 
 {% block initJs %}
     Craft.elementIndex = Craft.createElementIndex('{{ elementType|e("js") }}', $('#main'), {
