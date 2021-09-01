@@ -140,7 +140,7 @@ class ElementService extends Base
 
         if (!$event) {
             $entry = new Entry();
-            $entry->enabled = true;
+            $entry->enabled = false;
             $entry->siteId = 7;
 
             $detail = $this->transform($eventDetail);
@@ -163,7 +163,7 @@ class ElementService extends Base
 
             $entry->setFieldValue('priceMax', $detail['priceMax']);
             $entry->setFieldValue('priceMin', $detail['priceMin']);
-            $entry->setFieldValue('priceMin', $detail['priceMin']);
+            $entry->setFieldValue('tm_buttonLink', $detail['url']);
 
             if ($venue['title'] == 'Ovens Auditorium') {
                 $entry->setFieldValue('boplexVenue', [74142]);
@@ -171,7 +171,7 @@ class ElementService extends Base
                 $entry->setFieldValue('boplexVenue', [74141]);
             }
 
-            $entry->setFieldValue('title', $detail['name']);
+            $entry->title = $detail['name'];
 
             if ($category = $this->category($detail['relatedEventCategory'])) {
                 $entry->setFieldValue('boplexEventCategory', [$category->id]);
