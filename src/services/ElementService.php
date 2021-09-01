@@ -134,8 +134,11 @@ class ElementService extends Base
      */
     public function saveEvent(array $eventDetail, VenueModel $venue)
     {
-        $event = Event::find()
-            ->tmEventId($eventDetail['id'])
+        $event =  Entry::find()
+            ->site('boplex')
+            ->anyStatus()
+            ->section('boplexEvents')
+            ->where(['content.field_ticketmasterId' => $eventDetail['id']])
             ->one();
 
         if (!$event) {
