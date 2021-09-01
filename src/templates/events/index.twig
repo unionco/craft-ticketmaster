@@ -57,8 +57,9 @@
         context:        '{{ context }}',
         storageKey:     'elementindex.{{ elementType|e("js") }}',
         criteria:       Craft.defaultIndexCriteria,
-    }); #}
-    {# Craft.elementIndex.on('selectSource', function() {
+    });
+
+    Craft.elementIndex.on('selectSource', function() {
         console.log('selectSource')
     }); #}
 
@@ -76,11 +77,12 @@
         $("tr").show();
     });
 
-    $('[data-fetch-events]').each(function () {
-        var spinner = $('.toolbar .spinner');
+    $("input[value='Fetch']").on('click', function() {
+        $("a[data-type='event']").each(function () {
+            var spinner = $('.toolbar .spinner');
+            var venueId = $(this).attr('data-key');
+            var handle = $(this).attr('data-handle');
 
-        $(this).on('click', function() {
-            var venueId = $(this).attr('data-fetch-events');
             $.ajax({
                 method: "POST",
                 dataType: 'json',
@@ -93,10 +95,7 @@
                 },
                 success: function (response, textStatus) {
                     if (response.success) {
-                        // trigger refresh
-                        var sel = $('[data-key="'+ venueId +'"]');
-                        Craft.elementIndex.selectSource(sel);
-                        Craft.elementIndex.updateElements();
+                        alert('Events added for ' + handle);
                     }
                 },
                 error: function (xhr, error, textStatus) {
@@ -105,9 +104,10 @@
                 done: function() {
                     spinner.addClass('invisible');
                 }
-            });
+            });   
         });
     });
+
 {% endblock %}
 
 {% js block('initJs') %}

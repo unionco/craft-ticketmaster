@@ -168,12 +168,14 @@ class EventController extends BaseController
 
         $venue = new VenueModel($venue);
         $events = $elementService->getEventsByVenueId($venue->tmVenueId);
+        
         foreach ($events as $key => $event) {
             $elementService->saveEvent($event, $venue);
         }
 
         return $this->asJson([
-            "success" => true
+            "success" => true,
+            "events" => $events
         ]);
     }
 

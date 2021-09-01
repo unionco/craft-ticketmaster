@@ -14,6 +14,7 @@ namespace unionco\ticketmaster\services;
 use Craft;
 use craft\base\ElementInterface;
 use craft\elements\Entry;
+use craft\elements\Category;
 use craft\elements\MatrixBlock;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
@@ -38,7 +39,7 @@ class ElementService extends Base
     /**
      * @var string endpoint
      */
-    const ENDPOINT = 'discovery/v2/events';
+    const ENDPOINT = 'discovery/v2/events.json';
 
     /**
      * @event OnPublishEvent The event that is triggered when publishing an event.
@@ -92,7 +93,6 @@ class ElementService extends Base
             'query' => [
                 'venueId' => $venueId,
                 'size' => 100,
-                'source' => 'ticketmaster',
                 'includeTBA' => 'no',
                 'includeTBD' => 'no',
                 'includeTest' => 'no',
@@ -139,37 +139,71 @@ class ElementService extends Base
             ->one();
 
         if (!$event) {
-            $event = new Event();
-            $event->tmVenueId = $venue->tmVenueId;
-            $event->title = $eventDetail['name'];
-        }
+            $entry = new Entry();
+            $entry->enabled = true;
+            $entry->siteId = 7;
 
-        $event->tmEventId = $eventDetail['id'];
-        $eventDetail['tmEventId'] = $event->tmEventId;
+            $detail = $this->transform($eventDetail);
 
-        // has for later comparison
-        $hash = md5(Json::encode($eventDetail));
+            $entry->sectionId = 54;
+            $entry->typeId = 122;
 
-        // unset certain fields we dont need in the payload
-        unset($eventDetail['name']);
-        unset($eventDetail['id']);
+            $entry->setFieldValue('ticketmasterId', $detail['id']);
+            $entry->setFieldValue('tm_eventImage', $detail['tm_eventImage']);
+            $entry->setFieldValue('tm_startDate', $detail['tm_startDate']);
+            $entry->setFieldValue('tm_endDate', $detail['tm_endDate']);
 
-        // md5 event payload vs md5 Json::encode(eventDetail)
-        $event->isDirty = $this->isDirty($event, $hash);
+            if (isset($detail['startTime'])) {
+                $date = \DateTime::createFromFormat(
+                    'H:i:s',
+                    $detail['startTime']
+                );
+                $entry->setFieldValue('startTime', $date);
+            }
 
-        // set the hash after the check
-        $event->eventHash = $hash;
+            $entry->setFieldValue('priceMax', $detail['priceMax']);
+            $entry->setFieldValue('priceMin', $detail['priceMin']);
+            $entry->setFieldValue('priceMin', $detail['priceMin']);
 
-        if (!is_string($eventDetail)) {
-            $event->payload = Json::encode($eventDetail) ?? '';
-        } else {
-            $event->payload = $eventDetail;
-        }
+            if ($venue['title'] == 'Ovens Auditorium') {
+                $entry->setFieldValue('boplexVenue', [74142]);
+            } else {
+                $entry->setFieldValue('boplexVenue', [74141]);
+            }
 
-        try {
-            $result = Craft::$app->getElements()->saveElement($event);
-        } catch (\Throwable $th) {
-            throw $th;
+            $entry->setFieldValue('title', $detail['name']);
+
+            if ($category = $this->category($detail['relatedEventCategory'])) {
+                $entry->setFieldValue('boplexEventCategory', [$category->id]);
+                $entry->boplexEventCategory = [$category->id];
+            } else {
+                $category = new Category();
+                $category->groupId = 21;
+                $category->title = $detail['relatedEventCategory'];
+                $category->slug = StringHelper::toKebabCase(
+                    $detail['relatedEventCategory']
+                );
+                $category->siteId = 7;
+
+                $result = Craft::$app->getElements()->saveElement($category);
+
+                if (!$result) {
+                    return false;
+                }
+
+                $entry->setFieldValue('boplexEventCategory', [$category->id]);
+            }
+
+            try {
+                $result = Craft::$app->getElements()->saveElement($entry);
+
+                if (!$result) {
+                    throw new ServerErrorHttpException('Did not save entry');
+                    return false;
+                }
+            } catch (\Throwable $th) {
+                throw $th;
+            }
         }
 
         return $event;
@@ -307,5 +341,57 @@ class ElementService extends Base
         $element->status = null;
 
         return $element->one();
+    }
+
+    public function transform($eventDetails)
+    {
+        $event['name'] = $eventDetails['name'];
+        $event['id'] = $eventDetails['id'];
+        $event['url'] = $eventDetails['url'];
+
+        // times
+        $event['startTime'] = $eventDetails['dates']['start']['localTime'] ?? null;
+        $event['tm_startDate'] = $eventDetails['dates']['start']['localDate'] ?? 'TBD';
+        $event['tm_endDate'] = $eventDetails['dates']['end']['localDate'] ?? $eventDetails['dates']['start']['localDate'] ?? null;
+            
+        // pricing
+        if (isset($eventDetails['priceRanges']) && count($eventDetails['priceRanges'])) {
+            $event['priceMax'] = $eventDetails['priceRanges'][count($eventDetails['priceRanges']) - 1]['max'];
+            $event['priceMin'] = $eventDetails['priceRanges'][0]['min'];
+        } else {
+            $event['priceMax'] = '';
+            $event['priceMin'] = '';
+        }
+
+        // description
+        $description = [];
+        $description[] = $eventDetails['info'] ?? '';
+        // $description[] = isset($eventDetails->accessibility) ? $eventDetails->accessibility->info : '';
+        $event['eventDescription'] = implode("\n", $description);
+
+        // image
+        $event['tm_eventImage'] = array_values(array_filter($eventDetails['images'], function($image) {
+            return $image['width'] >= 1000 && $image['ratio'] === '16_9' && str_contains($image['url'], 'RETINA_LANDSCAPE');
+        }))[0]['url'];
+
+        // category
+        $event['relatedEventCategory'] = array_values(array_filter($eventDetails['classifications'], function($classification) {
+            return $classification['primary'] == true;
+        }))[0]['segment']['name'];
+
+        if ($event['relatedEventCategory'] === 'Music') {
+            $event['relatedEventCategory'] = 'concerts';
+        }
+
+        return $event;
+    }
+
+    public function category($slug)
+    {
+        return Category::find()
+            ->site('boplex')
+            ->groupId(21)
+            ->slug('*' . StringHelper::toKebabCase($slug) . "*")
+            ->one();
     }
 }
