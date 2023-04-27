@@ -1,6 +1,6 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x
+ * Ticketmaster plugin for Craft CMS 4.x
  *
  * Ticket master ticket feed for venues.
  *

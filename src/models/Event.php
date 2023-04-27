@@ -1,6 +1,6 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x.
+ * Ticketmaster plugin for Craft CMS 4.x.
  *
  * Ticket master ticket feed for venues.
  *
@@ -141,7 +141,7 @@ class Event extends Model
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
         $rules[] = [['title', 'tmEventId', 'payload'], 'required'];

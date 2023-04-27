@@ -1,6 +1,6 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x.
+ * Ticketmaster plugin for Craft CMS 4.x.
  *
  * Ticket master ticket feed for venues.
  *
@@ -261,7 +261,7 @@ class ElementService extends Base
             $element->enabled = $enabled;
             $element->siteId = array_shift($siteIds);
 
-            $fieldLayoutFields = $element->getFieldLayout()->getFields();
+            $fieldLayoutFields = $element->getFieldLayout()->getCustomFields();
             $eventSearchField = array_filter($fieldLayoutFields, function ($field) {
                 return $field instanceof \unionco\ticketmaster\fields\EventSearch;
             });

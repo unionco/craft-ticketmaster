@@ -1,6 +1,6 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x
+ * Ticketmaster plugin for Craft CMS 4.x
  *
  * Ticket master ticket feed for venues.
  *
@@ -45,7 +45,7 @@ class CpController extends BaseController
      *         The actions must be in 'kebab-case'
      * @access protected
      */
-    protected $allowAnonymous = false;
+    protected array|int|bool $allowAnonymous = false;
 
     // Public Methods
     // =========================================================================

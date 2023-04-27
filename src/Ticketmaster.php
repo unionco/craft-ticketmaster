@@ -1,6 +1,6 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x
+ * Ticketmaster plugin for Craft CMS 4.x
  *
  * Ticket master ticket feed for venues.
  *
@@ -73,17 +73,17 @@ class Ticketmaster extends Plugin
      *
      * @var string
      */
-    public $schemaVersion = '1.0.7';
+    public string $schemaVersion = '1.0.7';
 
     /**
      * @var bool Whether the plugin has a settings page in the CP
      */
-    public $hasCpSettings = true;
+    public bool $hasCpSettings = true;
 
     /**
      * @var bool Whether the plugin has its own section in the CP
      */
-    public $hasCpSection = true;
+    public bool $hasCpSection = true;
 
     // Public Methods
     // =========================================================================
@@ -212,7 +212,7 @@ class Ticketmaster extends Plugin
     /**
      *
      */
-    public function getCpNavItem()
+    public function getCpNavItem(): ?array
     {
         $item = parent::getCpNavItem();
         $item['url'] = 'ticketmaster';
@@ -232,7 +232,7 @@ class Ticketmaster extends Plugin
      *
      * @return \craft\base\Model|null
      */
-    protected function createSettingsModel()
+    protected function createSettingsModel(): ?craft\base\Model
     {
         return new Settings();
     }

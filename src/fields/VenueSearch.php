@@ -1,6 +1,6 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x.
+ * Ticketmaster plugin for Craft CMS 4.x.
  *
  * Ticket master ticket feed for venues.
  *
@@ -76,7 +76,7 @@ class VenueSearch extends Field
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return parent::rules();
     }
@@ -111,7 +111,7 @@ class VenueSearch extends Field
      *
      * @return mixed The prepared field value
      */
-    public function normalizeValue($value, ElementInterface $element = null)
+    public function normalizeValue(mixed $value, ?\craft\base\ElementInterface $element = null): mixed
     {
         return Ticketmaster::$plugin->venues->normalizeValue($this, $value, $element);
     }
@@ -129,7 +129,7 @@ class VenueSearch extends Field
      *
      * @return false|null `false` in the event that the method is sure that no elements are going to be found
      */
-    public function serializeValue($value, ElementInterface $element = null)
+    public function serializeValue(mixed $value, ?\craft\base\ElementInterface $element = null): mixed
     {
         return parent::serializeValue($value, $element);
     }
@@ -139,7 +139,7 @@ class VenueSearch extends Field
      *
      * @return string|null
      */
-    public function getSettingsHtml()
+    public function getSettingsHtml(): ?string
     {
         // Render the settings template
         return Craft::$app->getView()->renderTemplate(
@@ -159,7 +159,7 @@ class VenueSearch extends Field
      *
      * @return string the input HTML
      */
-    public function getInputHtml($value, ElementInterface $element = null): string
+    public function getInputHtml(mixed $value, ?\craft\base\ElementInterface $element = null): string
     {
         // Register our asset bundle
         $view = Craft::$app->getView();
@@ -192,7 +192,7 @@ class VenueSearch extends Field
     /**
      * {@inheritdoc}
      */
-    public function afterElementSave(ElementInterface $element, bool $isNew)
+    public function afterElementSave(ElementInterface $element, bool $isNew): void
     {
         Ticketmaster::$plugin->venues->afterElementSave($this, $element, $isNew);
         parent::afterElementSave($element, $isNew);
@@ -201,12 +201,12 @@ class VenueSearch extends Field
     /**
      * {@inheritdoc}
      */
-    public function modifyElementsQuery(ElementQueryInterface $query, $value)
+    public function modifyElementsQuery(ElementQueryInterface $query, mixed $value): void
     {
         if (!Ticketmaster::$plugin) {
             return;
         }
         
-        return Ticketmaster::$plugin->venues->modifyElementsQuery($this, $query, $value);
+        Ticketmaster::$plugin->venues->modifyElementsQuery($this, $query, $value);
     }
 }

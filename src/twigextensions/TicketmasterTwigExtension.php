@@ -1,6 +1,6 @@
 <?php
 /**
- * Union module for Craft CMS 3.x
+ * Union module for Craft CMS 4.x
  *
  * Private Union Site Module
  *
@@ -11,20 +11,24 @@
 namespace unionco\ticketmaster\twigextensions;
 
 use Craft;
-use Twig_Extension;
-use Twig_SimpleFilter;
 use union\app\UnionModule;
+use Twig\Extension\GlobalsInterface;
+use Twig\Extension\AbstractExtension;
 
 /**
  * @author    UNION
  * @package   UnionModule
  * @since     1.0.0
  */
-class TicketmasterTwigExtension extends Twig_Extension
+class TicketmasterTwigExtension extends AbstractExtension implements GlobalsInterface
 {
 
     // Public Properties
     // =========================================================================
+    public function getGlobals(): array
+    {
+        return [];
+    }
 
     // Public Methods
     // =========================================================================

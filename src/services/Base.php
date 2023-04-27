@@ -1,6 +1,6 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x
+ * Ticketmaster plugin for Craft CMS 4.x
  *
  * Ticket master ticket feed for venues.
  *
@@ -48,7 +48,7 @@ class Base extends Component
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         $this->baseQuery = ["apikey" => Ticketmaster::$plugin->getSettings()->getConsumerKey()];
         $this->api = new RestClient([

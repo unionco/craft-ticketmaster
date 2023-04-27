@@ -1,6 +1,6 @@
 <?php
 /**
- * Ticketmaster plugin for Craft CMS 3.x
+ * Ticketmaster plugin for Craft CMS 4.x
  *
  * Ticket master ticket feed for venues.
  *
@@ -116,7 +116,7 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'parser' => [
@@ -139,7 +139,7 @@ class Settings extends Model
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
         $rules[] = [['consumerKey', 'consumerSecret'], 'required'];

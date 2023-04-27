@@ -1,5 +1,5 @@
 {
-    "name": "unionco/ticketmaster",
+    "name": "unionco/craft-ticketmaster",
     "description": "Ticket master ticket feed for venues.",
     "type": "craft-plugin",
     "keywords": [
@@ -10,8 +10,8 @@
         "ticketmaster"
     ],
     "support": {
-        "docs": "https://github.com/unionco/ticketmaster/blob/master/README.md",
-        "issues": "https://github.com/unionco/ticketmaster/issues"
+        "docs": "https://github.com/unionco/craft-ticketmaster/blob/master/README.md",
+        "issues": "https://github.com/unionco/craft-ticketmaster/issues"
     },
     "license": "MIT",
     "authors": [
@@ -21,7 +21,7 @@
         }
     ],
     "require": {
-        "craftcms/cms": "^3.0.0-RC1",
+        "craftcms/cms": "^4.0",
         "adbario/php-dot-notation": "^2.2"
     },
     "autoload": {
@@ -33,7 +33,16 @@
         "name": "Ticketmaster",
         "handle": "ticketmaster",
         "hasCpSettings": true,
-        "changelogUrl": "https://raw.githubusercontent.com/unionco/ticketmaster/master/CHANGELOG.md",
+        "changelogUrl": "https://raw.githubusercontent.com/unionco/craft-ticketmaster/master/CHANGELOG.md",
         "class": "unionco\\ticketmaster\\Ticketmaster"
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        }
+    },
+    "require-dev": {
+        "craftcms/rector": "dev-main"
     }
 }
