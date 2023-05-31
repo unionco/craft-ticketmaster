@@ -230,6 +230,6 @@ class EventSearch extends Field
             return;
         }
 
-        return Ticketmaster::$plugin->events->modifyElementsQuery($this, $query, $value);
+        Ticketmaster::$plugin->events->modifyElementsQuery($this, $query, $value);
     }
 }
