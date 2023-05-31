@@ -11,8 +11,7 @@
 namespace unionco\ticketmaster\twigextensions;
 
 use Craft;
-use Twig_Extension;
-use Twig_SimpleFilter;
+use craft\web\twig\Extension;
 use union\app\UnionModule;
 
 /**
@@ -20,7 +19,7 @@ use union\app\UnionModule;
  * @package   UnionModule
  * @since     1.0.0
  */
-class TicketmasterTwigExtension extends Twig_Extension
+class TicketmasterTwigExtension extends Extension
 {
 
     // Public Properties
@@ -35,25 +34,5 @@ class TicketmasterTwigExtension extends Twig_Extension
     public function getName()
     {
         return 'Ticketmaster';
-    }
-
-    /**
-     * Returns an array of Twig filters, used in Twig templates via:
-     *
-     * @return array
-     */
-    public function getFilters()
-    {
-        return [];
-    }
-
-    /**
-     * Returns an array of Twig functions, used in Twig templates via:
-     *
-     * @return array
-     */
-    public function getFunctions()
-    {
-        return [];
     }
 }
