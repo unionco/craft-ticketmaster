@@ -73,17 +73,17 @@ class Ticketmaster extends Plugin
      *
      * @var string
      */
-    public $schemaVersion = '1.0.7';
+    public string $schemaVersion = '1.0.7';
 
     /**
      * @var bool Whether the plugin has a settings page in the CP
      */
-    public $hasCpSettings = true;
+    public bool $hasCpSettings = true;
 
     /**
      * @var bool Whether the plugin has its own section in the CP
      */
-    public $hasCpSection = true;
+    public bool $hasCpSection = true;
 
     // Public Methods
     // =========================================================================
