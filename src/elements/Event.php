@@ -143,7 +143,7 @@ class Event extends Element
     /**
      * {@inheritdoc}
      */
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'event';
     }
@@ -285,7 +285,7 @@ class Event extends Element
     /**
      * {@inheritdoc}
      */
-    protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
         parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
     }
@@ -346,7 +346,7 @@ class Event extends Element
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
 
@@ -399,7 +399,7 @@ class Event extends Element
     /**
      * {@inheritdoc}
      */
-    public function getStatus()
+    public function getStatus(): ?string
     {
         // $status = parent::getStatus();
 
@@ -437,7 +437,7 @@ class Event extends Element
      * {% endif %}
      * ```
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): ?string
     {
         // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
         $url = UrlHelper::cpUrl('ticketmaster/events/'.$this->id.($this->tmEventId ? '-'.$this->tmEventId : ''));
@@ -506,7 +506,7 @@ class Event extends Element
      *
      * @param bool $isNew Whether the element is brand new
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if ($isNew) {
             Craft::$app->db->createCommand()
@@ -554,7 +554,7 @@ class Event extends Element
     /**
      * Performs actions after an element is deleted.
      */
-    public function afterDelete()
+    public function afterDelete(): void
     {
     }
 
@@ -575,7 +575,7 @@ class Event extends Element
      *
      * @param int $structureId The structure ID
      */
-    public function afterMoveInStructure(int $structureId)
+    public function afterMoveInStructure(int $structureId): void
     {
     }
 }

@@ -37,7 +37,7 @@ class EventQuery extends ElementQuery
     /**
      * @var string
      */
-    public $status;
+    public array|string|null $status;
 
     // Public Methods
     // =========================================================================
@@ -56,7 +56,7 @@ class EventQuery extends ElementQuery
         return $this;
     }
 
-    public function status($value)
+    public function status($value): \craft\elements\db\ElementQuery
     {
         return parent::status($value);
     }
@@ -98,7 +98,7 @@ class EventQuery extends ElementQuery
     /**
      * {@inheritdoc}
      */
-    public function statusCondition(string $status)
+    public function statusCondition(string $status): mixed
     {
         switch ($this->status) {
             case Event::STATUS_PUBLISHED:

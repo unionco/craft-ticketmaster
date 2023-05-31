@@ -50,7 +50,7 @@ class UpdateEvents extends BaseJob
 {
     public $siteHandle;
 
-    public function execute($queue)
+    public function execute($queue): void
     {
         $venues = Ticketmaster::$plugin->venues->getVenues();
 
@@ -78,7 +78,7 @@ class UpdateEvents extends BaseJob
         return true;
     }
 
-    protected function defaultDescription()
+    protected function defaultDescription(): ?string
     {
         return 'Fetching all events.';
     }

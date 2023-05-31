@@ -13,7 +13,7 @@ class UpdateVenueEvents extends BaseJob
     public $venue;
     public $siteHandle;
 
-    public function execute($queue)
+    public function execute($queue): void
     {
         $eventService = Ticketmaster::$plugin->elements;
         $count = count($this->events);
@@ -36,7 +36,7 @@ class UpdateVenueEvents extends BaseJob
         return true;
     }
 
-    protected function defaultDescription()
+    protected function defaultDescription(): ?string
     {
         return 'Updating events for venue.';
     }

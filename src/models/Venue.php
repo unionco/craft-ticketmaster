@@ -105,7 +105,7 @@ class Venue extends Model
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
         $rules[] = [['title', 'tmVenueId', 'ownerId', 'ownerSiteId', 'fieldId', 'payload'], 'required'];

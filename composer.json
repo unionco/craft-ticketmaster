@@ -35,5 +35,16 @@
         "hasCpSettings": true,
         "changelogUrl": "https://raw.githubusercontent.com/unionco/ticketmaster/master/CHANGELOG.md",
         "class": "unionco\\ticketmaster\\Ticketmaster"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        }
+    },
+    "require-dev": {
+        "craftcms/rector": "dev-main"
     }
 }

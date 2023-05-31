@@ -48,7 +48,7 @@ class Base extends Component
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         $this->baseQuery = ["apikey" => Ticketmaster::$plugin->getSettings()->getConsumerKey()];
         $this->api = new RestClient([
