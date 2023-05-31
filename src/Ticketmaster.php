@@ -212,7 +212,7 @@ class Ticketmaster extends Plugin
     /**
      *
      */
-    public function getCpNavItem()
+    public function getCpNavItem(): ?array
     {
         $item = parent::getCpNavItem();
         $item['url'] = 'ticketmaster';
@@ -232,7 +232,7 @@ class Ticketmaster extends Plugin
      *
      * @return \craft\base\Model|null
      */
-    protected function createSettingsModel()
+    protected function createSettingsModel(): \craft\base\Model|null
     {
         return new Settings();
     }
