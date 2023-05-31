@@ -29,7 +29,6 @@ use unionco\ticketmaster\services\Base as BaseService;
 use unionco\ticketmaster\services\EventService;
 use unionco\ticketmaster\services\ElementService;
 use unionco\ticketmaster\services\VenueService;
-use unionco\ticketmaster\twigextensions\TicketmasterTwigExtension;
 use unionco\ticketmaster\variables\TicketmasterVariable;
 use yii\base\Event;
 use craft\events\DeleteElementEvent;
@@ -114,9 +113,6 @@ class Ticketmaster extends Plugin
         if (Craft::$app instanceof ConsoleApplication) {
             $this->controllerNamespace = 'unionco\ticketmaster\console\controllers';
         }
-
-        // Twig
-        Craft::$app->view->registerTwigExtension(new TicketmasterTwigExtension());
 
         // Register our CP routes
         Event::on(
