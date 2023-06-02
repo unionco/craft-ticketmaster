@@ -129,7 +129,7 @@ class EventController extends BaseController
             ]);
         }
 
-        $venueModel = new VenueModel($venueRecord);
+        $venueModel = new VenueModel($venueRecord->getAttributes());
         try {
             $event = $elementService->getEventDetail((string) $eventId);
             $result = $elementService->saveEvent($event, $venueModel);
@@ -166,7 +166,7 @@ class EventController extends BaseController
             ]);
         }
 
-        $venue = new VenueModel($venue);
+        $venue = new VenueModel($venue->getAttributes());
         $events = $elementService->getEventsByVenueId($venue->tmVenueId);
         
         foreach ($events as $key => $event) {

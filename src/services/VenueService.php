@@ -88,9 +88,9 @@ class VenueService extends Base
                 ],
                 ['elements.dateDeleted' => null]
             ]);
-            $query->groupBy('ticketmaster_venues.ownerId');
+            $query->groupBy('ticketmaster_venues.ownerId')->groupBy('ticketmaster_venues.id');
         } else {
-            $query->groupBy('ticketmaster_venues.ownerId');
+            $query->groupBy('ticketmaster_venues.ownerId')->groupBy('ticketmaster_venues.id');
         }
 
         return $query;
