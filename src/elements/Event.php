@@ -313,7 +313,7 @@ class Event extends Element
         $venueRecords = Ticketmaster::$plugin->venues->getVenues();
 
         $venues = array_map(function ($record) {
-            return new VenueModel($record);
+            return new VenueModel($record->getAttributes());
         }, $venueRecords);
 
         foreach ($venues as $key => $venue) {

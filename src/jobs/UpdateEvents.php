@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Ticketmaster plugin for Craft CMS 3.x.
  *
@@ -53,29 +54,40 @@ class UpdateEvents extends BaseJob
     public function execute($queue): void
     {
         $venues = Ticketmaster::$plugin->venues->getVenues();
-
+        $log = Ticketmaster::$plugin->log;
         $count = count($venues);
+        $log->info("Starting sync via UpdateEvents queue job (based on $count venues)");
 
         $queue = Craft::$app->getQueue();
 
-        for ($step = 0; $step < $count; ++$step) {
-            $this->setProgress($queue, $step / $count);
-
-            $events = Ticketmaster::$plugin->elements->getEventsByVenueId($venues[$step]->tmVenueId);
-            
-            $queue->push(new UpdateVenueEvents([
-                'description' => 'Fetching ('.count($events).") events for {$venues[$step]->title} in {$this->siteHandle}",
-                'events' => $events,
-                'venue' => [
-                    'id' => $venues[$step]->id,
-                ],
-                'siteHandle' => $this->siteHandle,
-            ]));
-
-            sleep(2);
+        try {
+            // for ($step = 0; $step < $count; ++$step) {
+            foreach ($venues as $step => $venue) {
+                $this->setProgress($queue, $step / $count);
+                $venueId = $venue->tmVenueId;
+                $title = $venue->title;
+                $events = Ticketmaster::$plugin->elements->getEventsByVenueId($venueId);
+                $count = count($events);
+                $log->info("[$step] Processing venue ($title) with ID: $venueId");
+                if (!$count) {
+                    $log->info("No events for current venue. Skipping.");
+                    continue;
+                }
+                $queue->push(new UpdateVenueEvents([
+                    'description' => "Fetching ($count) events for {$title} in {$this->siteHandle}",
+                    'events' => $events,
+                    'venue' => [
+                        'id' => $venue->id,
+                    ],
+                    'siteHandle' => $this->siteHandle,
+                ]));
+                $log->info("Added queue job. Sleeping for 2 seconds.");
+                sleep(2);
+            }
+        } catch (\Throwable $e) {
+            $log->error("Error encountered in UpdateEvents job.", $e);
+            throw $e;
         }
-
-        return true;
     }
 
     protected function defaultDescription(): ?string

@@ -17,7 +17,7 @@
 {% import "_includes/forms" as forms %}
 
 {% do view.registerAssetBundle("unionco\\ticketmaster\\assetbundles\\ticketmaster\\TicketmasterAsset") %}
-{% includeJsFile 'https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js' %}
+{% do view.registerJsFile('https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js') %}
 
 {# Link for the ? icon at the bottom of the page #}
 {% set docsUrl = "https://github.com/unionco/ticketmaster/blob/master/README.md" %}

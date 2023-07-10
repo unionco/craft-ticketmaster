@@ -50,7 +50,7 @@ class TicketmasterVariable
         $venues = [];
 
         foreach ($venueRecords as $key => $record) {
-            $venues[] = new VenueModel($record);
+            $venues[] = new VenueModel($record->getAttributes());
         }
 
         return $venues;

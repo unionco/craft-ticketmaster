@@ -27,17 +27,17 @@ class EventQuery extends ElementQuery
     /**
      * @var int
      */
-    public $tmVenueId;
+    public $tmVenueId = '';
 
     /**
      * @var string
      */
-    public $tmEventId;
+    public $tmEventId = '';
 
     /**
      * @var string
      */
-    public array|string|null $status;
+    public array|string|null $status = null;
 
     // Public Methods
     // =========================================================================

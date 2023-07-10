@@ -32,6 +32,7 @@ use unionco\ticketmaster\services\VenueService;
 use unionco\ticketmaster\variables\TicketmasterVariable;
 use yii\base\Event;
 use craft\events\DeleteElementEvent;
+use unionco\ticketmaster\services\LogService;
 
 /**
  * Craft plugins are very much like little applications in and of themselves. We’ve made
@@ -107,6 +108,7 @@ class Ticketmaster extends Plugin
             'elements' => ElementService::class,
             'events' => EventService::class,
             'venues' => VenueService::class,
+            'log' => LogService::class,
         ]);
 
         // Add in our console commands

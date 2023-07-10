@@ -12,17 +12,19 @@
 namespace unionco\ticketmaster\services;
 
 use Craft;
-use craft\base\ElementInterface;
+use Exception;
+use craft\helpers\Json;
 use craft\elements\Entry;
 use craft\elements\Category;
 use craft\elements\MatrixBlock;
-use craft\helpers\Json;
 use craft\helpers\StringHelper;
+use craft\base\ElementInterface;
+use yii\db\ActiveRecordInterface;
+use unionco\ticketmaster\Ticketmaster;
 use unionco\ticketmaster\elements\Event;
+use unionco\ticketmaster\services\LogService;
 use unionco\ticketmaster\events\OnPublishEvent;
 use unionco\ticketmaster\models\Venue as VenueModel;
-use unionco\ticketmaster\Ticketmaster;
-use yii\db\ActiveRecordInterface;
 
 /**
  * Element Service.
@@ -134,74 +136,87 @@ class ElementService extends Base
      */
     public function saveEvent(array $eventDetail, VenueModel $venue)
     {
-        $event =  Entry::find()
+        $entry =  Entry::find()
             ->site('boplex')
-            ->anyStatus()
+            ->status(null)
             ->section('boplexEvents')
             ->where(['content.field_ticketmasterId' => $eventDetail['id']])
             ->one();
+        /** @var LogService */
+        $log = Ticketmaster::$plugin->log;
 
-        if (!$event) {
+        $detail = $this->transform($eventDetail);
+        $prefix = $detail['name'];
+        /** IMPORTANT - 2023-07-10, this method previously never updated
+         * an entry if it already existed. Changing this behavior to update event
+         * entries always UNLESS it is locked.
+         */
+        if (!$entry) {
+            $log->info("[$prefix] Event entry does not exist. Creating it");
             $entry = new Entry();
             $entry->enabled = false;
             $entry->siteId = 7;
-
-            $detail = $this->transform($eventDetail);
-
             $entry->sectionId = 54;
             $entry->typeId = 122;
+            // Continue below and set values + save
+        } elseif ($entry->getFieldValue('lock')) {
+            $log->info("[$prefix] This event is locked. Skipping.");
+            return $entry;
+        }
 
-            $entry->setFieldValue('ticketmasterId', $detail['id']);
-            $entry->setFieldValue('tm_eventImage', $detail['tm_eventImage']);
-            $entry->setFieldValue('tm_startDate', $detail['tm_startDate']);
-            $entry->setFieldValue('tm_endDate', $detail['tm_endDate']);
+        $entry->setFieldValue('ticketmasterId', $detail['id']);
+        $entry->setFieldValue('tm_eventImage', $detail['tm_eventImage']);
+        $entry->setFieldValue('tm_startDate', $detail['tm_startDate']);
+        $entry->setFieldValue('tm_endDate', $detail['tm_endDate']);
 
-            if (isset($detail['startTime'])) {
-                $date = \DateTime::createFromFormat(
-                    'H:i:s',
-                    $detail['startTime']
-                );
-                $entry->setFieldValue('startTime', $date);
+        if (isset($detail['startTime'])) {
+            $date = \DateTime::createFromFormat(
+                'H:i:s',
+                $detail['startTime']
+            );
+            $entry->setFieldValue('startTime', $date);
+        }
+
+        $entry->setFieldValue('priceMax', $detail['priceMax']);
+        $entry->setFieldValue('priceMin', $detail['priceMin']);
+        $entry->setFieldValue('tm_buttonLink', $detail['url']);
+        // 2023-07-10 - Adding this for the Event Instances field ST field
+        $entry->setFieldValue('eventInstances', $eventDetail['eventInstances']);
+
+        if ($venue['title'] == 'Ovens Auditorium') {
+            $entry->setFieldValue('boplexVenue', [74142]);
+        } else {
+            $entry->setFieldValue('boplexVenue', [74141]);
+        }
+
+        $entry->title = $detail['name'];
+
+        if ($category = $this->category($detail['relatedEventCategory'])) {
+            $entry->setFieldValue('boplexEventCategory', [$category->id]);
+            $entry->boplexEventCategory = [$category->id];
+        } else {
+            $category = new Category();
+            $category->groupId = 21;
+            $category->title = $detail['relatedEventCategory'];
+            $category->slug = StringHelper::toKebabCase(
+                $detail['relatedEventCategory']
+            );
+            $category->siteId = 7;
+
+            $result = Craft::$app->getElements()->saveElement($category);
+
+            if (!$result) {
+                return false;
             }
 
-            $entry->setFieldValue('priceMax', $detail['priceMax']);
-            $entry->setFieldValue('priceMin', $detail['priceMin']);
-            $entry->setFieldValue('tm_buttonLink', $detail['url']);
+            $entry->setFieldValue('boplexEventCategory', [$category->id]);
 
-            if ($venue['title'] == 'Ovens Auditorium') {
-                $entry->setFieldValue('boplexVenue', [74142]);
-            } else {
-                $entry->setFieldValue('boplexVenue', [74141]);
-            }
-
-            $entry->title = $detail['name'];
-
-            if ($category = $this->category($detail['relatedEventCategory'])) {
-                $entry->setFieldValue('boplexEventCategory', [$category->id]);
-                $entry->boplexEventCategory = [$category->id];
-            } else {
-                $category = new Category();
-                $category->groupId = 21;
-                $category->title = $detail['relatedEventCategory'];
-                $category->slug = StringHelper::toKebabCase(
-                    $detail['relatedEventCategory']
-                );
-                $category->siteId = 7;
-
-                $result = Craft::$app->getElements()->saveElement($category);
-
-                if (!$result) {
-                    return false;
-                }
-
-                $entry->setFieldValue('boplexEventCategory', [$category->id]);
-            }
 
             try {
                 $result = Craft::$app->getElements()->saveElement($entry);
 
                 if (!$result) {
-                    throw new ServerErrorHttpException('Did not save entry');
+                    throw new Exception('Did not save entry');
                     return false;
                 }
             } catch (\Throwable $th) {
@@ -209,7 +224,7 @@ class ElementService extends Base
             }
         }
 
-        return $event;
+        return $entry;
     }
 
     /**
@@ -346,7 +361,7 @@ class ElementService extends Base
         return $element->one();
     }
 
-    public function transform($eventDetails)
+    public function transform(array $eventDetails): array
     {
         $event['name'] = $eventDetails['name'];
         $event['id'] = $eventDetails['id'];
@@ -374,7 +389,7 @@ class ElementService extends Base
 
         // image
         $event['tm_eventImage'] = array_values(array_filter($eventDetails['images'], function($image) {
-            return $image['width'] >= 1000 && $image['ratio'] === '16_9' && str_contains($image['url'], 'RETINA_LANDSCAPE');
+            return $image['width'] >= 1000 && ($image['ratio'] ?? '') === '16_9' && str_contains($image['url'], 'RETINA_LANDSCAPE');
         }))[0]['url'];
 
         // category
@@ -385,6 +400,9 @@ class ElementService extends Base
         if ($event['relatedEventCategory'] === 'Music') {
             $event['relatedEventCategory'] = 'concerts';
         }
+
+        // 2023-07-10 adding event instances ST data
+        $event['eventInstances'] = $eventDetails['eventInstances'];
 
         return $event;
     }

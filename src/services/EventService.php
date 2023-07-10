@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Ticketmaster plugin for Craft CMS 3.x.
  *
@@ -12,15 +13,19 @@
 namespace unionco\ticketmaster\services;
 
 use Craft;
-use craft\base\ElementInterface;
-use craft\elements\db\ElementQueryInterface;
+use DateTime;
 use craft\helpers\Json;
+use yii\db\ActiveQuery;
+use craft\helpers\ArrayHelper;
+use craft\base\ElementInterface;
+use verbb\supertable\SuperTable;
 use unionco\ticketmaster\db\Table;
+use unionco\ticketmaster\Ticketmaster;
 use unionco\ticketmaster\elements\Event;
+use craft\elements\db\ElementQueryInterface;
 use unionco\ticketmaster\fields\EventSearch;
 use unionco\ticketmaster\models\Event as EventModel;
 use unionco\ticketmaster\records\Event as EventRecord;
-use yii\db\ActiveQuery;
 
 /**
  * Event Field Service.
@@ -37,6 +42,12 @@ use yii\db\ActiveQuery;
  */
 class EventService extends Base
 {
+    /**
+     * @var int The supertable block type ID for event instances.
+     * Used to cache the result for performance.
+     **/
+    protected int $eventInstancesSuperTableBlockTypeId = 0;
+
     /**
      * Get event by ticketmaster event id
      *
@@ -211,8 +222,8 @@ class EventService extends Base
                 $value = $value->getAttributes();
             }
             $model = new EventModel($value);
-        } elseif ($value) {
-            $model = new EventModel($value);
+        } elseif ($value instanceof EventModel) {
+            $model = new EventModel($value->getAttributes());
         } elseif ($record) {
             $model = new EventModel($record->getAttributes());
         } else {
@@ -220,6 +231,76 @@ class EventService extends Base
         }
 
         return $model;
+    }
+
+    /**
+     * Group the Ticketmaster events based on their name, so we can treat them
+     * as the same event with multiple dates.
+     *
+     * @param array $events
+     * @return array
+     */
+    public function groupEventsByName(array $events): array
+    {
+        $groupedEvents = [];
+        // First, assign the names as array keys
+        $uniqueEventNames = [];
+        foreach ($events as $event) {
+            $name = $event['name'] ?? false;
+            if (!$name) {
+                continue;
+            }
+            if (ArrayHelper::contains($uniqueEventNames, $name)) {
+                continue;
+            }
+            $uniqueEventNames[] = $name;
+        }
+
+        // Next, group events by name
+        foreach ($uniqueEventNames as $eventName) {
+            $filterByEventNamePredicate = function (array $eventDetails) use ($eventName): bool {
+                return ($eventDetails['name'] ?? false) == $eventName;
+            };
+            $matchingEvents = array_filter($events, $filterByEventNamePredicate);
+            $groupedEvents[$eventName] = $matchingEvents;
+        }
+
+        return $groupedEvents;
+    }
+
+    /**
+     * Transform the Ticketmaster API data (array) into the values we care about
+     * for the supertable 'Event Instances' field.
+     *
+     * @param array $eventDetails
+     * @return array
+     */
+    public function getEventSupertableInfo(array $eventDetails): array
+    {
+        $startDate = null;
+        $url = '';
+        try {
+            $startDate = new DateTime($eventDetails['dates']['start']['dateTime']);
+        } catch (\Throwable $e) {
+            Ticketmaster::$plugin->log->error("No start date available, skipping");
+            throw $e;
+        }
+        $url = $eventDetails['url'] ?? '';
+
+        if (!$this->eventInstancesSuperTableBlockTypeId) {
+            $field = Craft::$app->getFields()->getFieldByHandle('eventInstances');
+            $blockTypes = SuperTable::$plugin->getService()->getBlockTypesByFieldId($field->id);
+            $blockType = $blockTypes[0]; // There will only ever be one SuperTable_BlockType
+            $this->eventInstancesSuperTableBlockTypeId = $blockType->id;
+        }
+        return [
+            'type' => $this->eventInstancesSuperTableBlockTypeId,
+            'enabled' => true,
+            'fields' => [
+                'eventDate' => $startDate,
+                'ticketmasterLink' => $url,
+            ]
+        ];
     }
 
     /**
@@ -249,11 +330,10 @@ class EventService extends Base
      */
     private function handlePayload($value)
     {
-        if (! is_string($value['payload'])) {
+        if (!is_string($value['payload'])) {
             return Json::encode($value['payload']) ?? '';
         }
 
         return $value['payload'];
     }
-
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Ticketmaster plugin for Craft CMS 3.x.
  *
@@ -56,7 +57,9 @@ class VenueService extends Base
      */
     public function getVenues()
     {
-        $records = $this->baseQuery();
+        /** Limit records to boplex (siteId = 7) */
+        $records = $this->baseQuery()
+            ->where(['ownerSiteId' => 7]);
 
         return $records->all();
     }
@@ -70,28 +73,24 @@ class VenueService extends Base
     {
         $query = VenueRecord::find();
 
-        if (version_compare(Craft::$app->getInfo()->version, '3.2', '>=')) {
-            $query->leftJoin('{{%elements}}', '[[ticketmaster_venues.ownerId]] = [[elements.id]]');
-            $query->where([
-                'and',
+        $query->leftJoin('{{%elements}}', '[[ticketmaster_venues.ownerId]] = [[elements.id]]');
+        $query->where([
+            'and',
+            [
+                'or',
                 [
-                    'or',
+                    'and',
                     [
-                        'and',
-                        [
-                            'not',
-                            ['elements.revisionId' => null],
-                        ],
-                        ['type' => 'craft\\elements\\Entry']
+                        'not',
+                        ['elements.revisionId' => null],
                     ],
-                    ['elements.revisionId' => null]
+                    ['type' => 'craft\\elements\\Entry']
                 ],
-                ['elements.dateDeleted' => null]
-            ]);
-            $query->groupBy('ticketmaster_venues.ownerId');
-        } else {
-            $query->groupBy('ticketmaster_venues.ownerId');
-        }
+                ['elements.revisionId' => null]
+            ],
+            ['elements.dateDeleted' => null]
+        ]);
+        $query->groupBy('ticketmaster_venues.ownerId')->groupBy('ticketmaster_venues.id');
 
         return $query;
     }
@@ -219,7 +218,7 @@ class VenueService extends Base
      */
     private function handlePayload($value)
     {
-        if (! is_string($value['payload'])) {
+        if (!is_string($value['payload'])) {
             return Json::encode($value['payload']) ?? '';
         }
 
